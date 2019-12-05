@@ -6,7 +6,15 @@ import (
 )
 
 // 字符串切分
-func Split(str string) (res []string) {
+func Split(str string, arg ...string) (res []string) {
+	sep := []rune("\t \n")
+	if len(arg) > 0 && len(arg[0]) > 0 {
+		sep = []rune(arg[0])
+	}
+	for i := len(sep); i < 5; i++ {
+		sep = append(sep, sep[0])
+	}
+
 	list := []rune(str)
 	left, space, begin := '\000', true, 0
 	for i := 0; i < len(list); i++ {
@@ -18,7 +26,7 @@ func Split(str string) (res []string) {
 				res = append(res, string(list[begin:i]))
 				left, space, begin = '\000', true, i+1
 			}
-		case '\t', ' ', '\n':
+		case sep[0], sep[1], sep[2], sep[3], sep[4]:
 			if left != '\000' {
 				break
 			}
@@ -248,5 +256,5 @@ func Table(data interface{}, offset, limit int, cb interface{}) interface{} {
 			}
 		}
 	}
-	return nil
+	return data
 }

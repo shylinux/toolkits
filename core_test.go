@@ -30,7 +30,7 @@ func TestSplit(t *testing.T) {
 		[]string{"hi", "hello \"world\"", "he"},
 	}
 	for i := range seed {
-		if mis, res, ok := compareSplit(miss[i], Split(seed[i])); ok {
+		if mis, res, ok := compareSplit(miss[i], Split(seed[i], "")); ok {
 			t.Logf("parse ok: %v : %d %v", mis, len(res), res)
 		} else {
 			t.Errorf("parse error: %v : %d %v", mis, len(res), res)
@@ -85,28 +85,36 @@ func compareParse(mis interface{}, res interface{}) (interface{}, interface{}, b
 }
 func TestParse(t *testing.T) {
 	seed := []string{
-		`{ "hi" "hello" }`,
-		`{ "hi" : "hello" , "nice" : { "hash" "hi" } "he" "world" }`,
-		`{ "hi" : "hello" , "nice" : [ "hash" "hi" ] "he" "world" }`,
-		`[ "hi" "hello" "he" "world" ]`,
-		`[ "hi" "hello" [ "ha" "haha" ] "he" "world" ]`,
-		`[ "hi" "hello" [ "ha" "haha" { 1 2 } ] "he" "world" ]`,
-		`[ "hi" "hello" { "ha" "haha" } "he" "world" ]`,
+		// `{ "hi" "hello" }`,
+		// `{ "hi" : "hello" , "nice" : { "hash" "hi" } "he" "world" }`,
+		// `{ "hi" : "hello" , "nice" : [ "hash" "hi" ] "he" "world" }`,
+		// `[ "hi" "hello" "he" "world" ]`,
+		// `[ "hi" "hello" [ "ha" "haha" ] "he" "world" ]`,
+		// `[ "hi" "hello" [ "ha" "haha" { 1 2 } ] "he" "world" ]`,
+		// `[ "hi" "hello" { "ha" "haha" } "he" "world" ]`,
+		`{ meta { text miss } list [
+			{ meta { text you } list [ ] }
+			{ meta { text hi } list [ ] }
+		] }`,
 	}
 	miss := []interface{}{
-		map[string]interface{}{"hi": "hello"},
-		map[string]interface{}{"hi": "hello", "nice": map[string]interface{}{"hash": "hi"}, "he": "world"},
-		map[string]interface{}{"hi": "hello", "nice": []interface{}{"hash", "hi"}, "he": "world"},
-		[]interface{}{"hi", "hello", "he", "world"},
-		[]interface{}{"hi", "hello", []interface{}{"ha", "haha"}, "he", "world"},
-		[]interface{}{"hi", "hello", []interface{}{"ha", "haha", map[string]interface{}{"1": "2"}}, "he", "world"},
-		[]interface{}{"hi", "hello", map[string]interface{}{"ha": "haha"}, "he", "world"},
+		// map[string]interface{}{"hi": "hello"},
+		// map[string]interface{}{"hi": "hello", "nice": map[string]interface{}{"hash": "hi"}, "he": "world"},
+		// map[string]interface{}{"hi": "hello", "nice": []interface{}{"hash", "hi"}, "he": "world"},
+		// []interface{}{"hi", "hello", "he", "world"},
+		// []interface{}{"hi", "hello", []interface{}{"ha", "haha"}, "he", "world"},
+		// []interface{}{"hi", "hello", []interface{}{"ha", "haha", map[string]interface{}{"1": "2"}}, "he", "world"},
+		// []interface{}{"hi", "hello", map[string]interface{}{"ha": "haha"}, "he", "world"},
+		map[string]interface{}{"meta": map[string]interface{}{"text": "miss"}, "list": []interface{}{
+			map[string]interface{}{"meta": map[string]interface{}{"text": "you"}, "list": []interface{}{}},
+			map[string]interface{}{"meta": map[string]interface{}{"text": "hi"}, "list": []interface{}{}},
+		}},
 	}
 	for i := range seed {
 		if mis, res, ok := compareParse(miss[i], Parse(nil, "", Split(seed[i])...)); ok {
 			t.Logf("parse ok: %v : %v", mis, res)
 		} else {
-			t.Errorf("parse error: %v : %v", mis, res)
+			t.Errorf("parse error: %v : %v", Formats(mis), Formats(res))
 		}
 	}
 
