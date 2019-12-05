@@ -1,6 +1,7 @@
 package kit
 
 import (
+	"encoding/json"
 	"testing"
 )
 
@@ -22,14 +23,16 @@ func TestSplit(t *testing.T) {
 		"hi 'hello \"world\"' he",
 		"   hi 'hello \"world\"' he",
 	}
-	list := [][]string{
+	miss := [][]string{
 		[]string{"hi", "hello"},
 		[]string{"hi", "hello world", "he"},
 		[]string{"hi", "hello \"world\"", "he"},
 		[]string{"hi", "hello \"world\"", "he"},
 	}
 	for i := range seed {
-		if mis, res, ok := compareSplit(list[i], Split(seed[i])); !ok {
+		if mis, res, ok := compareSplit(miss[i], Split(seed[i])); ok {
+			t.Logf("parse ok: %v : %d %v", mis, len(res), res)
+		} else {
 			t.Errorf("parse error: %v : %d %v", mis, len(res), res)
 		}
 	}
@@ -37,12 +40,12 @@ func TestSplit(t *testing.T) {
 func BenchmarkSplit(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		if mis, res, ok := compareSplit([]string{"hi", "hello \"world\"", "he"}, Split("hi 'hello \"world\"' he")); !ok {
-			b.Errorf("parse error: %v : %d %v", mis, len(res), res)
+			b.Errorf("%v parse error: %v : %d %v", b.Name(), mis, len(res), res)
 		}
 	}
 }
 
-func compareValue(mis interface{}, res interface{}) (interface{}, interface{}, bool) {
+func compareParse(mis interface{}, res interface{}) (interface{}, interface{}, bool) {
 	switch mis := mis.(type) {
 	case map[string]interface{}:
 		if res, ok := res.(map[string]interface{}); !ok {
@@ -51,7 +54,7 @@ func compareValue(mis interface{}, res interface{}) (interface{}, interface{}, b
 			return mis, res, false
 		} else {
 			for k := range mis {
-				if _, _, ok := compareValue(mis[k], res[k]); !ok {
+				if _, _, ok := compareParse(mis[k], res[k]); !ok {
 					return mis, res, false
 				}
 			}
@@ -63,7 +66,7 @@ func compareValue(mis interface{}, res interface{}) (interface{}, interface{}, b
 			return mis, res, false
 		} else {
 			for i := range mis {
-				if _, _, ok := compareValue(mis[i], res[i]); !ok {
+				if _, _, ok := compareParse(mis[i], res[i]); !ok {
 					return mis, res, false
 				}
 			}
@@ -80,38 +83,101 @@ func compareValue(mis interface{}, res interface{}) (interface{}, interface{}, b
 	}
 	return mis, res, true
 }
-func TestValue(t *testing.T) {
+func TestParse(t *testing.T) {
 	seed := []string{
 		`{ "hi" "hello" }`,
-		`{ "hi" "hello" "he" "world" }`,
-		`[ "hi" "hello" ]`,
+		`{ "hi" : "hello" , "nice" : { "hash" "hi" } "he" "world" }`,
+		`{ "hi" : "hello" , "nice" : [ "hash" "hi" ] "he" "world" }`,
 		`[ "hi" "hello" "he" "world" ]`,
+		`[ "hi" "hello" [ "ha" "haha" ] "he" "world" ]`,
+		`[ "hi" "hello" [ "ha" "haha" { 1 2 } ] "he" "world" ]`,
+		`[ "hi" "hello" { "ha" "haha" } "he" "world" ]`,
 	}
-	list := []interface{}{
+	miss := []interface{}{
 		map[string]interface{}{"hi": "hello"},
-		map[string]interface{}{"hi": "hello", "he": "world"},
-		[]interface{}{"hi", "hello"},
+		map[string]interface{}{"hi": "hello", "nice": map[string]interface{}{"hash": "hi"}, "he": "world"},
+		map[string]interface{}{"hi": "hello", "nice": []interface{}{"hash", "hi"}, "he": "world"},
 		[]interface{}{"hi", "hello", "he", "world"},
+		[]interface{}{"hi", "hello", []interface{}{"ha", "haha"}, "he", "world"},
+		[]interface{}{"hi", "hello", []interface{}{"ha", "haha", map[string]interface{}{"1": "2"}}, "he", "world"},
+		[]interface{}{"hi", "hello", map[string]interface{}{"ha": "haha"}, "he", "world"},
 	}
 	for i := range seed {
-		if mis, res, ok := compareValue(list[i], Value(nil, "", Split(seed[i])...)); !ok {
+		if mis, res, ok := compareParse(miss[i], Parse(nil, "", Split(seed[i])...)); ok {
+			t.Logf("parse ok: %v : %v", mis, res)
+		} else {
 			t.Errorf("parse error: %v : %v", mis, res)
 		}
 	}
 
 }
-func BenchmarkValue(b *testing.B) {
+func BenchmarkParse(b *testing.B) {
 	seed := []string{
-		`{ "hi" "hello" "he" "world" }`,
-		`[ "hi" "hello" "he" "world" ]`,
+		`[ "hi" "hello" [ "ha" "haha" { 1 2 } ] "he" "world" ]`,
 	}
-	list := []interface{}{
-		map[string]interface{}{"hi": "hello", "he": "world"},
-		[]interface{}{"hi", "hello", "he", "world"},
+	miss := []interface{}{
+		[]interface{}{"hi", "hello", []interface{}{"ha", "haha", map[string]interface{}{"1": "2"}}, "he", "world"},
 	}
 	for i := 0; i < b.N; i++ {
 		for i := range seed {
-			if mis, res, ok := compareValue(list[i], Value(nil, "", Split(seed[i])...)); !ok {
+			if mis, res, ok := compareParse(miss[i], Parse(nil, "", Split(seed[i])...)); !ok {
+				b.Errorf("parse error: %v : %v", mis, res)
+			}
+		}
+	}
+}
+func BenchmarkParses(b *testing.B) {
+	seed := []string{
+		`[ "hi" "hello" [ "ha" "haha" { 1 2 } ] "he" "world" ]`,
+	}
+	miss := []interface{}{
+		[]interface{}{"hi", "hello", []interface{}{"ha", "haha", map[string]interface{}{"1": "2"}}, "he", "world"},
+	}
+	for i := 0; i < b.N; i++ {
+		for i := range seed {
+			var data interface{}
+			json.Unmarshal([]byte(seed[i]), &data)
+			if mis, res, ok := compareParse(miss[i], Parse(nil, "", Split(seed[i])...)); !ok {
+				b.Errorf("parse error: %v : %v", mis, res)
+			}
+		}
+	}
+}
+
+func TestValue(t *testing.T) {
+	seed := [][]interface{}{
+		[]interface{}{"hi", "hello"},
+		[]interface{}{"hi.0", "hello"},
+		[]interface{}{"hi.0.nice", "hello"},
+	}
+	miss := []interface{}{
+		map[string]interface{}{"hi": "hello"},
+		map[string]interface{}{"hi": []interface{}{"hello"}},
+		map[string]interface{}{"hi": []interface{}{map[string]interface{}{"nice": "hello"}}},
+	}
+	for i := range seed {
+		if mis, res, ok := compareParse(miss[i], Value(nil, seed[i][0], seed[i][1])); ok {
+			t.Logf("parse ok: %v : %v", mis, res)
+		} else {
+			t.Errorf("parse error: %v : %v", mis, res)
+		}
+	}
+}
+
+func BenchmarkValue(b *testing.B) {
+	seed := [][]interface{}{
+		[]interface{}{"hi", "hello"},
+		[]interface{}{"hi.0", "hello"},
+		[]interface{}{"hi.0.nice", "hello"},
+	}
+	miss := []interface{}{
+		map[string]interface{}{"hi": "hello"},
+		map[string]interface{}{"hi": []interface{}{"hello"}},
+		map[string]interface{}{"hi": []interface{}{map[string]interface{}{"nice": "hello"}}},
+	}
+	for i := 0; i < b.N; i++ {
+		for i := range seed {
+			if mis, res, ok := compareParse(miss[i], Value(nil, seed[i][0], seed[i][1])); !ok {
 				b.Errorf("parse error: %v : %v", mis, res)
 			}
 		}
