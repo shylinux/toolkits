@@ -19,21 +19,45 @@ func compareSplit(mis []string, res []string) ([]string, []string, bool) {
 func TestSplit(t *testing.T) {
 	seed := []string{
 		"hi hello",
+		"'hi ' hello",
 		"hi 'hello world' he",
 		"hi 'hello \"world\"' he",
+		"hi hi'hello \"world\"'he he",
 		"   hi 'hello \"world\"' he",
 	}
 	miss := [][]string{
 		[]string{"hi", "hello"},
+		[]string{"hi ", "hello"},
 		[]string{"hi", "hello world", "he"},
 		[]string{"hi", "hello \"world\"", "he"},
+		[]string{"hi", "hi'hello \"world\"'he", "he"},
 		[]string{"hi", "hello \"world\"", "he"},
 	}
 	for i := range seed {
 		if mis, res, ok := compareSplit(miss[i], Split(seed[i], "")); ok {
 			t.Logf("parse ok: %v : %d %v", mis, len(res), res)
 		} else {
-			t.Errorf("parse error: %v : %d %v", mis, len(res), res)
+			t.Errorf("parse error: %v : %d %v", Formats(mis), len(res), Formats(res))
+		}
+	}
+
+	seed = []string{
+		"'   hi ' hello\n \"world\"' he",
+		`'{ text hello data { hi hello }  rect { nice world } }' hello
+world he`,
+	}
+	miss = [][]string{
+		[]string{"'   hi ' hello", " \"world\"' he"},
+		[]string{
+			`'{ text hello data { hi hello }  rect { nice world } }' hello`,
+			`world he`,
+		},
+	}
+	for i := range seed {
+		if mis, res, ok := compareSplit(miss[i], Split(seed[i], "\n")); ok {
+			t.Logf("parse ok: %v : %d %v", mis, len(res), res)
+		} else {
+			t.Errorf("parse error: %v : %d %v", Formats(mis), len(res), Formats(res))
 		}
 	}
 }
