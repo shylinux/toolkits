@@ -77,3 +77,40 @@ func Simple(val ...interface{}) []string {
 	}
 	return res
 }
+
+func Trans(arg ...interface{}) []string {
+	res := []string{}
+	for _, v := range arg {
+		switch val := v.(type) {
+		case string:
+			res = append(res, val)
+		case []string:
+			res = append(res, val...)
+		}
+	}
+	return res
+}
+func Select(def string, arg ...interface{}) string {
+	if len(arg) == 0 {
+		return def
+	}
+
+	switch val := arg[0].(type) {
+	case []string:
+		index := 0
+		if len(arg) > 1 {
+			switch v := arg[1].(type) {
+			case int:
+				index = v
+			}
+		}
+		if index >= 0 && index < len(val) && val[index] != "" {
+			return val[index]
+		}
+	case string:
+		if val != "" {
+			return val
+		}
+	}
+	return def
+}
