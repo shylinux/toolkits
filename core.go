@@ -200,7 +200,7 @@ func Value(root interface{}, args ...interface{}) interface{} {
 						return value[key] // 读取数据
 					}
 					value[key] = args[i+1] // 修改数据
-					if Format(args[i+1]) == "" {
+					if s, ok := args[i+1].(string); ok && s == "" {
 						delete(value, key)
 					}
 				}
