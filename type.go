@@ -35,6 +35,16 @@ func Format(val interface{}) string {
 		return ""
 	case string:
 		return val
+	case []interface{}:
+		if len(val) == 0 {
+			return "[]"
+		}
+	case map[string]interface{}:
+		if len(val) == 0 {
+			return "{}"
+		}
+	case time.Time:
+		return val.Format("2006-01-02 15:04:05")
 	}
 	b, _ := json.Marshal(val)
 	return string(b)

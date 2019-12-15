@@ -140,13 +140,13 @@ func Value(root interface{}, args ...interface{}) interface{} {
 			continue
 		}
 
-		var parent interface{}
-		parent_key, parent_index := "", 0
-
 		keys := []string{}
 		for _, v := range Simple(args[i]) {
 			keys = append(keys, strings.Split(v, ".")...)
 		}
+
+		var parent interface{}
+		parent_key, parent_index := "", 0
 
 		data := root
 		for j, key := range keys {
@@ -245,9 +245,36 @@ func Value(root interface{}, args ...interface{}) interface{} {
 	return root
 }
 
-func Store(data interface{}, key interface{}, val interface{}) interface{} {
-	return nil
+func Fetch(val interface{}, cbs interface{}) interface{} {
+	switch val := val.(type) {
+	case map[string]interface{}:
+		switch cb := cbs.(type) {
+		case func(value map[string]interface{}):
+			cb(val)
+		case func(key string, value string):
+			for k, v := range val {
+				cb(k, Format(v))
+			}
+		case func(key string, value map[string]interface{}):
+			for k, v := range val {
+				cb(k, v.(map[string]interface{}))
+			}
+		}
+	case []interface{}:
+		switch cb := cbs.(type) {
+		case func(index int, value string):
+			for i, v := range val {
+				cb(i, Format(v))
+			}
+		case func(index int, value map[string]interface{}):
+			for i, v := range val {
+				cb(i, v.(map[string]interface{}))
+			}
+		}
+	}
+	return val
 }
+
 func Table(data interface{}, offset, limit int, cb interface{}) interface{} {
 	switch data := data.(type) {
 	case map[string]interface{}:
