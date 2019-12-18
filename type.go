@@ -12,6 +12,8 @@ func Int64(val interface{}) int64 {
 	switch val := val.(type) {
 	case int:
 		return int64(val)
+	case float64:
+		return int64(val)
 	case int64:
 		return val
 	case string:
@@ -106,6 +108,15 @@ func Select(def string, arg ...interface{}) string {
 			return val[index]
 		}
 	case string:
+		if len(arg) > 1 {
+			switch v := arg[1].(type) {
+			case bool:
+				if v && val != "" {
+					return val
+				}
+				return def
+			}
+		}
 		if val != "" {
 			return val
 		}
