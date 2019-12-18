@@ -78,3 +78,6 @@ func Duration(str interface{}) time.Duration {
 	}
 	return time.Millisecond
 }
+func Width(str string, mul int) int {
+	return len([]rune(str)) + (len(str)-len([]rune(str)))/2/mul
+}
