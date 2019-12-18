@@ -1,6 +1,7 @@
 package kit
 
 import (
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -252,12 +253,23 @@ func Fetch(val interface{}, cbs interface{}) interface{} {
 		case func(value map[string]interface{}):
 			cb(val)
 		case func(key string, value string):
-			for k, v := range val {
-				cb(k, Format(v))
+			ls := []string{}
+			for k := range val {
+				ls = append(ls, k)
+			}
+
+			sort.Strings(ls)
+			for _, k := range ls {
+				cb(k, Format(val[k]))
 			}
 		case func(key string, value map[string]interface{}):
-			for k, v := range val {
-				cb(k, v.(map[string]interface{}))
+			ls := []string{}
+			for k := range val {
+				ls = append(ls, k)
+			}
+			sort.Strings(ls)
+			for _, k := range ls {
+				cb(k, val[k].(map[string]interface{}))
 			}
 		}
 	case []interface{}:
