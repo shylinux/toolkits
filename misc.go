@@ -16,6 +16,9 @@ import (
 	"time"
 )
 
+func Keys(arg ...interface{}) string {
+	return strings.Join(Simple(arg...), ".")
+}
 func Hash(arg ...interface{}) (string, []string) {
 	if len(arg) == 0 {
 		arg = append(arg, "uniq")
