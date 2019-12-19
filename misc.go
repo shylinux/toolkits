@@ -1,15 +1,18 @@
 package kit
 
 import (
+	"bytes"
 	"crypto/md5"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"math/rand"
+	"net/url"
 	"os"
 	"path"
 	"strings"
+	"text/template"
 	"time"
 )
 
@@ -150,4 +153,50 @@ func UnMarshal(data string) interface{} {
 		json.Unmarshal([]byte(data), &res)
 	}
 	return res
+}
+
+func MergeURL(str string, arg ...interface{}) string {
+	list := strings.Split(str, "?")
+	res := list[0]
+
+	args := map[string][]string{}
+	if len(list) > 1 {
+		for _, l := range strings.Split(list[1], "&") {
+			ls := strings.SplitN(l, "=", 2)
+			args[ls[0]] = append(args[ls[0]], ls[1])
+		}
+	}
+
+	list = Simple(arg...)
+	for i := 0; i < len(list)-1; i += 2 {
+		args[list[i]] = append(args[list[i]], list[i+1])
+	}
+
+	list = []string{}
+	for k, v := range args {
+		for _, v := range v {
+			list = append(list, url.QueryEscape(k)+"="+url.QueryEscape(v))
+		}
+	}
+	if len(list) > 0 {
+		res += "?" + strings.Join(list, "&")
+	}
+	return res
+}
+func Render(str string, arg interface{}) ([]byte, error) {
+	buf := bytes.NewBuffer(make([]byte, 0, 1024))
+	if strings.HasPrefix(str, "@") {
+		if t, e := template.ParseFiles(str[1:]); e != nil {
+			return nil, e
+		} else if e := t.Execute(buf, arg); e != nil {
+			return nil, e
+		}
+	} else {
+		if t, e := template.New("render").Parse(str); e != nil {
+			return nil, e
+		} else if e := t.Execute(buf, arg); e != nil {
+			return nil, e
+		}
+	}
+	return buf.Bytes(), nil
 }
