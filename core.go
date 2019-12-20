@@ -246,6 +246,7 @@ func Value(root interface{}, args ...interface{}) interface{} {
 	return root
 }
 
+// 数据遍历
 func Fetch(val interface{}, cbs interface{}) interface{} {
 	switch val := val.(type) {
 	case map[string]interface{}:
@@ -285,24 +286,4 @@ func Fetch(val interface{}, cbs interface{}) interface{} {
 		}
 	}
 	return val
-}
-
-func Table(data interface{}, offset, limit int, cb interface{}) interface{} {
-	switch data := data.(type) {
-	case map[string]interface{}:
-		switch cb := cb.(type) {
-		case func(key string, value string):
-			for k, v := range data {
-				cb(k, Format(v))
-			}
-		}
-	case []interface{}:
-		switch cb := cb.(type) {
-		case func(key int, value string):
-			for i, v := range data {
-				cb(i, Format(v))
-			}
-		}
-	}
-	return data
 }
