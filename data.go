@@ -5,18 +5,24 @@ import (
 )
 
 const (
+	MDB_SHORT = "short"
+
 	MDB_META = "meta"
 	MDB_LIST = "list"
 	MDB_HASH = "hash"
 
-	MDB_EXTRA = "extra"
-	MDB_TIME  = "time"
-	MDB_NAME  = "name"
-	MDB_NICK  = "nick"
-	MDB_KEY   = "key"
-	MDB_ID    = "id"
+	MDB_STATUS = "status"
+	MDB_VALUE  = "value"
+	MDB_EXTRA  = "extra"
+	MDB_TIME   = "time"
+	MDB_TYPE   = "type"
+	MDB_NAME   = "name"
+	MDB_TEXT   = "text"
+	MDB_NICK   = "nick"
+	MDB_KEY    = "key"
+	MDB_ID     = "id"
 
-	MDB_TYPE = "_type"
+	MDB_INPUT = "_input"
 )
 
 func Keys(arg ...interface{}) string {
@@ -35,11 +41,18 @@ func Data(arg ...interface{}) map[string]interface{} {
 func List(arg ...interface{}) []interface{} {
 	list, data := []interface{}{}, map[string]interface{}{}
 	for i := 0; i < len(arg)-1; i += 2 {
-		if arg[i] == MDB_TYPE {
+		if arg[i] == MDB_INPUT {
 			data = map[string]interface{}{}
 			list = append(list, data)
 		}
 		Value(data, arg[i], arg[i+1])
 	}
 	return list
+}
+func Dict(arg ...interface{}) map[string]interface{} {
+	dict := map[string]interface{}{}
+	for i := 0; i < len(arg)-1; i += 2 {
+		Value(dict, arg[i], arg[i+1])
+	}
+	return dict
 }
