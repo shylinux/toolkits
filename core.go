@@ -1,12 +1,17 @@
 package kit
 
 import (
+	"bytes"
+	"crypto/md5"
+	"encoding/hex"
+	"math/rand"
 	"sort"
 	"strconv"
 	"strings"
+	"text/template"
+	"time"
 )
 
-// 字符串切分
 func Split(str string, arg ...string) (res []string) {
 	sep := []rune("\t \n")
 	if len(arg) > 0 && len(arg[0]) > 0 {
@@ -56,8 +61,6 @@ func Split(str string, arg ...string) (res []string) {
 	}
 	return res
 }
-
-// 字符串解析
 func Parse(value interface{}, key string, val ...string) interface{} {
 	list := []*interface{}{&value}
 	data := &value
@@ -127,8 +130,6 @@ func Parse(value interface{}, key string, val ...string) interface{} {
 	}
 	return *list[0]
 }
-
-// 数据读写
 func Value(root interface{}, args ...interface{}) interface{} {
 	for i := 0; i < len(args); i += 2 {
 		if arg, ok := args[i].(map[string]interface{}); ok {
@@ -245,8 +246,6 @@ func Value(root interface{}, args ...interface{}) interface{} {
 
 	return root
 }
-
-// 数据遍历
 func Fetch(val interface{}, cbs interface{}) interface{} {
 	switch val := val.(type) {
 	case map[string]interface{}:
@@ -286,4 +285,51 @@ func Fetch(val interface{}, cbs interface{}) interface{} {
 		}
 	}
 	return val
+}
+
+func Hash(arg ...interface{}) (string, []string) {
+	if len(arg) == 0 {
+		arg = append(arg, "uniq")
+	}
+	args := []string{}
+	for _, v := range Simple(arg...) {
+		switch v {
+		case "time":
+			args = append(args, Format(time.Now()))
+		case "rand":
+			args = append(args, Format(rand.Int()))
+		case "uniq":
+			args = append(args, Format(time.Now()))
+			args = append(args, Format(rand.Int()))
+		default:
+			args = append(args, v)
+		}
+	}
+
+	h := md5.Sum([]byte(strings.Join(args, "")))
+	return hex.EncodeToString(h[:]), args
+}
+func Hashs(arg ...interface{}) string {
+	h, _ := Hash(arg...)
+	return h
+}
+func Render(str string, arg interface{}) (b []byte, e error) {
+	t := template.New("render").Funcs(template.FuncMap{
+		"Value": Value,
+	})
+	if strings.HasPrefix(str, "@") {
+		if t, e = t.ParseFiles(str[1:]); e != nil {
+			return nil, e
+		}
+	} else {
+		if t, e = t.Parse(str); e != nil {
+			return nil, e
+		}
+	}
+
+	buf := bytes.NewBuffer(make([]byte, 0, 1024))
+	if e := t.Execute(buf, arg); e != nil {
+		return nil, e
+	}
+	return buf.Bytes(), nil
 }

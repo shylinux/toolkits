@@ -8,6 +8,9 @@ import (
 	"time"
 )
 
+func Int(val interface{}) int {
+	return int(Int64(val))
+}
 func Int64(val interface{}) int64 {
 	switch val := val.(type) {
 	case int:
@@ -25,17 +28,19 @@ func Int64(val interface{}) int64 {
 		return int64(len(val))
 	case time.Time:
 		return val.Unix()
+	case time.Duration:
+		return val.Nanoseconds()
 	}
 	return 0
 }
-func Int(val interface{}) int {
-	return int(Int64(val))
-}
-func Format(val interface{}) string {
+func Format(val interface{}, arg ...interface{}) string {
 	switch val := val.(type) {
 	case nil:
 		return ""
 	case string:
+		if len(arg) > 0 {
+			return fmt.Sprintf(val, arg...)
+		}
 		return val
 	case []interface{}:
 		if len(val) == 0 {
@@ -61,33 +66,38 @@ func Formats(val interface{}) string {
 	b, _ := json.MarshalIndent(val, "", "  ")
 	return string(b)
 }
-func Simple(val ...interface{}) []string {
-	res := []string{}
-	for _, v := range val {
-		switch val := v.(type) {
-		case nil:
-		case float64:
-			res = append(res, fmt.Sprintf("%d", int64(val)))
-		case []string:
-			res = append(res, val...)
-		case []interface{}:
-			for _, v := range val {
-				res = append(res, Simple(v)...)
-			}
-		case map[string]interface{}:
-			keys := []string{}
-			for k := range val {
-				keys = append(keys, k)
-			}
-			sort.Strings(keys)
-			for _, k := range keys {
-				res = append(res, k, Format(val[k]))
-			}
-		default:
-			res = append(res, Format(val))
+func Duration(str interface{}) time.Duration {
+	switch str := str.(type) {
+	case string:
+		d, _ := time.ParseDuration(str)
+		return d
+	}
+	return time.Millisecond
+}
+func Time(arg ...string) int {
+	if len(arg) == 0 {
+		return Int(time.Now())
+	}
+
+	if len(arg) > 1 {
+		if t, e := time.ParseInLocation(arg[1], arg[0], time.Local); e == nil {
+			return Int(t)
 		}
 	}
-	return res
+
+	for _, v := range []string{
+		"2006-01-02 15:04:05",
+		"2006-01-02 15:04",
+		"01-02 15:04",
+		"2006-01-02",
+		"2006/01/02",
+		"15:04:05",
+	} {
+		if t, e := time.ParseInLocation(v, arg[0], time.Local); e == nil {
+			return Int(t)
+		}
+	}
+	return 0
 }
 
 func Select(def string, arg ...interface{}) string {
@@ -122,4 +132,46 @@ func Select(def string, arg ...interface{}) string {
 		}
 	}
 	return def
+}
+func Simple(val ...interface{}) []string {
+	res := []string{}
+	for _, v := range val {
+		switch val := v.(type) {
+		case nil:
+		case float64:
+			res = append(res, fmt.Sprintf("%d", int64(val)))
+		case []string:
+			res = append(res, val...)
+		case []interface{}:
+			for _, v := range val {
+				res = append(res, Simple(v)...)
+			}
+		case map[string]interface{}:
+			keys := []string{}
+			for k := range val {
+				keys = append(keys, k)
+			}
+			sort.Strings(keys)
+			for _, k := range keys {
+				res = append(res, k, Format(val[k]))
+			}
+		default:
+			res = append(res, Format(val))
+		}
+	}
+	return res
+}
+func Revert(str []string) []string {
+	for i := 0; i < len(str)/2; i++ {
+		str[i], str[len(str)-1-i] = str[len(str)-1-i], str[i]
+	}
+	return str
+}
+func IndexOf(str []string, sub string) int {
+	for i, v := range str {
+		if v == sub {
+			return i
+		}
+	}
+	return -1
 }
