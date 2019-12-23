@@ -10,21 +10,21 @@ const (
 	MIME_TEXT = "text/plain"
 	MIME_HTML = "text/html"
 
-	MIME_TABLE = "shy/table"
-	MIME_ORDER = "shy/order"
-	MIME_CHAIN = "shy/chain"
-	MIME_TITLE = "shy/title"
-	MIME_SHELL = "shy/shell"
+	MIME_TABLE = "table"
+	MIME_ORDER = "order"
+	MIME_CHAIN = "chain"
+	MIME_TITLE = "title"
+	MIME_SHELL = "shell"
 
-	MIME_SPACE = "shy/space"
-	MIME_STORY = "shy/story"
-	MIME_FAVOR = "shy/favor"
-	MIME_SHARE = "shy/share"
+	MIME_SPACE = "space"
+	MIME_STORY = "story"
+	MIME_FAVOR = "favor"
+	MIME_SHARE = "share"
 
-	MIME_MASTER = "shy/master"
-	MIME_MYSELF = "shy/myself"
-	MIME_SERVER = "shy/server"
-	MIME_WORKER = "shy/worker"
+	MIME_MASTER = "master"
+	MIME_MYSELF = "myself"
+	MIME_SERVER = "server"
+	MIME_WORKER = "worker"
 )
 
 const (
