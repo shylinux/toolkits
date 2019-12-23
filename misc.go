@@ -102,3 +102,7 @@ func UnMarshal(data string) interface{} {
 	}
 	return res
 }
+
+func Right(str string) bool {
+	return str != "" && str != "0" && str != "false" && str != "off" && str != "[]" && str != "{}"
+}

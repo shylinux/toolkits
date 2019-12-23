@@ -5,6 +5,29 @@ import (
 )
 
 const (
+	MIME_FILE = "application/octet-stream"
+	MIME_JSON = "application/json"
+	MIME_TEXT = "text/plain"
+	MIME_HTML = "text/html"
+
+	MIME_TABLE = "shy/table"
+	MIME_ORDER = "shy/order"
+	MIME_CHAIN = "shy/chain"
+	MIME_TITLE = "shy/title"
+	MIME_SHELL = "shy/shell"
+
+	MIME_SPACE = "shy/space"
+	MIME_STORY = "shy/story"
+	MIME_FAVOR = "shy/favor"
+	MIME_SHARE = "shy/share"
+
+	MIME_MASTER = "shy/master"
+	MIME_MYSELF = "shy/myself"
+	MIME_SERVER = "shy/server"
+	MIME_WORKER = "shy/worker"
+)
+
+const (
 	MDB_SHORT = "short"
 
 	MDB_META = "meta"
@@ -12,15 +35,19 @@ const (
 	MDB_HASH = "hash"
 
 	MDB_STATUS = "status"
-	MDB_VALUE  = "value"
 	MDB_EXTRA  = "extra"
-	MDB_TIME   = "time"
-	MDB_TYPE   = "type"
-	MDB_NAME   = "name"
-	MDB_TEXT   = "text"
-	MDB_NICK   = "nick"
-	MDB_KEY    = "key"
-	MDB_ID     = "id"
+	MDB_VALUE  = "value"
+	MDB_USER   = "user"
+
+	MDB_SIZE = "size"
+	MDB_FILE = "file"
+	MDB_TEXT = "text"
+	MDB_TYPE = "type"
+	MDB_TIME = "time"
+	MDB_NICK = "nick"
+	MDB_NAME = "name"
+	MDB_KEY  = "key"
+	MDB_ID   = "id"
 
 	MDB_INPUT = "_input"
 )

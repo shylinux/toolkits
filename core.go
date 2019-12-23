@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/md5"
 	"encoding/hex"
+	"io"
 	"math/rand"
 	"sort"
 	"strconv"
@@ -310,6 +311,16 @@ func Hash(arg ...interface{}) (string, []string) {
 	return hex.EncodeToString(h[:]), args
 }
 func Hashs(arg ...interface{}) string {
+	if len(arg) > 0 {
+		switch arg := arg[0].(type) {
+		case string:
+		case io.Reader:
+			md := md5.New()
+			io.Copy(md, arg)
+			h := md.Sum(nil)
+			return hex.EncodeToString(h[:])
+		}
+	}
 	h, _ := Hash(arg...)
 	return h
 }
