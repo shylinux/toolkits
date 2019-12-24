@@ -106,3 +106,12 @@ func UnMarshal(data string) interface{} {
 func Right(str string) bool {
 	return str != "" && str != "0" && str != "false" && str != "off" && str != "[]" && str != "{}"
 }
+func Short(arg interface{}) interface{} {
+	switch arg := arg.(type) {
+	case string:
+		if len(arg) > 6 {
+			return arg[:6]
+		}
+	}
+	return arg
+}

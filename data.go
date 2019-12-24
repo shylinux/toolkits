@@ -30,6 +30,7 @@ const (
 const (
 	MDB_SHORT = "short"
 
+	MDB_DICT = "dict"
 	MDB_META = "meta"
 	MDB_LIST = "list"
 	MDB_HASH = "hash"
@@ -39,6 +40,7 @@ const (
 	MDB_VALUE  = "value"
 	MDB_USER   = "user"
 
+	MDB_LINK = "link"
 	MDB_SIZE = "size"
 	MDB_FILE = "file"
 	MDB_TEXT = "text"

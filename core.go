@@ -143,6 +143,7 @@ func Value(root interface{}, args ...interface{}) interface{} {
 			continue
 		}
 
+		// 解析索引
 		keys := []string{}
 		for _, v := range Simple(args[i]) {
 			keys = append(keys, strings.Split(v, ".")...)
@@ -165,6 +166,7 @@ func Value(root interface{}, args ...interface{}) interface{} {
 					next = args[i+1]
 				}
 
+				// 创建数据
 				if e == nil {
 					data, index = []interface{}{next}, 0
 				} else {
@@ -175,6 +177,7 @@ func Value(root interface{}, args ...interface{}) interface{} {
 
 				if j == len(keys)-1 {
 					if i == len(args)-1 {
+						// 读取数据
 						if index < 0 {
 							return ""
 						}
@@ -183,6 +186,7 @@ func Value(root interface{}, args ...interface{}) interface{} {
 					next = args[i+1]
 				}
 
+				// 添加数据
 				if index == -1 {
 					data, index = append([]string{Format(next)}, value...), 0
 				} else {
@@ -192,18 +196,26 @@ func Value(root interface{}, args ...interface{}) interface{} {
 			case map[string]string:
 				if j == len(keys)-1 {
 					if i == len(args)-1 {
-						return value[key] // 读取数据
+						// 读取数据
+						return value[key]
 					}
-					value[key] = Format(next) // 修改数据
+					// 修改数据
+					value[key] = Format(next)
 				}
 				next = value[key]
 			case map[string]interface{}:
 				if j == len(keys)-1 {
 					if i == len(args)-1 {
-						return value[key] // 读取数据
+						// 读取数据
+						if key == "" {
+							return root
+						}
+						return value[key]
 					}
-					value[key] = args[i+1] // 修改数据
+					// 修改数据
+					value[key] = args[i+1]
 					if s, ok := args[i+1].(string); ok && s == "" {
+						// 删除数据
 						delete(value, key)
 					}
 				}
@@ -213,14 +225,16 @@ func Value(root interface{}, args ...interface{}) interface{} {
 
 				if j == len(keys)-1 {
 					if i == len(args)-1 {
+						// 读取数据
 						if index < 0 {
 							return nil
 						}
-						return value[index] // 读取数据
+						return value[index]
 					}
-					next = args[i+1] // 修改数据
+					next = args[i+1]
 				}
 
+				// 添加数据
 				if index == -1 {
 					value, index = append([]interface{}{next}, value...), 0
 				} else if index == -2 {
@@ -231,6 +245,7 @@ func Value(root interface{}, args ...interface{}) interface{} {
 				data, next = value, value[index]
 			}
 
+			// 添加索引
 			switch p := parent.(type) {
 			case map[string]interface{}:
 				p[parent_key] = data
@@ -240,6 +255,7 @@ func Value(root interface{}, args ...interface{}) interface{} {
 				root = data
 			}
 
+			// 索引递进
 			parent, data = data, next
 			parent_key, parent_index = key, index
 		}
