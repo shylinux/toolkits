@@ -12,9 +12,7 @@ import (
 
 func Create(p string) (*os.File, string, error) {
 	if dir, _ := path.Split(p); dir != "" {
-		if e := os.MkdirAll(dir, 0777); e != nil {
-			return nil, p, e
-		}
+		os.MkdirAll(dir, 0777)
 	}
 	f, e := os.Create(p)
 	return f, p, e

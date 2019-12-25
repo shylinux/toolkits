@@ -345,7 +345,7 @@ func Render(str string, arg interface{}) (b []byte, e error) {
 		"Value": Value,
 	})
 	if strings.HasPrefix(str, "@") {
-		if t, e = t.ParseFiles(str[1:]); e != nil {
+		if t, e = template.ParseFiles(str[1:]); e != nil {
 			return nil, e
 		}
 	} else {
