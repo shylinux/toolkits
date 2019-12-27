@@ -85,6 +85,43 @@ func MergeURL(str string, arg ...interface{}) string {
 	}
 	return res
 }
+func MergeURL2(str string, uri string, arg ...interface{}) string {
+	if ls := strings.Split(str, "//"); len(ls) > 1 {
+		list := strings.Split(ls[1], "/")
+		if strings.HasPrefix(uri, "/") {
+			str = ls[0] + "//" + list[0] + uri
+		} else {
+			str = ls[0] + "//" + strings.Join(list[:len(list)-1], "/") + uri
+		}
+	}
+
+	list := strings.Split(str, "?")
+	res := list[0]
+
+	args := map[string][]string{}
+	if len(list) > 1 {
+		for _, l := range strings.Split(list[1], "&") {
+			ls := strings.SplitN(l, "=", 2)
+			args[ls[0]] = append(args[ls[0]], ls[1])
+		}
+	}
+
+	list = Simple(arg...)
+	for i := 0; i < len(list)-1; i += 2 {
+		args[list[i]] = append(args[list[i]], list[i+1])
+	}
+
+	list = []string{}
+	for k, v := range args {
+		for _, v := range v {
+			list = append(list, url.QueryEscape(k)+"="+url.QueryEscape(v))
+		}
+	}
+	if len(list) > 0 {
+		res += "?" + strings.Join(list, "&")
+	}
+	return res
+}
 
 func Width(str string, mul int) int {
 	return len([]rune(str)) + (len(str)-len([]rune(str)))/2/mul
