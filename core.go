@@ -269,6 +269,16 @@ func Fetch(val interface{}, cbs interface{}) interface{} {
 		switch cb := cbs.(type) {
 		case func(value map[string]interface{}):
 			cb(val)
+		case func(key string, value interface{}):
+			ls := []string{}
+			for k := range val {
+				ls = append(ls, k)
+			}
+
+			sort.Strings(ls)
+			for _, k := range ls {
+				cb(k, val[k])
+			}
 		case func(key string, value string):
 			ls := []string{}
 			for k := range val {

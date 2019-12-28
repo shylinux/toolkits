@@ -150,3 +150,20 @@ func Short(arg interface{}) interface{} {
 	}
 	return arg
 }
+
+func KeyValue(res map[string]interface{}, key string, arg interface{}) map[string]interface{} {
+	switch arg := arg.(type) {
+	case map[string]interface{}:
+		for k, v := range arg {
+			KeyValue(res, Select(Keys(key, k), k, key == ""), v)
+		}
+
+	case []interface{}:
+		for i, v := range arg {
+			KeyValue(res, Keys(key, i), v)
+		}
+	default:
+		res[key] = arg
+	}
+	return res
+}
