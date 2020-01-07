@@ -86,7 +86,11 @@ func MergeURL(str string, arg ...interface{}) string {
 	return res
 }
 func MergeURL2(str string, uri string, arg ...interface{}) string {
-	if ls := strings.Split(str, "//"); len(ls) > 1 {
+	if strings.HasPrefix(uri, "http") {
+		str, uri = uri, ""
+	}
+
+	if ls := strings.Split(str, "//"); len(ls) > 1 && len(uri) > 0 {
 		list := strings.Split(ls[1], "/")
 		if strings.HasPrefix(uri, "/") {
 			str = ls[0] + "//" + list[0] + uri
