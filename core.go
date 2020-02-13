@@ -22,37 +22,40 @@ func Split(str string, arg ...string) (res []string) {
 		sep = append(sep, sep[0])
 	}
 
-	trip := false
 	list := []rune(str)
 	left, space, begin := '\000', true, 0
 	for i := 0; i < len(list); i++ {
 		switch list[i] {
 		case '\'', '"', '`':
-			if left == '\000' {
-				if space && (len(arg) == 0 || arg[0] != "\n") {
-					begin = i + 1
+			if len(arg) > 0 {
+				if left == '\000' {
+					left = list[i]
+				} else if left == list[i] {
+					left = '\000'
 				}
-				left, space = list[i], false
-			} else if left == list[i] {
-				left, space = '\000', false
-				trip = true
-			}
-		case sep[0], sep[1], sep[2], sep[3], sep[4]:
-			if left != '\000' {
 				break
 			}
-			if !space {
-				if trip {
-					res = append(res, string(list[begin:i-1]))
-				} else if i > 0 {
+
+			if left == '\000' {
+				left, space, begin = list[i], false, i+1
+			} else if left == list[i] {
+				res = append(res, string(list[begin:i]))
+				left, space, begin = '\000', true, i+1
+			}
+		case sep[0], sep[1], sep[2], sep[3], sep[4]:
+			if left == '\000' {
+				if !space {
 					res = append(res, string(list[begin:i]))
 				}
+				space, begin = true, i+1
 			}
-			space, begin = true, i+1
 		case '\\':
+			for i := i; i < len(list)-1; i++ {
+				list[i] = list[i+1]
+			}
+			list = list[:len(list)-1]
 			space = false
 		default:
-			trip = false
 			space = false
 		}
 	}
