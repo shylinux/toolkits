@@ -304,6 +304,10 @@ func Fetch(val interface{}, cbs interface{}) interface{} {
 		}
 	case []interface{}:
 		switch cb := cbs.(type) {
+		case func(index int, value interface{}):
+			for i, v := range val {
+				cb(i, v)
+			}
 		case func(index int, value string):
 			for i, v := range val {
 				cb(i, Format(v))

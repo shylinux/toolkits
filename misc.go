@@ -37,6 +37,19 @@ func FmtTime(t int64) string {
 	if time < 0 {
 		sign, time = "-", -t
 	}
+
+	list := []string{}
+	if time > 24*3600*1000000000 {
+		list = append(list, fmt.Sprintf("%s%dd", sign, time/(24*3600*1000000000)))
+		time = time % (24 * 3600 * 1000000000)
+	}
+	if time > 3600*1000000000 {
+		list = append(list, fmt.Sprintf("%s%dh", sign, time/3600/1000000000))
+		time = time % (3600 * 1000000000)
+	}
+	if len(list) > 0 {
+		return strings.Join(list, "")
+	}
 	if time > 1000000000 {
 		return fmt.Sprintf("%s%d.%ds", sign, time/1000000000, (time/1000000)%1000*100/1000)
 	}
