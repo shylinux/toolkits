@@ -14,6 +14,7 @@ import (
 )
 
 func Split(str string, arg ...string) (res []string) {
+	// 空白符
 	sep := []rune("\t \n")
 	if len(arg) > 0 && len(arg[0]) > 0 {
 		sep = []rune(arg[0])
@@ -22,11 +23,30 @@ func Split(str string, arg ...string) (res []string) {
 		sep = append(sep, sep[0])
 	}
 
+	// 分隔符
+	sup := []rune("{[()]}")
+	if len(arg) > 1 && len(arg[1]) > 0 {
+		sup = []rune(arg[1])
+	}
+	for i := len(sup); i < 10; i++ {
+		sup = append(sup, sup[0])
+	}
+
+	// 引用符
+	sub := []rune("'\"`")
+	if len(arg) > 2 && len(arg[2]) > 0 {
+		sub = []rune(arg[2])
+	}
+	for i := len(sub); i < 5; i++ {
+		sub = append(sub, sub[0])
+	}
+
+	// 开始分词
 	list := []rune(str)
 	left, space, begin := '\000', true, 0
 	for i := 0; i < len(list); i++ {
 		switch list[i] {
-		case '\'', '"', '`':
+		case sub[0], sub[1], sub[2], sub[3], sub[4]:
 			if len(arg) > 0 {
 				if left == '\000' {
 					left = list[i]
@@ -41,6 +61,14 @@ func Split(str string, arg ...string) (res []string) {
 			} else if left == list[i] {
 				res = append(res, string(list[begin:i]))
 				left, space, begin = '\000', true, i+1
+			}
+		case sup[0], sup[1], sup[2], sup[3], sup[4], sup[5]:
+			if left == '\000' {
+				if !space {
+					res = append(res, string(list[begin:i]))
+				}
+				res = append(res, string(list[i:i+1]))
+				space, begin = true, i+1
 			}
 		case sep[0], sep[1], sep[2], sep[3], sep[4]:
 			if left == '\000' {
@@ -60,6 +88,7 @@ func Split(str string, arg ...string) (res []string) {
 		}
 	}
 
+	// 末尾单词
 	if begin < len(list) {
 		res = append(res, string(list[begin:]))
 	}
