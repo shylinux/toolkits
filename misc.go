@@ -184,3 +184,13 @@ func KeyValue(res map[string]interface{}, key string, arg interface{}) map[strin
 	}
 	return res
 }
+
+func Path(str string) string {
+	if strings.HasPrefix(str, "/") {
+		return str
+	}
+	if wd, e := os.Getwd(); e == nil {
+		return path.Join(wd, str)
+	}
+	return str
+}
