@@ -15,7 +15,7 @@ import (
 
 func Split(str string, arg ...string) (res []string) {
 	// 空白符
-	sep := []rune("\t \n")
+	sep := []rune("\t ,\n")
 	if len(arg) > 0 && len(arg[0]) > 0 {
 		sep = []rune(arg[0])
 	}
@@ -328,7 +328,9 @@ func Fetch(val interface{}, cbs interface{}) interface{} {
 			}
 			sort.Strings(ls)
 			for _, k := range ls {
-				cb(k, val[k].(map[string]interface{}))
+				if v, ok := val[k].(map[string]interface{}); ok {
+					cb(k, v)
+				}
 			}
 		}
 	case []interface{}:

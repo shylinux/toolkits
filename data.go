@@ -55,7 +55,7 @@ const (
 )
 
 func Keys(arg ...interface{}) string {
-	return strings.Join(Simple(arg...), ".")
+	return strings.TrimPrefix(strings.Join(Simple(arg...), "."), ".")
 }
 func Data(arg ...interface{}) map[string]interface{} {
 	meta := map[string]interface{}{}

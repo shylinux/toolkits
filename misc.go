@@ -172,7 +172,7 @@ func KeyValue(res map[string]interface{}, key string, arg interface{}) map[strin
 	switch arg := arg.(type) {
 	case map[string]interface{}:
 		for k, v := range arg {
-			KeyValue(res, Select(Keys(key, k), k, key == ""), v)
+			KeyValue(res, Keys(key, k), v)
 		}
 
 	case []interface{}:
@@ -185,12 +185,12 @@ func KeyValue(res map[string]interface{}, key string, arg interface{}) map[strin
 	return res
 }
 
-func Path(str string) string {
+func Path(str string, rest ...string) string {
 	if strings.HasPrefix(str, "/") {
 		return str
 	}
 	if wd, e := os.Getwd(); e == nil {
-		return path.Join(wd, str)
+		return path.Join(append([]string{wd, str}, rest...)...)
 	}
 	return str
 }
