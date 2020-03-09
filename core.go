@@ -348,6 +348,13 @@ func Fetch(val interface{}, cbs interface{}) interface{} {
 				cb(i, v.(map[string]interface{}))
 			}
 		}
+	case []string:
+		switch cb := cbs.(type) {
+		case func(index int, value string):
+			for i, v := range val {
+				cb(i, v)
+			}
+		}
 	}
 	return val
 }
