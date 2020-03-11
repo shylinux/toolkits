@@ -80,6 +80,15 @@ func List(arg ...interface{}) []interface{} {
 }
 func Dict(arg ...interface{}) map[string]interface{} {
 	dict := map[string]interface{}{}
+	if len(arg) == 1 {
+		switch arg := arg[0].(type) {
+		case []string:
+			for i := 0; i < len(arg)-1; i += 2 {
+				Value(dict, arg[i], arg[i+1])
+			}
+			return dict
+		}
+	}
 	for i := 0; i < len(arg)-1; i += 2 {
 		Value(dict, arg[i], arg[i+1])
 	}
