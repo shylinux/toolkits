@@ -46,6 +46,13 @@ func Split(str string, arg ...string) (res []string) {
 	left, space, begin := '\000', true, 0
 	for i := 0; i < len(list); i++ {
 		switch list[i] {
+		case sep[0], sep[1], sep[2], sep[3], sep[4]:
+			if left == '\000' {
+				if !space {
+					res = append(res, string(list[begin:i]))
+				}
+				space, begin = true, i+1
+			}
 		case sub[0], sub[1], sub[2], sub[3], sub[4]:
 			if len(arg) > 0 {
 				if left == '\000' {
@@ -62,19 +69,12 @@ func Split(str string, arg ...string) (res []string) {
 				res = append(res, string(list[begin:i]))
 				left, space, begin = '\000', true, i+1
 			}
-		case sup[0], sup[1], sup[2], sup[3], sup[4], sup[5]:
+		case sup[0], sup[1], sup[2], sup[3], sup[4], sup[5], sup[6], sup[7], sup[8], sup[9]:
 			if left == '\000' {
 				if !space {
 					res = append(res, string(list[begin:i]))
 				}
 				res = append(res, string(list[i:i+1]))
-				space, begin = true, i+1
-			}
-		case sep[0], sep[1], sep[2], sep[3], sep[4]:
-			if left == '\000' {
-				if !space {
-					res = append(res, string(list[begin:i]))
-				}
 				space, begin = true, i+1
 			}
 		case '\\':
