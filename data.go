@@ -40,14 +40,12 @@ const (
 	MDB_VALUE  = "value"
 	MDB_USER   = "user"
 
-	MDB_LINK = "link"
 	MDB_SIZE = "size"
 	MDB_FILE = "file"
 	MDB_TEXT = "text"
+	MDB_NAME = "name"
 	MDB_TYPE = "type"
 	MDB_TIME = "time"
-	MDB_NICK = "nick"
-	MDB_NAME = "name"
 	MDB_KEY  = "key"
 	MDB_ID   = "id"
 
