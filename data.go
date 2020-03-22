@@ -53,7 +53,7 @@ const (
 )
 
 func Keys(arg ...interface{}) string {
-	return strings.TrimPrefix(strings.Join(Simple(arg...), "."), ".")
+	return strings.TrimSuffix(strings.TrimPrefix(strings.Join(Simple(arg...), "."), "."), ".")
 }
 func Data(arg ...interface{}) map[string]interface{} {
 	meta := map[string]interface{}{}
@@ -80,6 +80,9 @@ func Dict(arg ...interface{}) map[string]interface{} {
 	dict := map[string]interface{}{}
 	if len(arg) == 1 {
 		switch arg := arg[0].(type) {
+		case string:
+			data, _ := UnMarshal(arg).(map[string]interface{})
+			return data
 		case []string:
 			for i := 0; i < len(arg)-1; i += 2 {
 				Value(dict, arg[i], arg[i+1])
