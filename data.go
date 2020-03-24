@@ -84,6 +84,10 @@ func Dict(arg ...interface{}) map[string]interface{} {
 			data, _ := UnMarshal(arg).(map[string]interface{})
 			return data
 		case []string:
+			if len(arg) == 1 {
+				data, _ := UnMarshal(arg[0]).(map[string]interface{})
+				return data
+			}
 			for i := 0; i < len(arg)-1; i += 2 {
 				Value(dict, arg[i], arg[i+1])
 			}
