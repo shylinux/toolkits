@@ -28,7 +28,9 @@ const (
 )
 
 const (
-	MDB_SHORT = "short"
+	MDB_FOREACH = "*"
+	MDB_RANDOM  = "%"
+	MDB_SHORT   = "short"
 
 	MDB_DICT = "dict"
 	MDB_META = "meta"
@@ -37,6 +39,8 @@ const (
 
 	MDB_STATUS = "status"
 	MDB_EXTRA  = "extra"
+	MDB_GROUP  = "group"
+	MDB_COUNT  = "count"
 	MDB_VALUE  = "value"
 	MDB_USER   = "user"
 
