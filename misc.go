@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"os"
 	"path"
+	"runtime"
 	"strings"
 )
 
@@ -193,4 +194,15 @@ func Path(str string, rest ...string) string {
 		return path.Join(append([]string{wd, str}, rest...)...)
 	}
 	return str
+}
+
+func FileLine(p uintptr, n int) string {
+	f := runtime.FuncForPC(p)
+	file, line := f.FileLine(p)
+	ls := strings.Split(file, "/")
+	if len(ls) > n {
+		ls = ls[len(ls)-n:]
+	}
+	return Format("%s:%d", strings.Join(ls, "/"), line)
+
 }
