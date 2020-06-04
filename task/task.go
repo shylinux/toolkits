@@ -13,8 +13,8 @@ const (
 type Task struct {
 	Arg interface{}
 	CB  func(*Task) error
-	ID  int64
 
+	ID     int64
 	Error  error
 	Status int
 
