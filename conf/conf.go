@@ -1,5 +1,7 @@
 package conf
 
+import kit "github.com/shylinux/toolkits"
+
 type Conf struct {
 	data interface{}
 }
@@ -8,7 +10,7 @@ func (conf *Conf) Get(key string, def ...interface{}) interface{} {
 	if val := kit.Value(conf.data, key); val != nil {
 		return val
 	}
-	for i, v := range def {
+	for _, v := range def {
 		if v != nil {
 			return v
 		}
@@ -20,7 +22,7 @@ func (conf *Conf) GetInt(key string, def ...int) int {
 		return kit.Int(val)
 	}
 
-	for i, v := range def {
+	for _, v := range def {
 		if v != 0 {
 			return v
 		}
@@ -32,7 +34,7 @@ func (conf *Conf) GetStr(key string, def ...string) string {
 		return kit.Format(val)
 	}
 
-	for i, v := range def {
+	for _, v := range def {
 		if v != "" {
 			return v
 		}
@@ -42,4 +44,12 @@ func (conf *Conf) GetStr(key string, def ...string) string {
 
 func New(data interface{}) *Conf {
 	return &Conf{data: data}
+}
+
+var conf *Conf
+
+func Init(file string) {
+	if conf == nil {
+		conf = New(nil)
+	}
 }
