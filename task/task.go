@@ -3,8 +3,6 @@ package task
 import (
 	"sync/atomic"
 	"time"
-
-	"github.com/shylinux/toolkits/log"
 )
 
 const (
@@ -45,9 +43,9 @@ func (task *Task) Run() {
 var TaskID int64
 
 func Run(arg interface{}, cb func(*Task) error) *Task {
-	TaskID = atomic.AddInt64(&TaskID, 1)
+	atomic.AddInt64(&TaskID, 1)
 
-	log.Show("task", "add", log.FileLine(cb, 3), "id", TaskID, "arg", arg)
+	// log.Show("task", "add", log.FileLine(cb, 3), "id", TaskID, "arg", arg)
 	task := &Task{ID: TaskID, Arg: arg, CB: cb, BeginTime: time.Now()}
 	go func() {
 		task.Run()
