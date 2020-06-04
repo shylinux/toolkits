@@ -1,7 +1,6 @@
 package task
 
 import (
-	"sync/atomic"
 	"time"
 )
 
@@ -38,17 +37,4 @@ func (task *Task) Run() {
 	}
 
 	task.Status = StatusDone
-}
-
-var TaskID int64
-
-func Run(arg interface{}, cb func(*Task) error) *Task {
-	atomic.AddInt64(&TaskID, 1)
-
-	// log.Show("task", "add", log.FileLine(cb, 3), "id", TaskID, "arg", arg)
-	task := &Task{ID: TaskID, Arg: arg, CB: cb, BeginTime: time.Now()}
-	go func() {
-		task.Run()
-	}()
-	return task
 }
