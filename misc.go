@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"os"
 	"path"
+	"reflect"
 	"runtime"
 	"strings"
 )
@@ -196,13 +197,21 @@ func Path(str string, rest ...string) string {
 	return str
 }
 
-func FileLine(p uintptr, n int) string {
-	f := runtime.FuncForPC(p)
-	file, line := f.FileLine(p)
+func FileLine(p interface{}, n int) string {
+	var fun uintptr
+	switch p := p.(type) {
+	case uintptr:
+		fun = p
+	default:
+		f := reflect.ValueOf(p)
+		fun = f.Pointer()
+	}
+
+	f := runtime.FuncForPC(fun)
+	file, line := f.FileLine(fun)
 	ls := strings.Split(file, "/")
 	if len(ls) > n {
 		ls = ls[len(ls)-n:]
 	}
 	return Format("%s:%d", strings.Join(ls, "/"), line)
-
 }
