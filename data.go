@@ -28,6 +28,14 @@ const (
 )
 
 const (
+	MDB_INSERT = "insert"
+	MDB_DELETE = "delete"
+	MDB_MODIFY = "modify"
+	MDB_IMPORT = "import"
+	MDB_EXPORT = "export"
+)
+
+const (
 	MDB_FOREACH = "*"
 	MDB_RANDOM  = "%"
 	MDB_SHORT   = "short"
