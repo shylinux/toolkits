@@ -15,45 +15,52 @@ import (
 
 func Split(str string, arg ...string) (res []string) {
 	// 空白符
-	sep := []rune("\t ,\n")
+	sep := map[rune]bool{'\t': true, ' ': true, ',': true, '\n': true}
 	if len(arg) > 0 && len(arg[0]) > 0 {
-		sep = []rune(arg[0])
-	}
-	for i := len(sep); i < 5; i++ {
-		sep = append(sep, sep[0])
+		sep = map[rune]bool{}
+		for _, c := range arg[0] {
+			sep[c] = true
+		}
 	}
 
 	// 分隔符
-	sup := []rune("{[()]}")
-	if len(arg) > 1 && len(arg[1]) > 0 {
-		sup = []rune(arg[1])
+	sup := map[rune]bool{
+		'{': true,
+		'[': true,
+		'(': true,
+		')': true,
+		']': true,
+		'}': true,
 	}
-	for i := len(sup); i < 10; i++ {
-		sup = append(sup, sup[0])
+	if len(arg) > 1 && len(arg[1]) > 0 {
+		sup = map[rune]bool{}
+		for _, c := range arg[1] {
+			sup[c] = true
+		}
 	}
 
 	// 引用符
-	sub := []rune("'\"`")
+	sub := map[rune]bool{'"': true, '`': true, '\'': true}
 	if len(arg) > 2 && len(arg[2]) > 0 {
-		sub = []rune(arg[2])
-	}
-	for i := len(sub); i < 5; i++ {
-		sub = append(sub, sub[0])
+		sub = map[rune]bool{}
+		for _, c := range arg[2] {
+			sub[c] = true
+		}
 	}
 
 	// 开始分词
 	list := []rune(str)
 	left, space, begin := '\000', true, 0
 	for i := 0; i < len(list); i++ {
-		switch list[i] {
-		case sep[0], sep[1], sep[2], sep[3], sep[4]:
+		switch {
+		case sep[list[i]]:
 			if left == '\000' {
 				if !space {
 					res = append(res, string(list[begin:i]))
 				}
 				space, begin = true, i+1
 			}
-		case sub[0], sub[1], sub[2], sub[3], sub[4]:
+		case sub[list[i]]:
 			if len(arg) > 0 {
 				if left == '\000' {
 					left = list[i]
@@ -69,7 +76,7 @@ func Split(str string, arg ...string) (res []string) {
 				res = append(res, string(list[begin:i]))
 				left, space, begin = '\000', true, i+1
 			}
-		case sup[0], sup[1], sup[2], sup[3], sup[4], sup[5], sup[6], sup[7], sup[8], sup[9]:
+		case sup[list[i]]:
 			if left == '\000' {
 				if !space {
 					res = append(res, string(list[begin:i]))
@@ -77,7 +84,7 @@ func Split(str string, arg ...string) (res []string) {
 				res = append(res, string(list[i:i+1]))
 				space, begin = true, i+1
 			}
-		case '\\':
+		case list[i] == '\\':
 			for i := i; i < len(list)-1; i++ {
 				list[i] = list[i+1]
 			}
@@ -123,12 +130,14 @@ func Parse(value interface{}, key string, val ...string) interface{} {
 			switch v {
 			case "{", "[":
 				list = append(list, &node)
-				last[key], last_key, key, data = node, key, "", &node
+				Value(last, key, node)
+				last_key, key, data = key, "", &node
 			default:
 				if key == "" {
 					key = v
 				} else {
-					last[key], key = v, ""
+					Value(last, key, v)
+					key = ""
 				}
 			}
 

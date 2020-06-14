@@ -28,17 +28,24 @@ const (
 )
 
 const (
-	MDB_INSERT = "insert"
-	MDB_DELETE = "delete"
-	MDB_MODIFY = "modify"
+	MDB_CREATE = "create"
+	MDB_REMOVE = "remove"
 	MDB_IMPORT = "import"
 	MDB_EXPORT = "export"
+	MDB_INSERT = "insert"
+	MDB_DELETE = "delete"
+	MDB_SELETE = "select"
+	MDB_MODIFY = "modify"
 )
 
 const (
 	MDB_FOREACH = "*"
 	MDB_RANDOM  = "%"
 	MDB_SHORT   = "short"
+	MDB_STORE   = "store"
+	MDB_FSIZE   = "fsize"
+	MDB_LIMIT   = "limit"
+	MDB_LEAST   = "least"
 
 	MDB_DICT = "dict"
 	MDB_META = "meta"
@@ -57,6 +64,7 @@ const (
 	MDB_TEXT = "text"
 	MDB_NAME = "name"
 	MDB_TYPE = "type"
+	MDB_ZONE = "zone"
 	MDB_TIME = "time"
 	MDB_KEY  = "key"
 	MDB_ID   = "id"
@@ -72,7 +80,24 @@ func Data(arg ...interface{}) map[string]interface{} {
 	data := map[string]interface{}{
 		MDB_META: meta, MDB_LIST: []interface{}{}, MDB_HASH: map[string]interface{}{},
 	}
-	for i := 0; i < len(arg)-1; i += 2 {
+	for i := 0; i < len(arg); i += 2 {
+		if i == len(arg)-1 {
+			switch arg := arg[i].(type) {
+			case []string:
+				for i := 0; i < len(arg)-1; i += 2 {
+					Value(meta, arg[i], arg[i+1])
+				}
+			case []interface{}:
+				for i := 0; i < len(arg)-1; i += 2 {
+					Value(meta, arg[i], arg[i+1])
+				}
+			case map[string]interface{}:
+				for k, v := range arg {
+					Value(meta, k, v)
+				}
+			}
+			continue
+		}
 		Value(meta, arg[i], arg[i+1])
 	}
 	return data

@@ -1,13 +1,18 @@
 package task
 
 import (
+	"context"
+	"fmt"
 	"time"
+
+	"github.com/shylinux/toolkits/log"
 )
 
 const (
-	StatusWait = iota
-	StatusDone
-	StatusError
+	StatusPrepare = iota
+	StatusProcess
+	StatusCancel
+	StatusFinish
 )
 
 type Task struct {
@@ -15,26 +20,40 @@ type Task struct {
 	CB  func(*Task) error
 
 	ID     int64
-	Error  error
+	Error  interface{}
 	Status int
 
-	BeginTime  time.Time
-	StartTime  time.Time
-	FinishTime time.Time
+	PrepareTime time.Time
+	ProcessTime time.Time
+	FinishTime  time.Time
+
+	Ctx  context.Context
+	work *Work
 }
 
+func (task *Task) Info() string {
+	return fmt.Sprintf("poolID: %d workID: %d taskID: %d", task.work.pool.ID, task.work.ID, task.ID)
+}
 func (task *Task) Run() {
-	// log.Show("task", "run", log.FileLine(task.CB, 3), "id", task.ID, "arg", task.Arg)
-	// defer log.Cost("task ", log.FileLine(task.CB, 3), " id: ", task.ID, " err: ", task.Error, " ")()
+	defer log.Cost("task: ", log.FileLine(task.CB, 3), " id: ", task.ID, " err: ", task.Error, " ")()
 
-	task.StartTime = time.Now()
+	task.Status = StatusProcess
+	task.ProcessTime = time.Now()
 	defer func() { task.FinishTime = time.Now() }()
+	defer func() {
+		if e := recover(); e != nil {
+			for i := 1; i < 6; i++ {
+				log.Show("task", "err", e, "pos", log.FileLine(i, 3))
+			}
+			task.Status = StatusCancel
+			task.Error = e
+		}
+	}()
 
 	if e := task.CB(task); e != nil {
-		task.Status = StatusError
+		task.Status = StatusCancel
 		task.Error = e
-		return
+	} else {
+		task.Status = StatusFinish
 	}
-
-	task.Status = StatusDone
 }

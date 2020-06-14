@@ -15,10 +15,10 @@ func Int64(val interface{}) int64 {
 	switch val := val.(type) {
 	case int:
 		return int64(val)
-	case float64:
-		return int64(val)
 	case int64:
 		return val
+	case float64:
+		return int64(val)
 	case string:
 		i, _ := strconv.ParseInt(val, 10, 64)
 		return i
@@ -27,7 +27,7 @@ func Int64(val interface{}) int64 {
 	case map[string]interface{}:
 		return int64(len(val))
 	case time.Time:
-		return val.Unix()
+		return val.UnixNano()
 	case time.Duration:
 		return val.Nanoseconds()
 	}
