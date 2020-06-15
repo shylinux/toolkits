@@ -96,7 +96,7 @@ func (s *Stat) Show() string {
 	for i := int64(0); i < max+1; i += 1 {
 		if res[i] > 0 {
 			if last > 0 {
-				list = append(list, fmt.Sprintf("%dms: %3d %d%%%%\n", last, res[last], res[last]*100/num))
+				list = append(list, fmt.Sprintf("%dms: %3d %d%%\n", last, res[last], res[last]*100/num))
 			}
 			last = i
 		}

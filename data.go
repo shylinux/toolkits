@@ -36,6 +36,9 @@ const (
 	MDB_DELETE = "delete"
 	MDB_SELETE = "select"
 	MDB_MODIFY = "modify"
+
+	// MDB_LIST = "list"
+	MDB_SHOW = "show"
 )
 
 const (
@@ -75,11 +78,20 @@ const (
 func Keys(arg ...interface{}) string {
 	return strings.TrimSuffix(strings.TrimPrefix(strings.Join(Simple(arg...), "."), "."), ".")
 }
-func Data(arg ...interface{}) map[string]interface{} {
-	meta := map[string]interface{}{}
-	data := map[string]interface{}{
-		MDB_META: meta, MDB_LIST: []interface{}{}, MDB_HASH: map[string]interface{}{},
+func _parse(meta map[string]interface{}, arg ...interface{}) map[string]interface{} {
+	if len(arg) == 1 {
+		switch arg := arg[0].(type) {
+		case string:
+			data, _ := UnMarshal(arg).(map[string]interface{})
+			return data
+		case []string:
+			if len(arg) == 1 {
+				data, _ := UnMarshal(arg[0]).(map[string]interface{})
+				return data
+			}
+		}
 	}
+
 	for i := 0; i < len(arg); i += 2 {
 		if i == len(arg)-1 {
 			switch arg := arg[i].(type) {
@@ -96,11 +108,23 @@ func Data(arg ...interface{}) map[string]interface{} {
 					Value(meta, k, v)
 				}
 			}
-			continue
+		} else {
+			Value(meta, arg[i], arg[i+1])
 		}
-		Value(meta, arg[i], arg[i+1])
 	}
+	return meta
+}
+func Data(arg ...interface{}) map[string]interface{} {
+	meta := map[string]interface{}{}
+	data := map[string]interface{}{
+		MDB_META: meta, MDB_LIST: []interface{}{}, MDB_HASH: map[string]interface{}{},
+	}
+	_parse(meta, arg...)
 	return data
+}
+func Dict(arg ...interface{}) map[string]interface{} {
+	dict := map[string]interface{}{}
+	return _parse(dict, arg...)
 }
 func List(arg ...interface{}) []interface{} {
 	list, data := []interface{}{}, map[string]interface{}{}
@@ -112,27 +136,4 @@ func List(arg ...interface{}) []interface{} {
 		Value(data, arg[i], arg[i+1])
 	}
 	return list
-}
-func Dict(arg ...interface{}) map[string]interface{} {
-	dict := map[string]interface{}{}
-	if len(arg) == 1 {
-		switch arg := arg[0].(type) {
-		case string:
-			data, _ := UnMarshal(arg).(map[string]interface{})
-			return data
-		case []string:
-			if len(arg) == 1 {
-				data, _ := UnMarshal(arg[0]).(map[string]interface{})
-				return data
-			}
-			for i := 0; i < len(arg)-1; i += 2 {
-				Value(dict, arg[i], arg[i+1])
-			}
-			return dict
-		}
-	}
-	for i := 0; i < len(arg)-1; i += 2 {
-		Value(dict, arg[i], arg[i+1])
-	}
-	return dict
 }

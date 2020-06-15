@@ -13,40 +13,20 @@ import (
 	"time"
 )
 
+func _list(str string) map[rune]bool {
+	sep := map[rune]bool{}
+	for _, c := range str {
+		sep[c] = true
+	}
+	return sep
+}
 func Split(str string, arg ...string) (res []string) {
 	// 空白符
-	sep := map[rune]bool{'\t': true, ' ': true, ',': true, '\n': true}
-	if len(arg) > 0 && len(arg[0]) > 0 {
-		sep = map[rune]bool{}
-		for _, c := range arg[0] {
-			sep[c] = true
-		}
-	}
-
+	sep := _list(Select("\t ,\n", arg, 0))
 	// 分隔符
-	sup := map[rune]bool{
-		'{': true,
-		'[': true,
-		'(': true,
-		')': true,
-		']': true,
-		'}': true,
-	}
-	if len(arg) > 1 && len(arg[1]) > 0 {
-		sup = map[rune]bool{}
-		for _, c := range arg[1] {
-			sup[c] = true
-		}
-	}
-
+	sup := _list(Select("{[()]}", arg, 1))
 	// 引用符
-	sub := map[rune]bool{'"': true, '`': true, '\'': true}
-	if len(arg) > 2 && len(arg[2]) > 0 {
-		sub = map[rune]bool{}
-		for _, c := range arg[2] {
-			sub[c] = true
-		}
-	}
+	sub := _list(Select("\"'`", arg, 2))
 
 	// 开始分词
 	list := []rune(str)
@@ -54,6 +34,7 @@ func Split(str string, arg ...string) (res []string) {
 	for i := 0; i < len(list); i++ {
 		switch {
 		case sep[list[i]]:
+			// 空白符
 			if left == '\000' {
 				if !space {
 					res = append(res, string(list[begin:i]))
@@ -61,15 +42,7 @@ func Split(str string, arg ...string) (res []string) {
 				space, begin = true, i+1
 			}
 		case sub[list[i]]:
-			if len(arg) > 0 {
-				if left == '\000' {
-					left = list[i]
-				} else if left == list[i] {
-					left = '\000'
-				}
-				break
-			}
-
+			// 引用符
 			if left == '\000' {
 				left, space, begin = list[i], false, i+1
 			} else if left == list[i] {
@@ -77,6 +50,7 @@ func Split(str string, arg ...string) (res []string) {
 				left, space, begin = '\000', true, i+1
 			}
 		case sup[list[i]]:
+			// 分隔符
 			if left == '\000' {
 				if !space {
 					res = append(res, string(list[begin:i]))
@@ -85,6 +59,7 @@ func Split(str string, arg ...string) (res []string) {
 				space, begin = true, i+1
 			}
 		case list[i] == '\\':
+			// 转义符
 			for i := i; i < len(list)-1; i++ {
 				list[i] = list[i+1]
 			}
@@ -95,7 +70,7 @@ func Split(str string, arg ...string) (res []string) {
 		}
 	}
 
-	// 末尾单词
+	// 末尾字符
 	if begin < len(list) {
 		res = append(res, string(list[begin:]))
 	}
@@ -393,7 +368,6 @@ func Hash(arg ...interface{}) (string, []string) {
 func Hashs(arg ...interface{}) string {
 	if len(arg) > 0 {
 		switch arg := arg[0].(type) {
-		case string:
 		case io.Reader:
 			md := md5.New()
 			io.Copy(md, arg)
