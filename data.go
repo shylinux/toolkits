@@ -28,17 +28,26 @@ const (
 )
 
 const (
+	// MDB_LIST = "list"
+	MDB_SHOW  = "show"
+	MDB_SYNC  = "sync"
+	MDB_PULL  = "pull"
+	MDB_PUSH  = "push"
+	MDB_PROXY = "proxy"
+	MDB_SHARE = "share"
+
+	MDB_COMMIT = "commit"
+	MDB_MODIFY = "modify"
+	MDB_INSERT = "insert"
 	MDB_CREATE = "create"
-	MDB_REMOVE = "remove"
 	MDB_IMPORT = "import"
 	MDB_EXPORT = "export"
-	MDB_INSERT = "insert"
 	MDB_DELETE = "delete"
-	MDB_SELETE = "select"
-	MDB_MODIFY = "modify"
 
-	// MDB_LIST = "list"
-	MDB_SHOW = "show"
+	MDB_PARSER = "parser"
+	MDB_RENDER = "render"
+	MDB_SEARCH = "search"
+	MDB_ADVISE = "advise"
 )
 
 const (
@@ -55,6 +64,9 @@ const (
 	MDB_LIST = "list"
 	MDB_HASH = "hash"
 
+	// MDB_LIST = "list"
+	MDB_DATA = "data"
+
 	MDB_STATUS = "status"
 	MDB_EXTRA  = "extra"
 	MDB_GROUP  = "group"
@@ -62,6 +74,7 @@ const (
 	MDB_VALUE  = "value"
 	MDB_USER   = "user"
 
+	MDB_LINK = "link"
 	MDB_SIZE = "size"
 	MDB_FILE = "file"
 	MDB_TEXT = "text"
