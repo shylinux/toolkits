@@ -10,11 +10,12 @@ const (
 	MIME_TEXT = "text/plain"
 	MIME_HTML = "text/html"
 
+	MIME_SHELL = "shell"
+
 	MIME_TABLE = "table"
 	MIME_ORDER = "order"
 	MIME_CHAIN = "chain"
 	MIME_TITLE = "title"
-	MIME_SHELL = "shell"
 
 	MIME_SPACE = "space"
 	MIME_STORY = "story"
@@ -68,11 +69,16 @@ const (
 	MDB_DATA = "data"
 
 	MDB_STATUS = "status"
+	MDB_ERROR  = "error"
 	MDB_EXTRA  = "extra"
 	MDB_GROUP  = "group"
 	MDB_COUNT  = "count"
 	MDB_VALUE  = "value"
 	MDB_USER   = "user"
+	MDB_DIR    = "dir"
+	MDB_ENV    = "env"
+	MDB_ARG    = "arg"
+	MDB_PID    = "pid"
 
 	MDB_LINK = "link"
 	MDB_SIZE = "size"

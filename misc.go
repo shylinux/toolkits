@@ -13,6 +13,13 @@ import (
 )
 
 func Create(p string) (*os.File, string, error) {
+	switch p {
+	case "", "null":
+		p = "/dev/null"
+	case "stdout", "stderr":
+		p = "/dev/" + p
+	}
+
 	if dir, _ := path.Split(p); dir != "" {
 		os.MkdirAll(dir, 0777)
 	}
