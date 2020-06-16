@@ -138,9 +138,9 @@ func HTTP(nconn, nreq int64, req []*http.Request, check func(*http.Request, *htt
 	for i := int64(0); i < nconn; i++ {
 		list = append(list, i)
 	}
-	p := task.New(nil, nconn)
 
-	p.Sync(list, func(task *task.Task) error {
+	task.Sync(list, func(task *task.Task) error {
+		p := task.Pool()
 		hc, e := c.GetHttp(p.Ctx)
 		if e != nil {
 			return e

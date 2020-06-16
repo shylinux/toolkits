@@ -13,7 +13,7 @@ type Work struct {
 }
 
 func (work *Work) Run() {
-	defer log.Cost("work", " id: ", work.ID, " err: ", work.Ctx.Err(), " ")()
+	defer log.Cost("work", " err: ", work.Ctx.Err(), " id: ", work.ID, " work: ", work.ID, " pool: ", work.pool.ID, " ")()
 	defer func() {
 		if e := recover(); e != nil {
 			for i := 1; i < 6; i++ {
@@ -28,7 +28,7 @@ func (work *Work) Run() {
 		case task := <-work.pool.channel:
 			task.work = work
 			task.Ctx = context.WithValue(work.Ctx, "id", task.ID)
-			log.Show("task", "run", log.FileLine(task.CB, 3), "id", task.ID, "arg", task.Arg, "work", work.ID, "pool", work.pool.ID)
+			log.Show("task", "run", log.FileLine(task.CB, 3), "arg", task.Arg, "id", task.ID, "work", work.ID, "pool", work.pool.ID)
 			task.Run()
 		case <-work.Ctx.Done():
 			return

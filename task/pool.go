@@ -38,7 +38,7 @@ func (pool *Pool) Sync(args []interface{}, cb func(*Task) error) *Pool {
 }
 func (pool *Pool) Put(arg interface{}, cb func(*Task) error) *Task {
 	id := atomic.AddInt64(&pool.taskID, 1)
-	log.Show("task", "put", log.FileLine(cb, 3), "id", id, "arg", arg)
+	log.Show("task", "put", log.FileLine(cb, 3), "arg", arg, "id", id, "pool", pool.ID)
 	task := &Task{ID: id, Arg: arg, CB: cb, PrepareTime: time.Now()}
 
 	if pool.channel <- task; pool.workID < pool.limit {
@@ -54,7 +54,7 @@ func (pool *Pool) Add(count int) *Pool {
 		id := atomic.AddInt64(&pool.workID, 1)
 		ctx := context.WithValue(pool.Ctx, "id", id)
 		work := &Work{ID: id, pool: pool, Ctx: ctx}
-		log.Show("work", "add", log.FileLine(work.Run, 3), "id", id)
+		log.Show("work", "add", log.FileLine(work.Run, 3), "id", id, "pool", pool.ID)
 		go work.Run()
 	}
 	return pool

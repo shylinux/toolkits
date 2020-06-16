@@ -29,9 +29,6 @@ type HttpClient struct {
 func (hc *HttpClient) Info() string {
 	return fmt.Sprintf("connID: %d poolID: %d", hc.conn.ID, hc.conn.pool.ID)
 }
-func (hc *HttpClient) Close() {
-	hc.conn.Close()
-}
 func (hc *HttpClient) Get(url string) (*http.Response, error) {
 	res, err := hc.Client.Get(url)
 	if hc.GetCount++; err != nil {
@@ -53,6 +50,9 @@ func (hc *HttpClient) NRead() int64 {
 }
 func (hc *HttpClient) NWrite() int64 {
 	return int64(hc.conn.nwrite)
+}
+func (hc *HttpClient) Close() {
+	hc.conn.Close()
 }
 
 func (pool *Pool) GetHttp(ctx context.Context) (*HttpClient, error) {

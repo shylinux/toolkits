@@ -34,6 +34,9 @@ type Task struct {
 func (task *Task) Info() string {
 	return fmt.Sprintf("poolID: %d workID: %d taskID: %d", task.work.pool.ID, task.work.ID, task.ID)
 }
+func (task *Task) Pool() *Pool {
+	return task.work.pool
+}
 func (task *Task) Run() {
 	defer log.Cost("task: ", log.FileLine(task.CB, 3), " id: ", task.ID, " err: ", task.Error, " ")()
 
