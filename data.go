@@ -9,23 +9,6 @@ const (
 	MIME_JSON = "application/json"
 	MIME_TEXT = "text/plain"
 	MIME_HTML = "text/html"
-
-	MIME_SHELL = "shell"
-
-	MIME_TABLE = "table"
-	MIME_ORDER = "order"
-	MIME_CHAIN = "chain"
-	MIME_TITLE = "title"
-
-	MIME_SPACE = "space"
-	MIME_STORY = "story"
-	MIME_FAVOR = "favor"
-	MIME_SHARE = "share"
-
-	MIME_MASTER = "master"
-	MIME_MYSELF = "myself"
-	MIME_SERVER = "server"
-	MIME_WORKER = "worker"
 )
 
 const (
@@ -49,11 +32,13 @@ const (
 	MDB_RENDER = "render"
 	MDB_SEARCH = "search"
 	MDB_ADVISE = "advise"
+
+	MDB_INPUT = "_input"
 )
 
 const (
 	MDB_FOREACH = "*"
-	MDB_RANDOM  = "%"
+	MDB_RANDOMS = "%"
 	MDB_SHORT   = "short"
 	MDB_STORE   = "store"
 	MDB_FSIZE   = "fsize"
@@ -62,8 +47,8 @@ const (
 
 	MDB_DICT = "dict"
 	MDB_META = "meta"
-	MDB_LIST = "list"
 	MDB_HASH = "hash"
+	MDB_LIST = "list"
 
 	// MDB_LIST = "list"
 	MDB_DATA = "data"
@@ -71,9 +56,9 @@ const (
 	MDB_STATUS = "status"
 	MDB_ERROR  = "error"
 	MDB_EXTRA  = "extra"
-	MDB_GROUP  = "group"
-	MDB_COUNT  = "count"
 	MDB_VALUE  = "value"
+	MDB_COUNT  = "count"
+	MDB_GROUP  = "group"
 	MDB_USER   = "user"
 	MDB_DIR    = "dir"
 	MDB_ENV    = "env"
@@ -90,8 +75,6 @@ const (
 	MDB_TIME = "time"
 	MDB_KEY  = "key"
 	MDB_ID   = "id"
-
-	MDB_INPUT = "_input"
 )
 
 func Keys(arg ...interface{}) string {
@@ -133,6 +116,10 @@ func _parse(meta map[string]interface{}, arg ...interface{}) map[string]interfac
 	}
 	return meta
 }
+func Dict(arg ...interface{}) map[string]interface{} {
+	dict := map[string]interface{}{}
+	return _parse(dict, arg...)
+}
 func Data(arg ...interface{}) map[string]interface{} {
 	meta := map[string]interface{}{}
 	data := map[string]interface{}{
@@ -140,10 +127,6 @@ func Data(arg ...interface{}) map[string]interface{} {
 	}
 	_parse(meta, arg...)
 	return data
-}
-func Dict(arg ...interface{}) map[string]interface{} {
-	dict := map[string]interface{}{}
-	return _parse(dict, arg...)
 }
 func List(arg ...interface{}) []interface{} {
 	list, data := []interface{}{}, map[string]interface{}{}

@@ -204,6 +204,10 @@ func Path(str string, rest ...string) string {
 	return str
 }
 
+func Join(str []string, key string) string {
+	return strings.Join(str, key)
+}
+
 func FileLine(p interface{}, n int) string {
 	var fun uintptr
 	switch p := p.(type) {
