@@ -1,6 +1,7 @@
 package kit
 
 import (
+	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -225,4 +226,32 @@ func FileLine(p interface{}, n int) string {
 		ls = ls[len(ls)-n:]
 	}
 	return Format("%s:%d", strings.Join(ls, "/"), line)
+}
+
+func CSV(file string, limit int, cb func(index int, value map[string]string, head []string)) error {
+	f, e := os.Open(file)
+	if e != nil {
+		return e
+	}
+	defer f.Close()
+
+	r := csv.NewReader(f)
+	head, e := r.Read()
+	if e != nil {
+		return e
+	}
+
+	for i := 0; i < limit; i++ {
+		line, e := r.Read()
+		if e != nil {
+			break
+		}
+
+		value := map[string]string{}
+		for i, k := range head {
+			value[k] = line[i]
+		}
+		cb(i, value, head)
+	}
+	return nil
 }
