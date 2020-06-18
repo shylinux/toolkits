@@ -17,7 +17,7 @@ func (work *Work) Run() {
 	defer func() {
 		if e := recover(); e != nil {
 			for i := 1; i < 6; i++ {
-				log.Show("work", "err", e, "pos", log.FileLine(i, 3))
+				log.Show("work", "work err", e, "pos", log.FileLine(i, 3))
 			}
 			work.pool.Add(1)
 		}
@@ -28,7 +28,7 @@ func (work *Work) Run() {
 		case task := <-work.pool.channel:
 			task.work = work
 			task.Ctx = context.WithValue(work.Ctx, "id", task.ID)
-			log.Show("task", "run", log.FileLine(task.CB, 3), "arg", task.Arg, "id", task.ID, "work", work.ID, "pool", work.pool.ID)
+			log.Show("task", "task run", log.FileLine(task.CB, 3), "arg", task.Arg, "id", task.ID, "work", work.ID, "pool", work.pool.ID)
 			task.Run()
 		case <-work.Ctx.Done():
 			return

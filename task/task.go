@@ -46,7 +46,7 @@ func (task *Task) Run() {
 	defer func() {
 		if e := recover(); e != nil {
 			for i := 1; i < 6; i++ {
-				log.Show("task", "err", e, "pos", log.FileLine(i, 3))
+				log.Show("task", "task err", e, "pos", log.FileLine(i, 3))
 			}
 			task.Status = StatusCancel
 			task.Error = e

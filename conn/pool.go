@@ -30,17 +30,17 @@ func (pool *Pool) Get(ctx context.Context) *Conn {
 	for {
 		select {
 		case <-ctx.Done():
-			log.Show("conn", "err", ctx.Err(), "pool", pool.ID)
+			log.Show("conn", "conn err", ctx.Err(), "pool", pool.ID)
 			return nil
 		case c := <-pool.channel:
-			log.Show("conn", "get", c.LocalAddr(), "id", c.ID, "pool", pool.ID)
+			log.Show("conn", "conn get", c.LocalAddr(), "id", c.ID, "pool", pool.ID)
 			return c
 		}
 	}
 	return nil
 }
 func (pool *Pool) Put(c *Conn) {
-	log.Show("conn", "put", c.LocalAddr(), "id", c.ID, "pool", pool.ID)
+	log.Show("conn", "conn put", c.LocalAddr(), "id", c.ID, "pool", pool.ID)
 	pool.channel <- c
 }
 func (pool *Pool) add() {
@@ -66,7 +66,7 @@ func New(conf *conf.Conf, addrs []string, limit int64) *Pool {
 		id := atomic.AddInt64(&pool.connID, 1)
 		for i := 0; i < pool.retry; i++ {
 			if c, e := net.Dial("tcp", addrs[id%int64(len(addrs))]); e == nil {
-				log.Show("conn", "add", c.LocalAddr(), "id", id, "rest", pool.limit-id, "pool", pool.ID)
+				log.Show("conn", "conn add", c.LocalAddr(), "id", id, "rest", pool.limit-id, "pool", pool.ID)
 				return &Conn{ID: id, Conn: c, pool: pool}
 			} else {
 				log.Warn("dial", addrs, i, e)
