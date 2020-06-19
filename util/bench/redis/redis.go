@@ -93,7 +93,7 @@ func Redis(nconn, nreq int64, hosts []string, cmds []string, check func(string, 
 		list = append(list, i)
 	}
 
-	task.Sync(list, func(task *task.Task) error {
+	task.Sync(list, func(task *task.Task, lock *task.Lock) error {
 		// 请求汇总
 		var nerr, nok int64
 		defer func() {

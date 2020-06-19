@@ -24,13 +24,15 @@ type Pool struct {
 	cancel context.CancelFunc
 }
 
-func (pool *Pool) Sync(args []interface{}, cb func(*Task) error) *Pool {
+func (pool *Pool) Sync(args []interface{}, cb func(*Task, *Lock) error) *Pool {
+	var lock Lock
+
 	w := &sync.WaitGroup{}
 	for _, arg := range args {
 		w.Add(1)
 		pool.Put(arg, func(task *Task) error {
 			defer w.Done()
-			return cb(task)
+			return cb(task, &lock)
 		})
 	}
 	w.Wait()
@@ -38,7 +40,7 @@ func (pool *Pool) Sync(args []interface{}, cb func(*Task) error) *Pool {
 }
 func (pool *Pool) Put(arg interface{}, cb func(*Task) error) *Task {
 	id := atomic.AddInt64(&pool.taskID, 1)
-	// log.Show("task", "task put", log.FileLine(cb, 3), "arg", arg, "id", id, "pool", pool.ID)
+	log.Show("task", "task put", log.FileLine(cb, 3), "arg", arg, "id", id, "pool", pool.ID)
 	task := &Task{ID: id, Arg: arg, CB: cb, PrepareTime: time.Now()}
 
 	if pool.channel <- task; pool.workID < pool.limit {

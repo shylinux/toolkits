@@ -38,7 +38,7 @@ func (task *Task) Pool() *Pool {
 	return task.work.pool
 }
 func (task *Task) Run() {
-	// defer log.Cost("task end: ", log.FileLine(task.CB, 3), " id: ", task.ID, " err: ", task.Error, " ")()
+	defer log.Cost("task end: ", log.FileLine(task.CB, 3), " id: ", task.ID, " err: ", task.Error, " ")()
 
 	task.Status = StatusProcess
 	task.ProcessTime = time.Now()
