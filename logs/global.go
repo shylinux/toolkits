@@ -4,7 +4,7 @@ import (
 	"github.com/shylinux/toolkits/conf"
 )
 
-var log, _ = Open(conf.New(nil))
+var log, _ = Open(conf.Sub("log"))
 
 func init() { log.stack = STACK + 1 }
 

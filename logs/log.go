@@ -154,7 +154,7 @@ func Open(conf *conf.Conf) (*Log, error) {
 
 	log := &Log{
 		Output:  conf.Get("log.name", "stderr"),
-		Prefix:  conf.GetList("log.prefix"),
+		Prefix:  conf.GetList("log.prefix", []string{"time"}),
 		Filter:  conf.GetList("log.filter"),
 		Notice:  conf.GetList("log.notice"),
 		column:  conf.GetInt("log.column", 3),

@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/shylinux/toolkits/conf"
-	"github.com/shylinux/toolkits/log"
+	"github.com/shylinux/toolkits/logs"
 )
 
 type Pool struct {
@@ -65,9 +65,9 @@ func (pool *Pool) Close() { pool.cancel() }
 
 var poolID int64
 
-func New(conf *conf.Conf, limit int64) *Pool {
+func New(conf *conf.Conf) *Pool {
 	id := atomic.AddInt64(&poolID, 1)
 	ctx, cancel := context.WithCancel(context.Background())
-	p := &Pool{limit: limit, ID: id, channel: make(chan *Task, 1024), Ctx: ctx, cancel: cancel}
+	p := &Pool{limit: int64(conf.GetInt("limit", 10)), ID: id, channel: make(chan *Task, 1024), Ctx: ctx, cancel: cancel}
 	return p
 }

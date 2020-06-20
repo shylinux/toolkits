@@ -2,7 +2,7 @@ package task
 
 import (
 	"context"
-	"github.com/shylinux/toolkits/log"
+	"github.com/shylinux/toolkits/logs"
 )
 
 type Work struct {

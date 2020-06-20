@@ -77,9 +77,6 @@ const (
 	MDB_ID   = "id"
 )
 
-func Keys(arg ...interface{}) string {
-	return strings.TrimSuffix(strings.TrimPrefix(strings.Join(Simple(arg...), "."), "."), ".")
-}
 func _parse(meta map[string]interface{}, arg ...interface{}) map[string]interface{} {
 	if len(arg) == 1 {
 		switch arg := arg[0].(type) {
@@ -115,6 +112,9 @@ func _parse(meta map[string]interface{}, arg ...interface{}) map[string]interfac
 		}
 	}
 	return meta
+}
+func Keys(arg ...interface{}) string {
+	return strings.TrimSuffix(strings.TrimPrefix(strings.Join(Simple(arg...), "."), "."), ".")
 }
 func Dict(arg ...interface{}) map[string]interface{} {
 	dict := map[string]interface{}{}

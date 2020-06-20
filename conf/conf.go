@@ -133,20 +133,3 @@ func Open(file string) (*Conf, error) {
 	}
 	return Parse(string(b))
 }
-
-var conf = &Conf{data: kit.Dict(
-	"app.name", "demo",
-	"log.name", "demo",
-)}
-
-func GetVal(key string, def ...interface{}) interface{} { return conf.GetVal(key, def...) }
-func GetInt(key string, def ...int) int                 { return conf.GetInt(key, def...) }
-func Get(key string, def ...string) string              { return conf.Get(key, def...) }
-
-func Init(file string) {
-	c, e := Open(file)
-	if e != nil {
-		panic(e)
-	}
-	conf = c
-}

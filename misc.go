@@ -13,6 +13,26 @@ import (
 	"strings"
 )
 
+func FileLine(p interface{}, n int) string {
+	var fun uintptr
+	switch p := p.(type) {
+	case uintptr:
+		fun = p
+	case int:
+		fun, _, _, _ = runtime.Caller(p)
+	default:
+		f := reflect.ValueOf(p)
+		fun = f.Pointer()
+	}
+
+	f := runtime.FuncForPC(fun)
+	file, line := f.FileLine(fun)
+	ls := strings.Split(file, "/")
+	if len(ls) > n {
+		ls = ls[len(ls)-n:]
+	}
+	return Format("%s:%d", strings.Join(ls, "/"), line)
+}
 func Create(p string) (*os.File, string, error) {
 	switch p {
 	case "", "null":
@@ -26,59 +46,6 @@ func Create(p string) (*os.File, string, error) {
 	}
 	f, e := os.Create(p)
 	return f, p, e
-}
-func FmtSize(size int64) string {
-	if size > 1<<30 {
-		return fmt.Sprintf("%d.%dG", size>>30, (size>>20)%1024*100>>10)
-	}
-
-	if size > 1<<20 {
-		return fmt.Sprintf("%d.%dM", size>>20, (size>>10)%1024*100>>10)
-	}
-
-	if size > 1<<10 {
-		return fmt.Sprintf("%d.%dK", size>>10, size%1024*100>>10)
-	}
-
-	return fmt.Sprintf("%dB", size)
-}
-func FmtTime(t int64) string {
-	sign, time := "", t
-	if time < 0 {
-		sign, time = "-", -t
-	}
-
-	list := []string{}
-	if time > 24*3600*1000000000 {
-		list = append(list, fmt.Sprintf("%s%dd", sign, time/(24*3600*1000000000)))
-		time = time % (24 * 3600 * 1000000000)
-	}
-	if time > 3600*1000000000 {
-		list = append(list, fmt.Sprintf("%s%dh", sign, time/3600/1000000000))
-		time = time % (3600 * 1000000000)
-	}
-	if len(list) > 0 {
-		return strings.Join(list, "")
-	}
-	if time > 1000000000 {
-		return fmt.Sprintf("%s%d.%ds", sign, time/1000000000, (time/1000000)%1000*100/1000)
-	}
-	if time > 1000000 {
-		return fmt.Sprintf("%s%d.%dms", sign, time/1000000, (time/1000)%1000*100/1000)
-	}
-	if time > 1000 {
-		return fmt.Sprintf("%s%d.%dus", sign, time/1000, (time/1000)%1000*100/1000)
-	}
-	return fmt.Sprintf("%s%dns", sign, time)
-}
-func ShortKey(list map[string]interface{}, min int, arg ...interface{}) string {
-	h := Hashs(arg...)
-	for i := min; i < len(h); i++ {
-		if _, ok := list[h[:i]]; !ok {
-			return h[:i]
-		}
-	}
-	return h
 }
 func MergeURL(str string, arg ...interface{}) string {
 	list := strings.Split(str, "?")
@@ -150,84 +117,6 @@ func MergeURL2(str string, uri string, arg ...interface{}) string {
 	return res
 }
 
-func Width(str string, mul int) int {
-	return len([]rune(str)) + (len(str)-len([]rune(str)))/2/mul
-}
-func UnMarshal(data string) interface{} {
-	var res interface{}
-	if strings.HasSuffix(data, ".json") {
-		if b, e := ioutil.ReadFile(data); e == nil {
-			json.Unmarshal(b, &res)
-		}
-	} else {
-		json.Unmarshal([]byte(data), &res)
-	}
-	return res
-}
-
-func Right(str string) bool {
-	return str != "" && str != "0" && str != "false" && str != "off" && str != "[]" && str != "{}"
-}
-func Short(arg interface{}) interface{} {
-	switch arg := arg.(type) {
-	case string:
-		if len(arg) > 6 {
-			return arg[:6]
-		}
-	}
-	return arg
-}
-
-func KeyValue(res map[string]interface{}, key string, arg interface{}) map[string]interface{} {
-	switch arg := arg.(type) {
-	case map[string]interface{}:
-		for k, v := range arg {
-			KeyValue(res, Keys(key, k), v)
-		}
-
-	case []interface{}:
-		for i, v := range arg {
-			KeyValue(res, Keys(key, i), v)
-		}
-	default:
-		res[key] = arg
-	}
-	return res
-}
-
-func Path(str string, rest ...string) string {
-	if strings.HasPrefix(str, "/") {
-		return path.Join(append([]string{str}, rest...)...)
-	}
-	if wd, e := os.Getwd(); e == nil {
-		return path.Join(append([]string{wd, str}, rest...)...)
-	}
-	return str
-}
-
-func Join(str []string, key string) string {
-	return strings.Join(str, key)
-}
-
-func FileLine(p interface{}, n int) string {
-	var fun uintptr
-	switch p := p.(type) {
-	case uintptr:
-		fun = p
-	default:
-		f := reflect.ValueOf(p)
-		fun = f.Pointer()
-	}
-
-	f := runtime.FuncForPC(fun)
-	file, line := f.FileLine(fun)
-	ls := strings.Split(file, "/")
-	if len(ls) > n {
-		ls = ls[len(ls)-n:]
-	}
-	return Format("%s:%d", strings.Join(ls, "/"), line)
-}
-
 func CSV(file string, limit int, cb func(index int, value map[string]string, head []string)) error {
 	f, e := os.Open(file)
 	if e != nil {
@@ -254,4 +143,112 @@ func CSV(file string, limit int, cb func(index int, value map[string]string, hea
 		cb(i, value, head)
 	}
 	return nil
+}
+func UnMarshal(data string) interface{} {
+	var res interface{}
+	if strings.HasSuffix(data, ".json") {
+		if b, e := ioutil.ReadFile(data); e == nil {
+			json.Unmarshal(b, &res)
+		}
+	} else {
+		json.Unmarshal([]byte(data), &res)
+	}
+	return res
+}
+func ShortKey(list map[string]interface{}, min int, arg ...interface{}) string {
+	h := Hashs(arg...)
+	for i := min; i < len(h); i++ {
+		if _, ok := list[h[:i]]; !ok {
+			return h[:i]
+		}
+	}
+	return h
+}
+func KeyValue(res map[string]interface{}, key string, arg interface{}) map[string]interface{} {
+	switch arg := arg.(type) {
+	case map[string]interface{}:
+		for k, v := range arg {
+			KeyValue(res, Keys(key, k), v)
+		}
+
+	case []interface{}:
+		for i, v := range arg {
+			KeyValue(res, Keys(key, i), v)
+		}
+	default:
+		res[key] = arg
+	}
+	return res
+}
+
+func Path(str string, rest ...string) string {
+	if strings.HasPrefix(str, "/") {
+		return path.Join(append([]string{str}, rest...)...)
+	}
+	if wd, e := os.Getwd(); e == nil {
+		return path.Join(append([]string{wd, str}, rest...)...)
+	}
+	return str
+}
+func Join(str []string, key string) string {
+	return strings.Join(str, key)
+}
+func Right(str string) bool {
+	return str != "" && str != "0" && str != "false" && str != "off" && str != "[]" && str != "{}"
+}
+func Width(str string, mul int) int {
+	return len([]rune(str)) + (len(str)-len([]rune(str)))/2/mul
+}
+func Short(arg interface{}) interface{} {
+	switch arg := arg.(type) {
+	case string:
+		if len(arg) > 6 {
+			return arg[:6]
+		}
+	}
+	return arg
+}
+func FmtSize(size int64) string {
+	if size > 1<<30 {
+		return fmt.Sprintf("%d.%dG", size>>30, (size>>20)%1024*100>>10)
+	}
+
+	if size > 1<<20 {
+		return fmt.Sprintf("%d.%dM", size>>20, (size>>10)%1024*100>>10)
+	}
+
+	if size > 1<<10 {
+		return fmt.Sprintf("%d.%dK", size>>10, size%1024*100>>10)
+	}
+
+	return fmt.Sprintf("%dB", size)
+}
+func FmtTime(t int64) string {
+	sign, time := "", t
+	if time < 0 {
+		sign, time = "-", -t
+	}
+
+	list := []string{}
+	if time > 24*3600*1000000000 {
+		list = append(list, fmt.Sprintf("%s%dd", sign, time/(24*3600*1000000000)))
+		time = time % (24 * 3600 * 1000000000)
+	}
+	if time > 3600*1000000000 {
+		list = append(list, fmt.Sprintf("%s%dh", sign, time/3600/1000000000))
+		time = time % (3600 * 1000000000)
+	}
+	if len(list) > 0 {
+		return strings.Join(list, "")
+	}
+	if time > 1000000000 {
+		return fmt.Sprintf("%s%d.%ds", sign, time/1000000000, (time/1000000)%1000*100/1000)
+	}
+	if time > 1000000 {
+		return fmt.Sprintf("%s%d.%dms", sign, time/1000000, (time/1000)%1000*100/1000)
+	}
+	if time > 1000 {
+		return fmt.Sprintf("%s%d.%dus", sign, time/1000, (time/1000)%1000*100/1000)
+	}
+	return fmt.Sprintf("%s%dns", sign, time)
 }
