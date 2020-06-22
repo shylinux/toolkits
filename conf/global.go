@@ -1,7 +1,7 @@
 package conf
 
 import (
-	"github.com/shylinux/toolkits"
+	kit "github.com/shylinux/toolkits"
 )
 
 var conf = New(kit.Dict(
@@ -18,7 +18,7 @@ var conf = New(kit.Dict(
 		"least", "10",
 	),
 	"task", kit.Dict(
-		"limit", 50,
+		"limit", 300,
 	),
 ))
 
