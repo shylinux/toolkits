@@ -18,7 +18,7 @@ var conf = New(kit.Dict(
 		"least", "10",
 	),
 	"task", kit.Dict(
-		"limit", 300,
+		"limit", 30,
 	),
 ))
 
