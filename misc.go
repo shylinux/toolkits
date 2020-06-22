@@ -210,15 +210,15 @@ func Short(arg interface{}) interface{} {
 }
 func FmtSize(size int64) string {
 	if size > 1<<30 {
-		return fmt.Sprintf("%d.%dG", size>>30, (size>>20)%1024*100>>10)
+		return fmt.Sprintf("%0.2fG", float64(size)/(1<<30))
 	}
 
 	if size > 1<<20 {
-		return fmt.Sprintf("%d.%dM", size>>20, (size>>10)%1024*100>>10)
+		return fmt.Sprintf("%0.2fM", float64(size)/(1<<20))
 	}
 
 	if size > 1<<10 {
-		return fmt.Sprintf("%d.%dK", size>>10, size%1024*100>>10)
+		return fmt.Sprintf("%0.2fK", float64(size)/(1<<10))
 	}
 
 	return fmt.Sprintf("%dB", size)

@@ -20,19 +20,6 @@ const (
 	MDB_PROXY = "proxy"
 	MDB_SHARE = "share"
 
-	MDB_COMMIT = "commit"
-	MDB_MODIFY = "modify"
-	MDB_INSERT = "insert"
-	MDB_CREATE = "create"
-	MDB_IMPORT = "import"
-	MDB_EXPORT = "export"
-	MDB_DELETE = "delete"
-
-	MDB_PARSER = "parser"
-	MDB_RENDER = "render"
-	MDB_SEARCH = "search"
-	MDB_ADVISE = "advise"
-
 	MDB_INPUT = "_input"
 )
 
