@@ -125,7 +125,9 @@ func Redis(nconn, nreq int64, hosts []string, cmds []string, check func(string, 
 					nerr++
 				} else {
 					// 请求成功
-					check(cmd, arg, reply)
+					if check != nil {
+						check(cmd, arg, reply)
+					}
 					nok++
 				}
 			}()

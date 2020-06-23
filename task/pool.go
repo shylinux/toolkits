@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/shylinux/toolkits/conf"
-	"github.com/shylinux/toolkits/logs"
+	log "github.com/shylinux/toolkits/logs"
 )
 
 type Pool struct {
@@ -43,7 +43,7 @@ func (pool *Pool) Put(arg interface{}, cb func(*Task) error) *Task {
 	log.Show("task", "task put", log.FileLine(cb, 3), "arg", arg, "id", id, "pool", pool.ID)
 	task := &Task{ID: id, Arg: arg, CB: cb, PrepareTime: time.Now()}
 
-	if pool.channel <- task; pool.workID < pool.limit {
+	if pool.channel <- task; len(pool.channel) > 0 && pool.workID < pool.limit {
 		pool.Add(1)
 	}
 	return task
