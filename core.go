@@ -368,6 +368,11 @@ func Hash(arg ...interface{}) (string, []string) {
 func Hashs(arg ...interface{}) string {
 	if len(arg) > 0 {
 		switch arg := arg[0].(type) {
+		case []byte:
+			md := md5.New()
+			md.Write(arg)
+			h := md.Sum(nil)
+			return hex.EncodeToString(h[:])
 		case io.Reader:
 			md := md5.New()
 			io.Copy(md, arg)

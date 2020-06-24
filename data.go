@@ -37,9 +37,6 @@ const (
 	MDB_HASH = "hash"
 	MDB_LIST = "list"
 
-	// MDB_LIST = "list"
-	MDB_DATA = "data"
-
 	MDB_STATUS = "status"
 	MDB_ERROR  = "error"
 	MDB_EXTRA  = "extra"
@@ -55,6 +52,7 @@ const (
 	MDB_LINK = "link"
 	MDB_SIZE = "size"
 	MDB_FILE = "file"
+	MDB_PATH = "path"
 	MDB_TEXT = "text"
 	MDB_NAME = "name"
 	MDB_TYPE = "type"
