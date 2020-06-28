@@ -47,6 +47,10 @@ func Create(p string) (*os.File, string, error) {
 	f, e := os.Create(p)
 	return f, p, e
 }
+func ParseURL(str string) *url.URL {
+	u, _ := url.Parse(str)
+	return u
+}
 func MergeURL(str string, arg ...interface{}) string {
 	list := strings.Split(str, "?")
 	res := list[0]
