@@ -169,6 +169,9 @@ func ShortKey(list map[string]interface{}, min int, arg ...interface{}) string {
 	return h
 }
 func KeyValue(res map[string]interface{}, key string, arg interface{}) map[string]interface{} {
+	if res == nil {
+		res = map[string]interface{}{}
+	}
 	switch arg := arg.(type) {
 	case map[string]interface{}:
 		for k, v := range arg {
