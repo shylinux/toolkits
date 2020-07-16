@@ -52,6 +52,7 @@ const (
 	MDB_LINK = "link"
 	MDB_SIZE = "size"
 	MDB_FILE = "file"
+	MDB_LINE = "line"
 	MDB_PATH = "path"
 	MDB_TEXT = "text"
 	MDB_NAME = "name"
