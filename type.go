@@ -74,14 +74,14 @@ func Duration(str interface{}) time.Duration {
 	}
 	return time.Millisecond
 }
-func Time(arg ...string) int {
+func Time(arg ...string) int64 {
 	if len(arg) == 0 {
-		return Int(time.Now())
+		return Int64(time.Now())
 	}
 
 	if len(arg) > 1 {
 		if t, e := time.ParseInLocation(arg[1], arg[0], time.Local); e == nil {
-			return Int(t)
+			return Int64(t)
 		}
 	}
 
@@ -96,7 +96,7 @@ func Time(arg ...string) int {
 		"15:04",
 	} {
 		if t, e := time.ParseInLocation(v, arg[0], time.Local); e == nil {
-			return Int(t)
+			return Int64(t)
 		}
 	}
 	return 0

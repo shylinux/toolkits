@@ -132,14 +132,14 @@ func (miss *Miss) Rich(prefix string, cache map[string]interface{}, data interfa
 		// 时间淘汰
 		list := []int{}
 		for _, v := range hash {
-			list = append(list, kit.Time(kit.Format(kit.Value(v, "time"))))
+			list = append(list, int(kit.Time(kit.Format(kit.Value(v, "time")))))
 		}
 		sort.Ints(list)
 		dead := list[len(list)-1-least]
 
 		dir := path.Join(store, prefix)
 		for k, v := range hash {
-			if kit.Time(kit.Format(kit.Value(v, "time"))) > dead {
+			if int(kit.Time(kit.Format(kit.Value(v, "time")))) > dead {
 				break
 			}
 
