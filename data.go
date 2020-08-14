@@ -12,6 +12,10 @@ const (
 )
 
 const (
+	META_PATH = "meta.path"
+)
+
+const (
 	// MDB_LIST = "list"
 	MDB_SHOW  = "show"
 	MDB_SYNC  = "sync"
@@ -44,6 +48,7 @@ const (
 	MDB_COUNT  = "count"
 	MDB_GROUP  = "group"
 	MDB_USER   = "user"
+	MDB_PORT   = "port"
 	MDB_DIR    = "dir"
 	MDB_ENV    = "env"
 	MDB_ARG    = "arg"
