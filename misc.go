@@ -100,7 +100,9 @@ func MergeURL2(str string, uri string, arg ...interface{}) string {
 	if len(list) > 1 {
 		for _, l := range strings.Split(list[1], "&") {
 			ls := strings.SplitN(l, "=", 2)
-			args[ls[0]] = append(args[ls[0]], ls[1])
+			if len(ls) == 1 {
+			}
+			args[ls[0]] = append(args[ls[0]], Select("", ls, 1))
 		}
 	}
 
