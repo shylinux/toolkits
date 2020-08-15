@@ -83,6 +83,9 @@ func MergeURL2(str string, uri string, arg ...interface{}) string {
 	if strings.HasPrefix(uri, "http") {
 		str, uri = uri, ""
 	}
+	if strings.HasPrefix(uri, "ftp") {
+		str, uri = uri, ""
+	}
 
 	if ls := strings.Split(str, "//"); len(ls) > 1 && len(uri) > 0 {
 		list := strings.Split(ls[1], "/")

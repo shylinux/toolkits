@@ -135,7 +135,10 @@ func (miss *Miss) Rich(prefix string, cache map[string]interface{}, data interfa
 			list = append(list, int(kit.Time(kit.Format(kit.Value(v, "time")))))
 		}
 		sort.Ints(list)
-		dead := list[len(list)-1-least]
+		dead := 0
+		if len(list) > 0 {
+			dead = list[len(list)-1-least]
+		}
 
 		dir := path.Join(store, prefix)
 		for k, v := range hash {
