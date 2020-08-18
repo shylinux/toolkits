@@ -1,8 +1,10 @@
 package miss
 
 import (
+	"strings"
+
 	kit "github.com/shylinux/toolkits"
-	"github.com/shylinux/toolkits/logs"
+	log "github.com/shylinux/toolkits/logs"
 
 	"encoding/json"
 	"io/ioutil"
@@ -101,12 +103,6 @@ func (miss *Miss) Rich(prefix string, cache map[string]interface{}, data interfa
 		cache[kit.MDB_HASH] = hash
 	}
 
-	// 通用数据
-	nest := kit.Select("", "meta.", kit.Value(data, "meta") != nil)
-	if kit.Value(data, nest+kit.MDB_TIME) == nil {
-		kit.Value(data, nest+kit.MDB_TIME, time.Now().Format("2006-01-02 15:03:04"))
-	}
-
 	// 生成键值
 	h := ""
 	switch short := kit.Format(kit.Value(meta, kit.MDB_SHORT)); short {
@@ -117,11 +113,21 @@ func (miss *Miss) Rich(prefix string, cache map[string]interface{}, data interfa
 	case "data":
 		h = kit.Hashs(kit.Format(data))
 	default:
-		if kit.Value(data, "meta") != nil {
-			h = kit.Hashs(kit.Format(kit.Value(data, "meta."+short)))
-		} else {
-			h = kit.Hashs(kit.Format(kit.Value(data, short)))
+		list := []string{}
+		for _, k := range strings.Split(short, ",") {
+			if kit.Value(data, "meta") != nil {
+				list = append(list, kit.Format(kit.Value(data, "meta."+k)))
+			} else {
+				list = append(list, kit.Format(kit.Value(data, k)))
+			}
 		}
+		h = kit.Hashs(strings.Join(list, ","))
+	}
+
+	// 通用数据
+	nest := kit.Select("", "meta.", kit.Value(data, "meta") != nil)
+	if kit.Value(data, nest+kit.MDB_TIME) == nil {
+		kit.Value(data, nest+kit.MDB_TIME, time.Now().Format("2006-01-02 15:03:04"))
 	}
 
 	// 添加数据
