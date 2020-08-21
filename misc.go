@@ -193,6 +193,16 @@ func KeyValue(res map[string]interface{}, key string, arg interface{}) map[strin
 	return res
 }
 
+func TrimExt(str string, ext ...string) string {
+	if len(ext) == 0 {
+		ext = []string{".zip", ".tar.xz", ".tar.gz", ".tar.bz2"}
+	}
+	str = path.Base(str)
+	for _, k := range ext {
+		str = strings.TrimSuffix(str, k)
+	}
+	return str
+}
 func Path(str string, rest ...string) string {
 	if strings.HasPrefix(str, "/") {
 		return path.Join(append([]string{str}, rest...)...)
