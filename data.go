@@ -12,7 +12,8 @@ const (
 )
 
 const (
-	META_PATH = "meta.path"
+	META_PATH   = "meta.path"
+	META_SOURCE = "meta.source"
 )
 
 const (
@@ -46,6 +47,7 @@ const (
 	MDB_EXTRA  = "extra"
 	MDB_VALUE  = "value"
 	MDB_COUNT  = "count"
+	MDB_TOTAL  = "total"
 	MDB_GROUP  = "group"
 	MDB_USER   = "user"
 	MDB_PORT   = "port"
@@ -64,6 +66,7 @@ const (
 	MDB_TYPE = "type"
 	MDB_ZONE = "zone"
 	MDB_TIME = "time"
+	MDB_STEP = "step"
 	MDB_KEY  = "key"
 	MDB_ID   = "id"
 )

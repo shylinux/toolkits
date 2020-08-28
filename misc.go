@@ -1,6 +1,8 @@
 package kit
 
 import (
+	"bufio"
+	"bytes"
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
@@ -193,6 +195,32 @@ func KeyValue(res map[string]interface{}, key string, arg interface{}) map[strin
 	return res
 }
 
+func Rewrite(file string, cb func(string) string) error {
+	f, e := os.Open(file)
+	if e != nil {
+		return e
+	}
+	defer f.Close()
+
+	b, e := ioutil.ReadAll(f)
+	if e != nil {
+		return e
+	}
+	bio := bufio.NewScanner(bytes.NewBuffer(b))
+
+	o, _, e := Create(file)
+	if e != nil {
+		return e
+	}
+	defer o.Close()
+
+	for bio.Scan() {
+		line := cb(bio.Text())
+		o.WriteString(line)
+		o.WriteString("\n")
+	}
+	return nil
+}
 func TrimExt(str string, ext ...string) string {
 	if len(ext) == 0 {
 		ext = []string{".zip", ".tar.xz", ".tar.gz", ".tar.bz2"}
