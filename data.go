@@ -46,6 +46,7 @@ const (
 	MDB_ERROR  = "error"
 	MDB_EXTRA  = "extra"
 	MDB_VALUE  = "value"
+	MDB_STYLE  = "style"
 	MDB_COUNT  = "count"
 	MDB_TOTAL  = "total"
 	MDB_GROUP  = "group"
