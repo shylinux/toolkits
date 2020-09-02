@@ -14,6 +14,7 @@ const (
 const (
 	META_PATH   = "meta.path"
 	META_SOURCE = "meta.source"
+	META_FIELDS = "meta.fields"
 )
 
 const (
@@ -31,11 +32,12 @@ const (
 const (
 	MDB_FOREACH = "*"
 	MDB_RANDOMS = "%"
-	MDB_SHORT   = "short"
-	MDB_STORE   = "store"
-	MDB_FSIZE   = "fsize"
-	MDB_LIMIT   = "limit"
-	MDB_LEAST   = "least"
+
+	MDB_SHORT = "short"
+	MDB_STORE = "store"
+	MDB_FSIZE = "fsize"
+	MDB_LIMIT = "limit"
+	MDB_LEAST = "least"
 
 	MDB_DICT = "dict"
 	MDB_META = "meta"
