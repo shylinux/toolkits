@@ -136,3 +136,12 @@ func List(arg ...interface{}) []interface{} {
 	}
 	return list
 }
+func ListKV(arg ...interface{}) []interface{} {
+	list := []interface{}{}
+	for i := 0; i < len(arg)-1; i += 2 {
+		list = append(list, map[string]interface{}{
+			MDB_INPUT: "text", "name": arg[i], "value": arg[i+1],
+		})
+	}
+	return list
+}
