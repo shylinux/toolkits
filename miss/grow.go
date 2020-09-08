@@ -2,7 +2,7 @@ package miss
 
 import (
 	kit "github.com/shylinux/toolkits"
-	"github.com/shylinux/toolkits/logs"
+	log "github.com/shylinux/toolkits/logs"
 
 	"encoding/csv"
 	"os"
@@ -135,7 +135,7 @@ func (miss *Miss) Grows(prefix string, cache map[string]interface{}, offend, lim
 		begin = 0
 	}
 
-	if match == kit.MDB_ID {
+	if match == kit.MDB_ID && value != "" {
 		begin, end = kit.Int(value)-1, kit.Int(value)
 		match, value = "", ""
 	}
