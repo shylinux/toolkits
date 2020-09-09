@@ -44,6 +44,7 @@ const (
 	MDB_HASH = "hash"
 	MDB_LIST = "list"
 
+	MDB_ACTION = "action"
 	MDB_STATUS = "status"
 	MDB_ERROR  = "error"
 	MDB_EXTRA  = "extra"
@@ -51,9 +52,10 @@ const (
 	MDB_STYLE  = "style"
 	MDB_COUNT  = "count"
 	MDB_TOTAL  = "total"
-	MDB_GROUP  = "group"
 	MDB_ROUTE  = "route"
+	MDB_GROUP  = "group"
 	MDB_USER   = "user"
+	MDB_STEP   = "step"
 	MDB_PORT   = "port"
 	MDB_DIR    = "dir"
 	MDB_ENV    = "env"
@@ -62,15 +64,15 @@ const (
 
 	MDB_LINK = "link"
 	MDB_SIZE = "size"
-	MDB_FILE = "file"
 	MDB_LINE = "line"
+	MDB_FILE = "file"
 	MDB_PATH = "path"
+
 	MDB_TEXT = "text"
 	MDB_NAME = "name"
 	MDB_TYPE = "type"
 	MDB_ZONE = "zone"
 	MDB_TIME = "time"
-	MDB_STEP = "step"
 	MDB_KEY  = "key"
 	MDB_ID   = "id"
 )
