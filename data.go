@@ -13,8 +13,8 @@ const (
 
 const (
 	META_PATH   = "meta.path"
+	META_FIELD  = "meta.field"
 	META_SOURCE = "meta.source"
-	META_FIELDS = "meta.fields"
 )
 
 const (
@@ -34,6 +34,7 @@ const (
 	MDB_RANDOMS = "%"
 
 	MDB_SHORT = "short"
+	MDB_FIELD = "field"
 	MDB_STORE = "store"
 	MDB_FSIZE = "fsize"
 	MDB_LIMIT = "limit"
