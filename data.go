@@ -51,6 +51,7 @@ const (
 	MDB_EXTRA  = "extra"
 	MDB_VALUE  = "value"
 	MDB_STYLE  = "style"
+	MDB_TOPIC  = "topic"
 	MDB_COUNT  = "count"
 	MDB_TOTAL  = "total"
 	MDB_ROUTE  = "route"
