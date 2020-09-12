@@ -223,7 +223,7 @@ func (miss *Miss) Grows(prefix string, cache map[string]interface{}, offend, lim
 	}
 	for i := begin - current; i < end-current; i++ {
 		// 读取缓存
-		if match == "" || strings.Contains(kit.Format(kit.Value(list[i], match)), value) {
+		if match == "" || i < len(list) && strings.Contains(kit.Format(kit.Value(list[i], match)), value) {
 			switch cb := cb.(type) {
 			case func(int, map[string]interface{}):
 				cb(order, list[i].(map[string]interface{}))
