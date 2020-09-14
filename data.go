@@ -54,6 +54,7 @@ const (
 	MDB_TOPIC  = "topic"
 	MDB_COUNT  = "count"
 	MDB_TOTAL  = "total"
+	MDB_REPOS  = "repos"
 	MDB_ROUTE  = "route"
 	MDB_GROUP  = "group"
 	MDB_USER   = "user"

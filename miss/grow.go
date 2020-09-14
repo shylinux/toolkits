@@ -46,7 +46,7 @@ func (miss *Miss) Grow(prefix string, cache map[string]interface{}, data interfa
 		if len(record) > 0 {
 			name = kit.Format(kit.Value(record, kit.Keys(len(record)-1, "file")))
 			if s, e := os.Stat(name); e == nil {
-				if s.Size() > kit.Int64(kit.Select(kit.Format(kit.MDB_FSIZE), kit.Format(meta[kit.MDB_FSIZE]))) {
+				if s.Size() > kit.Int64(kit.Select(miss.fsize, kit.Format(meta[kit.MDB_FSIZE]))) {
 					name = path.Join(dir, kit.Keys(prefix+"_"+kit.Format(meta["offset"]), "csv"))
 				}
 			}
@@ -221,9 +221,9 @@ func (miss *Miss) Grows(prefix string, cache map[string]interface{}, offend, lim
 	if begin < current {
 		begin = current
 	}
-	for i := begin - current; i < end-current; i++ {
+	for i := begin - current; i < len(list) && i < end-current; i++ {
 		// 读取缓存
-		if match == "" || i < len(list) && strings.Contains(kit.Format(kit.Value(list[i], match)), value) {
+		if match == "" || strings.Contains(kit.Format(kit.Value(list[i], match)), value) {
 			switch cb := cb.(type) {
 			case func(int, map[string]interface{}):
 				cb(order, list[i].(map[string]interface{}))
