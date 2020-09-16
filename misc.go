@@ -302,3 +302,9 @@ func FmtTime(t int64) string {
 	}
 	return fmt.Sprintf("%s%dns", sign, time)
 }
+func FileExists(name string) bool {
+	if s, e := os.Stat(name); s != nil && e == nil {
+		return true
+	}
+	return false
+}
