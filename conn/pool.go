@@ -7,20 +7,19 @@ import (
 	"sync/atomic"
 
 	"github.com/shylinux/toolkits/conf"
-	"github.com/shylinux/toolkits/logs"
+	log "github.com/shylinux/toolkits/logs"
 )
 
 type Pool struct {
+	addrs []string
 	limit int64
 	retry int
-	addrs []string
+
+	mu      sync.Mutex
+	channel chan *Conn
+	connID  int64
 
 	ID int64
-	mu sync.Mutex
-
-	connID  int64
-	channel chan *Conn
-
 	sync.Pool
 }
 
@@ -56,17 +55,17 @@ func (pool *Pool) add() {
 
 var poolID int64
 
-func New(conf *conf.Conf, addrs []string, limit int64) *Pool {
+func New(conf *conf.Conf, addrs []string, limit int64, retry int) *Pool {
 	pool := &Pool{
+		addrs: addrs, limit: limit, retry: retry,
 		channel: make(chan *Conn, limit),
-		limit:   limit, retry: 3, addrs: addrs,
-		ID: atomic.AddInt64(&poolID, 1),
+		ID:      atomic.AddInt64(&poolID, 1),
 	}
 	pool.Pool = sync.Pool{New: func() interface{} {
 		id := atomic.AddInt64(&pool.connID, 1)
 		for i := 0; i < pool.retry; i++ {
 			if c, e := net.Dial("tcp", addrs[id%int64(len(addrs))]); e == nil {
-				log.Show("conn", "conn add", c.LocalAddr(), "id", id, "rest", pool.limit-id, "pool", pool.ID)
+				log.Show("conn", "conn add", c.LocalAddr(), "id", id, "pool", pool.ID)
 				return &Conn{ID: id, Conn: c, pool: pool}
 			} else {
 				log.Warn("dial", addrs, i, e)

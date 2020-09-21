@@ -6,8 +6,8 @@ import (
 
 var pool = New(conf.Sub("task"))
 
-func Sync(arg []interface{}, cb func(*Task, *Lock) error) *Pool {
-	return pool.Sync(arg, cb)
+func Wait(arg []interface{}, cb func(*Task, *Lock) error) *Pool {
+	return pool.Wait(arg, cb)
 }
 func Put(arg interface{}, cb func(*Task) error) *Task {
 	return pool.Put(arg, cb)

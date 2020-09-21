@@ -22,8 +22,8 @@ const (
 
 type Log struct {
 	Filter   []string
-	Notice   []string
 	Prefix   []string
+	Notice   []string
 	Out, Err *os.File
 
 	column  int
@@ -48,14 +48,6 @@ func (log *Log) filter(key string) bool {
 	}
 	return false
 }
-func (log *Log) notice(key string) *os.File {
-	for _, k := range log.Notice {
-		if k == key {
-			return log.Err
-		}
-	}
-	return log.Out
-}
 func (log *Log) prefix(level string, stack int, arg ...interface{}) (io.Writer, string) {
 	if log.filter(level) {
 		return nil, ""
@@ -75,6 +67,14 @@ func (log *Log) prefix(level string, stack int, arg ...interface{}) (io.Writer, 
 		}
 	}
 	return log.notice(level), strings.Join(list, " ")
+}
+func (log *Log) notice(key string) *os.File {
+	for _, k := range log.Notice {
+		if k == key {
+			return log.Err
+		}
+	}
+	return log.Out
 }
 
 var trans = map[string]string{

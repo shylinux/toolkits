@@ -20,6 +20,10 @@ var conf = New(kit.Dict(
 	"task", kit.Dict(
 		"limit", 50,
 	),
+	"conn", kit.Dict(
+		"limit", 30,
+		"retry", 3,
+	),
 ))
 
 func GetVal(key string, def ...interface{}) interface{} {

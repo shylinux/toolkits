@@ -60,6 +60,7 @@ const (
 	MDB_USER   = "user"
 	MDB_STEP   = "step"
 	MDB_PORT   = "port"
+	MDB_HOST   = "host"
 	MDB_DIR    = "dir"
 	MDB_ENV    = "env"
 	MDB_ARG    = "arg"

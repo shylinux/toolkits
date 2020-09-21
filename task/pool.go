@@ -24,7 +24,7 @@ type Pool struct {
 	cancel context.CancelFunc
 }
 
-func (pool *Pool) Sync(args []interface{}, cb func(*Task, *Lock) error) *Pool {
+func (pool *Pool) Wait(args []interface{}, cb func(*Task, *Lock) error) *Pool {
 	var lock Lock
 
 	w := &sync.WaitGroup{}

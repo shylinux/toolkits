@@ -9,12 +9,11 @@ type Conn struct {
 	client interface{}
 	net.Conn
 
-	ID int64
-
-	pool *Pool
-
 	nread  int
 	nwrite int
+
+	ID   int64
+	pool *Pool
 }
 
 func (conn *Conn) Info() string {

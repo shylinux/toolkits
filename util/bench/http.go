@@ -131,7 +131,7 @@ func HTTP(nconn, nreq int64, req []*http.Request, check func(*http.Request, *htt
 	for _, v := range req {
 		hosts = append(hosts, v.Host)
 	}
-	c := conn.New(nil, hosts, nconn)
+	c := conn.New(nil, hosts, nconn, 3)
 
 	// 协程池
 	list := []interface{}{}
@@ -139,7 +139,7 @@ func HTTP(nconn, nreq int64, req []*http.Request, check func(*http.Request, *htt
 		list = append(list, i)
 	}
 
-	task.Sync(list, func(task *task.Task, lock *task.Lock) error {
+	task.Wait(list, func(task *task.Task, lock *task.Lock) error {
 		p := task.Pool()
 		hc, e := c.GetHttp(p.Ctx)
 		if e != nil {

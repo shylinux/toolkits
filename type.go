@@ -50,6 +50,8 @@ func Format(val interface{}, arg ...interface{}) string {
 		if len(val) == 0 {
 			return "{}"
 		}
+	case time.Duration:
+		return val.String()
 	case time.Time:
 		return val.Format("2006-01-02 15:04:05")
 	}
