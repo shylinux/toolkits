@@ -72,6 +72,7 @@ const (
 	MDB_FILE = "file"
 	MDB_PATH = "path"
 
+	MDB_HELP = "help"
 	MDB_TEXT = "text"
 	MDB_NAME = "name"
 	MDB_TYPE = "type"
