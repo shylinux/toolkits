@@ -1,8 +1,6 @@
 package kit
 
-import (
-	"strings"
-)
+import "strings"
 
 const (
 	MIME_FILE = "application/octet-stream"
@@ -12,21 +10,9 @@ const (
 )
 
 const (
-	META_PATH   = "meta.path"
-	META_FIELD  = "meta.field"
 	META_SOURCE = "meta.source"
-)
-
-const (
-	// MDB_LIST = "list"
-	MDB_SHOW  = "show"
-	MDB_SYNC  = "sync"
-	MDB_PULL  = "pull"
-	MDB_PUSH  = "push"
-	MDB_PROXY = "proxy"
-	MDB_SHARE = "share"
-
-	MDB_INPUT = "_input"
+	META_FIELD  = "meta.field"
+	META_PATH   = "meta.path"
 )
 
 const (
@@ -50,21 +36,24 @@ const (
 	MDB_ERROR  = "error"
 	MDB_EXTRA  = "extra"
 	MDB_VALUE  = "value"
-	MDB_STYLE  = "style"
 	MDB_TOPIC  = "topic"
-	MDB_COUNT  = "count"
-	MDB_TOTAL  = "total"
-	MDB_REPOS  = "repos"
-	MDB_ROUTE  = "route"
-	MDB_GROUP  = "group"
-	MDB_USER   = "user"
-	MDB_STEP   = "step"
-	MDB_PORT   = "port"
-	MDB_HOST   = "host"
-	MDB_DIR    = "dir"
-	MDB_ENV    = "env"
-	MDB_ARG    = "arg"
-	MDB_PID    = "pid"
+	MDB_STYLE  = "style"
+
+	MDB_TOTAL = "total"
+	MDB_COUNT = "count"
+	MDB_STEP  = "step"
+
+	MDB_ROUTE = "route"
+	MDB_REPOS = "repos"
+	MDB_GROUP = "group"
+	MDB_USER  = "user"
+
+	MDB_PORT = "port"
+	MDB_HOST = "host"
+	MDB_DIR  = "dir"
+	MDB_ENV  = "env"
+	MDB_ARG  = "arg"
+	MDB_PID  = "pid"
 
 	MDB_LINK = "link"
 	MDB_SIZE = "size"
@@ -82,7 +71,7 @@ const (
 	MDB_ID   = "id"
 )
 
-func _parse(meta map[string]interface{}, arg ...interface{}) map[string]interface{} {
+func _merge(meta map[string]interface{}, arg ...interface{}) map[string]interface{} {
 	if len(arg) == 1 {
 		switch arg := arg[0].(type) {
 		case string:
@@ -118,20 +107,18 @@ func _parse(meta map[string]interface{}, arg ...interface{}) map[string]interfac
 	}
 	return meta
 }
-func Keys(arg ...interface{}) string {
-	return strings.TrimSuffix(strings.TrimPrefix(strings.Join(Simple(arg...), "."), "."), ".")
-}
 func Dict(arg ...interface{}) map[string]interface{} {
-	dict := map[string]interface{}{}
-	return _parse(dict, arg...)
+	return _merge(map[string]interface{}{}, arg...)
 }
 func Data(arg ...interface{}) map[string]interface{} {
-	meta := map[string]interface{}{}
-	data := map[string]interface{}{
-		MDB_META: meta, MDB_LIST: []interface{}{}, MDB_HASH: map[string]interface{}{},
+	return map[string]interface{}{
+		MDB_META: _merge(map[string]interface{}{}, arg...),
+		MDB_HASH: map[string]interface{}{},
+		MDB_LIST: []interface{}{},
 	}
-	_parse(meta, arg...)
-	return data
+}
+func Keys(arg ...interface{}) string {
+	return strings.TrimSuffix(strings.TrimPrefix(strings.Join(Simple(arg...), "."), "."), ".")
 }
 func List(arg ...interface{}) []interface{} {
 	list, data := []interface{}{}, map[string]interface{}{}
@@ -141,15 +128,6 @@ func List(arg ...interface{}) []interface{} {
 			list = append(list, data)
 		}
 		Value(data, arg[i], arg[i+1])
-	}
-	return list
-}
-func ListKV(arg ...interface{}) []interface{} {
-	list := []interface{}{}
-	for i := 0; i < len(arg)-1; i += 2 {
-		list = append(list, map[string]interface{}{
-			MDB_INPUT: "text", "name": arg[i], "value": arg[i+1],
-		})
 	}
 	return list
 }
