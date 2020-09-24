@@ -83,50 +83,9 @@ func MergeURL(str string, arg ...interface{}) string {
 	return res
 }
 func MergeURL2(str string, uri string, arg ...interface{}) string {
-	if strings.HasPrefix(uri, "http") {
-		str, uri = uri, ""
-	}
-	if strings.HasPrefix(uri, "ftp") {
-		str, uri = uri, ""
-	}
-
-	if ls := strings.Split(str, "//"); len(ls) > 1 && len(uri) > 0 {
-		list := strings.Split(ls[1], "/")
-		if strings.HasPrefix(uri, "/") {
-			str = ls[0] + "//" + list[0] + uri
-		} else {
-			str = ls[0] + "//" + strings.Join(list[:len(list)-1], "/") + uri
-		}
-	}
-
-	list := strings.Split(str, "?")
-	res := list[0]
-
-	args := map[string][]string{}
-	if len(list) > 1 {
-		for _, l := range strings.Split(list[1], "&") {
-			ls := strings.SplitN(l, "=", 2)
-			if len(ls) == 1 {
-			}
-			args[ls[0]] = append(args[ls[0]], Select("", ls, 1))
-		}
-	}
-
-	list = Simple(arg...)
-	for i := 0; i < len(list)-1; i += 2 {
-		args[list[i]] = append(args[list[i]], list[i+1])
-	}
-
-	list = []string{}
-	for k, v := range args {
-		for _, v := range v {
-			list = append(list, url.QueryEscape(k)+"="+url.QueryEscape(v))
-		}
-	}
-	if len(list) > 0 {
-		res += "?" + strings.Join(list, "&")
-	}
-	return res
+	raw, _ := url.Parse(str)
+	get, _ := url.Parse(uri)
+	return MergeURL(Select(raw.Scheme, get.Scheme)+"://"+Select(raw.Host, get.Host)+"/"+Select(raw.Path, get.Path)+"?"+Select(raw.RawQuery, get.RawQuery), arg...)
 }
 
 func CSV(file string, limit int, cb func(index int, value map[string]string, head []string)) error {
