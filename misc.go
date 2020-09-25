@@ -58,7 +58,7 @@ func MergeURL(str string, arg ...interface{}) string {
 	res := list[0]
 
 	args := map[string][]string{}
-	if len(list) > 1 {
+	if len(list) > 1 && list[1] != "" {
 		for _, l := range strings.Split(list[1], "&") {
 			ls := strings.SplitN(l, "=", 2)
 			args[ls[0]] = append(args[ls[0]], ls[1])
@@ -74,7 +74,8 @@ func MergeURL(str string, arg ...interface{}) string {
 	list = []string{}
 	for k, v := range args {
 		for _, v := range v {
-			list = append(list, url.QueryEscape(k)+"="+url.QueryEscape(v))
+			// list = append(list, url.QueryEscape(k)+"="+url.QueryEscape(v))
+			list = append(list, k+"="+v)
 		}
 	}
 	if len(list) > 0 {
@@ -85,7 +86,7 @@ func MergeURL(str string, arg ...interface{}) string {
 func MergeURL2(str string, uri string, arg ...interface{}) string {
 	raw, _ := url.Parse(str)
 	get, _ := url.Parse(uri)
-	return MergeURL(Select(raw.Scheme, get.Scheme)+"://"+Select(raw.Host, get.Host)+"/"+Select(raw.Path, get.Path)+"?"+Select(raw.RawQuery, get.RawQuery), arg...)
+	return MergeURL(Select(raw.Scheme, get.Scheme)+"://"+Select(raw.Host, get.Host)+""+Select(raw.Path, get.Path)+"?"+Select(raw.RawQuery, get.RawQuery), arg...)
 }
 
 func CSV(file string, limit int, cb func(index int, value map[string]string, head []string)) error {
