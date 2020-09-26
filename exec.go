@@ -1,15 +1,23 @@
 package kit
 
 const (
-	GDB_OPEN  = "open"
-	GDB_CLOSE = "close"
-	GDB_START = "start"
-	GDB_STOP  = "stop"
-)
+	SSH_ROUTE = "route"
+	SSH_REPOS = "repos"
+	SSH_PROXY = "proxy"
+	SSH_SHARE = "share"
+	SSH_CACHE = "cache"
 
-const (
-	GDB_POD = "pod"
-	GDB_CTX = "ctx"
-	GDB_CMD = "cmd"
-	GDB_ARG = "arg"
+	SSH_GROUP = "group"
+	SSH_USER  = "user"
+	SSH_STEP  = "step"
+	SSH_HOST  = "host"
+	SSH_PORT  = "port"
+
+	SSH_POD = "pod"
+	SSH_CTX = "ctx"
+	SSH_CMD = "cmd"
+	SSH_PID = "pid"
+	SSH_ARG = "arg"
+	SSH_ENV = "env"
+	SSH_DIR = "dir"
 )

@@ -16,21 +16,25 @@ const (
 )
 
 const (
-	MDB_FOREACH = "*"
-	MDB_RANDOMS = "%"
-
-	MDB_SHORT = "short"
-	MDB_FIELD = "field"
-	MDB_STORE = "store"
-	MDB_FSIZE = "fsize"
-	MDB_LIMIT = "limit"
-	MDB_LEAST = "least"
-
 	MDB_DICT = "dict"
 	MDB_META = "meta"
 	MDB_HASH = "hash"
 	MDB_LIST = "list"
 
+	MDB_FOREACH = "*"
+	MDB_RANDOMS = "%"
+
+	MDB_INPUT = "_input"
+	MDB_SHORT = "short"
+	MDB_FIELD = "field"
+	MDB_STORE = "store"
+	MDB_FSIZE = "fsize"
+	MDB_TOTAL = "total"
+	MDB_COUNT = "count"
+	MDB_LIMIT = "limit"
+	MDB_LEAST = "least"
+
+	MDB_BUTTON = "button"
 	MDB_ACTION = "action"
 	MDB_STATUS = "status"
 	MDB_ERROR  = "error"
@@ -38,22 +42,6 @@ const (
 	MDB_VALUE  = "value"
 	MDB_TOPIC  = "topic"
 	MDB_STYLE  = "style"
-
-	MDB_TOTAL = "total"
-	MDB_COUNT = "count"
-	MDB_STEP  = "step"
-
-	MDB_ROUTE = "route"
-	MDB_REPOS = "repos"
-	MDB_GROUP = "group"
-	MDB_USER  = "user"
-
-	MDB_PORT = "port"
-	MDB_HOST = "host"
-	MDB_DIR  = "dir"
-	MDB_ENV  = "env"
-	MDB_ARG  = "arg"
-	MDB_PID  = "pid"
 
 	MDB_LINK = "link"
 	MDB_SIZE = "size"
