@@ -34,6 +34,7 @@ const (
 	MDB_LIMIT = "limit"
 	MDB_LEAST = "least"
 
+	MDB_PREFIX = "prefix"
 	MDB_BUTTON = "button"
 	MDB_ACTION = "action"
 	MDB_STATUS = "status"
