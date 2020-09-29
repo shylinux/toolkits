@@ -89,6 +89,10 @@ func _merge(meta map[string]interface{}, arg ...interface{}) map[string]interfac
 				for k, v := range arg {
 					Value(meta, k, v)
 				}
+			case map[string]string:
+				for k, v := range arg {
+					Value(meta, k, v)
+				}
 			}
 		} else {
 			Value(meta, arg[i], arg[i+1])

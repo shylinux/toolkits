@@ -16,7 +16,7 @@ func (miss *Miss) Grow(prefix string, cache map[string]interface{}, data interfa
 	// 数据结构
 	meta, ok := cache[kit.MDB_META].(map[string]interface{})
 	if !ok {
-		meta = map[string]interface{}{}
+		meta = kit.Dict()
 		cache[kit.MDB_META] = meta
 	}
 	list, _ := cache[kit.MDB_LIST].([]interface{})
@@ -42,12 +42,12 @@ func (miss *Miss) Grow(prefix string, cache map[string]interface{}, data interfa
 
 		// 文件命名
 		dir := path.Join(store, prefix)
-		name := path.Join(dir, kit.Keys(prefix, "csv"))
+		name := path.Join(dir, kit.Keys("list", "csv"))
 		if len(record) > 0 {
 			name = kit.Format(kit.Value(record, kit.Keys(len(record)-1, "file")))
 			if s, e := os.Stat(name); e == nil {
 				if s.Size() > kit.Int64(kit.Select(miss.fsize, kit.Format(meta[kit.MDB_FSIZE]))) {
-					name = path.Join(dir, kit.Keys(prefix+"_"+kit.Format(meta["offset"]), "csv"))
+					name = path.Join(dir, kit.Keys("list"+"_"+kit.Format(meta["offset"]), "csv"))
 				}
 			}
 		}

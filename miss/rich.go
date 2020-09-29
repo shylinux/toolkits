@@ -1,8 +1,6 @@
 package miss
 
 import (
-	"strings"
-
 	kit "github.com/shylinux/toolkits"
 	log "github.com/shylinux/toolkits/logs"
 
@@ -12,6 +10,7 @@ import (
 	"os"
 	"path"
 	"sort"
+	"strings"
 	"time"
 )
 
@@ -34,8 +33,7 @@ func (miss *Miss) Richs(prefix string, cache map[string]interface{}, raw interfa
 			}
 		case func(string, map[string]interface{}):
 			for k, v := range hash {
-				res = v.(map[string]interface{})
-				cb(k, res)
+				cb(k, v.(map[string]interface{}))
 			}
 		}
 		return res
@@ -50,28 +48,30 @@ func (miss *Miss) Richs(prefix string, cache map[string]interface{}, raw interfa
 			res, _ = hash[h].(map[string]interface{})
 		}
 	default:
-		// 单个查询
-		if res, ok = hash[h].(map[string]interface{}); !ok {
-			switch kit.Format(kit.Value(meta, kit.MDB_SHORT)) {
-			case "", "uniq":
-			default:
-				hh := kit.Hashs(h)
-				if res, ok = hash[hh].(map[string]interface{}); ok {
-					h = hh
-					break
-				}
+		if res, ok = hash[h].(map[string]interface{}); ok {
+			break // 键值查询
+		}
 
-				dir := path.Join(kit.Select(miss.store, kit.Format(meta[kit.MDB_STORE])), prefix)
-				for _, k := range []string{h, hh} {
-					p := path.Join(dir, kit.Keys(k, "json"))
-					if f, e := os.Open(p); e == nil {
-						defer f.Close()
-						if b, e := ioutil.ReadAll(f); e == nil {
-							if json.Unmarshal(b, &res) == e {
-								log.Show("miss", "import", p)
-								h = k
-								break
-							}
+		switch kit.Format(kit.Value(meta, kit.MDB_SHORT)) {
+		case "", "uniq": // 查询失败
+		default:
+			hh := kit.Hashs(h)
+			if res, ok = hash[hh].(map[string]interface{}); ok {
+				h = hh
+				break // 哈希查询
+			}
+
+			dir := path.Join(kit.Select(miss.store, kit.Format(meta[kit.MDB_STORE])), prefix)
+			for _, k := range []string{h, hh} {
+				p := path.Join(dir, kit.Keys(k, "json"))
+				if f, e := os.Open(p); e == nil {
+					defer f.Close()
+
+					if b, e := ioutil.ReadAll(f); e == nil {
+						if json.Unmarshal(b, &res) == e {
+							log.Show("miss", "import", p)
+							h = k
+							break // 磁盘查询
 						}
 					}
 				}
@@ -137,26 +137,29 @@ func (miss *Miss) Rich(prefix string, cache map[string]interface{}, data interfa
 
 		// 时间淘汰
 		list := []int{}
-		for _, v := range hash {
+		keys := map[string]int{}
+		for k, v := range hash {
 			list = append(list, int(kit.Time(kit.Format(kit.Value(v, "time")))))
+			keys[k] = int(kit.Time(kit.Format(kit.Value(v, "time"))))
 		}
 		sort.Ints(list)
+
 		dead := 0
 		if len(list) > 0 {
 			dead = list[len(list)-1-least]
 		}
 
 		dir := path.Join(store, prefix)
-		for k, v := range hash {
-			if int(kit.Time(kit.Format(kit.Value(v, "time")))) > dead {
-				break
+		for k, t := range keys {
+			if t > dead {
+				continue
 			}
 
 			name := path.Join(dir, kit.Keys(k, "json"))
 			if f, p, e := kit.Create(name); e == nil {
 				defer f.Close()
 				// 保存数据
-				if n, e := f.WriteString(kit.Format(v)); e == nil {
+				if n, e := f.WriteString(kit.Format(hash[k])); e == nil {
 					log.Show("miss", "export", p, kit.MDB_SIZE, n)
 					delete(hash, k)
 				}

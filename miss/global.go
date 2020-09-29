@@ -6,6 +6,8 @@ import (
 
 var miss = New(conf.Sub("miss"))
 
+func Init(conf *conf.Conf) { miss = New(conf) }
+
 func Richs(prefix string, cache map[string]interface{}, raw interface{}, cb interface{}) (res map[string]interface{}) {
 	return miss.Richs(prefix, cache, raw, cb)
 }
@@ -18,5 +20,3 @@ func Grow(prefix string, cache map[string]interface{}, data interface{}) int {
 func Grows(prefix string, cache map[string]interface{}, offend, limit int, match string, value string, cb interface{}) map[string]interface{} {
 	return miss.Grows(prefix, cache, offend, limit, match, value, cb)
 }
-
-func Init(conf *conf.Conf) { miss = New(conf) }
