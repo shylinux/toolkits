@@ -25,7 +25,7 @@ func (miss *Miss) Grow(prefix string, cache map[string]interface{}, data interfa
 	id := kit.Int(meta[kit.MDB_COUNT]) + 1
 	nest := kit.Select("", "meta.", kit.Value(data, "meta") != nil)
 	if kit.Value(data, nest+kit.MDB_ID, id); kit.Value(data, nest+kit.MDB_TIME) == nil {
-		kit.Value(data, nest+kit.MDB_TIME, kit.Select(time.Now().Format("2006-01-02 15:03:04")))
+		kit.Value(data, nest+kit.MDB_TIME, kit.Select(time.Now().Format("2006-01-02 15:04:05")))
 	}
 
 	// 添加数据
