@@ -1,6 +1,8 @@
 package kit
 
-import "strings"
+import (
+	"strings"
+)
 
 const (
 	MIME_FILE = "application/octet-stream"
@@ -123,4 +125,11 @@ func List(arg ...interface{}) []interface{} {
 		Value(data, arg[i], arg[i+1])
 	}
 	return list
+}
+
+func GetMeta(value map[string]interface{}) map[string]interface{} {
+	if value[MDB_META] != nil {
+		value = value[MDB_META].(map[string]interface{})
+	}
+	return value
 }
