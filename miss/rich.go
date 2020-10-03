@@ -130,8 +130,25 @@ func (miss *Miss) Rich(prefix string, cache map[string]interface{}, data interfa
 		kit.Value(data, nest+kit.MDB_TIME, time.Now().Format("2006-01-02 15:03:04"))
 	}
 
+	if old, ok := hash[h]; ok {
+		for k, v := range data.(map[string]interface{}) {
+			switch k {
+			case kit.MDB_META, kit.MDB_HASH:
+				for k1, v1 := range v.(map[string]interface{}) {
+					kit.Value(old, kit.Keys(k, k1), v1)
+				}
+			case kit.MDB_LIST:
+
+			default:
+				kit.Value(old, k, v)
+			}
+		}
+	} else {
+		hash[h] = data
+	}
+
 	// 添加数据
-	if hash[h] = data; len(hash) >= kit.Int(kit.Select(miss.limit, kit.Format(meta[kit.MDB_LIMIT]))) {
+	if len(hash) >= kit.Int(kit.Select(miss.limit, kit.Format(meta[kit.MDB_LIMIT]))) {
 		least := kit.Int(kit.Select(miss.least, kit.Format(meta[kit.MDB_LEAST])))
 		store := kit.Select(miss.store, kit.Format(meta[kit.MDB_STORE]))
 

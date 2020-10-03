@@ -16,6 +16,7 @@ const (
 	SSH_POD = "pod"
 	SSH_CTX = "ctx"
 	SSH_CMD = "cmd"
+	SSH_RUN = "run"
 	SSH_RES = "res"
 	SSH_PID = "pid"
 	SSH_ARG = "arg"

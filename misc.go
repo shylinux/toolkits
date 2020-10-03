@@ -22,6 +22,8 @@ func FileLine(p interface{}, n int) string {
 		fun = p
 	case int:
 		fun, _, _, _ = runtime.Caller(p)
+	case nil:
+		return ""
 	default:
 		f := reflect.ValueOf(p)
 		fun = f.Pointer()
