@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"encoding/csv"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/url"
 	"os"
@@ -15,42 +14,6 @@ import (
 	"strings"
 )
 
-func FileLine(p interface{}, n int) string {
-	var fun uintptr
-	switch p := p.(type) {
-	case uintptr:
-		fun = p
-	case int:
-		fun, _, _, _ = runtime.Caller(p)
-	case nil:
-		return ""
-	default:
-		f := reflect.ValueOf(p)
-		fun = f.Pointer()
-	}
-
-	f := runtime.FuncForPC(fun)
-	file, line := f.FileLine(fun)
-	ls := strings.Split(file, "/")
-	if len(ls) > n {
-		ls = ls[len(ls)-n:]
-	}
-	return Format("%s:%d", strings.Join(ls, "/"), line)
-}
-func Create(p string) (*os.File, string, error) {
-	switch p {
-	case "", "null":
-		p = "/dev/null"
-	case "stdout", "stderr":
-		p = "/dev/" + p
-	}
-
-	if dir, _ := path.Split(p); dir != "" {
-		os.MkdirAll(dir, 0777)
-	}
-	f, e := os.Create(p)
-	return f, p, e
-}
 func ParseURL(str string) *url.URL {
 	u, _ := url.Parse(str)
 	return u
@@ -89,6 +52,72 @@ func MergeURL2(str string, uri string, arg ...interface{}) string {
 	raw, _ := url.Parse(str)
 	get, _ := url.Parse(uri)
 	return MergeURL(Select(raw.Scheme, get.Scheme)+"://"+Select(raw.Host, get.Host)+""+Select(raw.Path, get.Path)+"?"+Select(raw.RawQuery, get.RawQuery), arg...)
+}
+
+func Create(p string) (*os.File, string, error) {
+	switch p {
+	case "", "null":
+		p = "/dev/null"
+	case "stdout", "stderr":
+		p = "/dev/" + p
+	}
+
+	if dir, _ := path.Split(p); dir != "" {
+		os.MkdirAll(dir, 0777)
+	}
+	f, e := os.Create(p)
+	return f, p, e
+}
+func Rewrite(file string, cb func(string) string) error {
+	f, e := os.Open(file)
+	if e != nil {
+		return e
+	}
+	defer f.Close()
+
+	b, e := ioutil.ReadAll(f)
+	if e != nil {
+		return e
+	}
+	bio := bufio.NewScanner(bytes.NewBuffer(b))
+
+	o, _, e := Create(file)
+	if e != nil {
+		return e
+	}
+	defer o.Close()
+
+	for bio.Scan() {
+		line := cb(bio.Text())
+		o.WriteString(line)
+		o.WriteString("\n")
+	}
+	return nil
+}
+func FileExists(name string) bool {
+	if s, e := os.Stat(name); s != nil && e == nil {
+		return true
+	}
+	return false
+}
+func TrimExt(str string, ext ...string) string {
+	if len(ext) == 0 {
+		ext = []string{".zip", ".tar.xz", ".tar.gz", ".tar.bz2"}
+	}
+	str = path.Base(str)
+	for _, k := range ext {
+		str = strings.TrimSuffix(str, k)
+	}
+	return str
+}
+func Path(str string, rest ...string) string {
+	if strings.HasPrefix(str, "/") {
+		return path.Join(append([]string{str}, rest...)...)
+	}
+	if wd, e := os.Getwd(); e == nil {
+		return path.Join(append([]string{wd, str}, rest...)...)
+	}
+	return str
 }
 
 func CSV(file string, limit int, cb func(index int, value map[string]string, head []string)) error {
@@ -158,116 +187,25 @@ func KeyValue(res map[string]interface{}, key string, arg interface{}) map[strin
 	return res
 }
 
-func Rewrite(file string, cb func(string) string) error {
-	f, e := os.Open(file)
-	if e != nil {
-		return e
-	}
-	defer f.Close()
-
-	b, e := ioutil.ReadAll(f)
-	if e != nil {
-		return e
-	}
-	bio := bufio.NewScanner(bytes.NewBuffer(b))
-
-	o, _, e := Create(file)
-	if e != nil {
-		return e
-	}
-	defer o.Close()
-
-	for bio.Scan() {
-		line := cb(bio.Text())
-		o.WriteString(line)
-		o.WriteString("\n")
-	}
-	return nil
-}
-func TrimExt(str string, ext ...string) string {
-	if len(ext) == 0 {
-		ext = []string{".zip", ".tar.xz", ".tar.gz", ".tar.bz2"}
-	}
-	str = path.Base(str)
-	for _, k := range ext {
-		str = strings.TrimSuffix(str, k)
-	}
-	return str
-}
-func Path(str string, rest ...string) string {
-	if strings.HasPrefix(str, "/") {
-		return path.Join(append([]string{str}, rest...)...)
-	}
-	if wd, e := os.Getwd(); e == nil {
-		return path.Join(append([]string{wd, str}, rest...)...)
-	}
-	return str
-}
-func Join(str []string, key string) string {
-	return strings.Join(str, key)
-}
-func Right(str string) bool {
-	return str != "" && str != "0" && str != "false" && str != "off" && str != "[]" && str != "{}"
-}
-func Width(str string, mul int) int {
-	return len([]rune(str)) + (len(str)-len([]rune(str)))/2/mul
-}
-func Short(arg interface{}) interface{} {
-	switch arg := arg.(type) {
-	case string:
-		if len(arg) > 6 {
-			return arg[:6]
-		}
-	}
-	return arg
-}
-func FmtSize(size int64) string {
-	if size > 1<<30 {
-		return fmt.Sprintf("%0.2fG", float64(size)/(1<<30))
+func FileLine(p interface{}, n int) string {
+	var fun uintptr
+	switch p := p.(type) {
+	case uintptr:
+		fun = p
+	case int:
+		fun, _, _, _ = runtime.Caller(p)
+	case nil:
+		return ""
+	default:
+		f := reflect.ValueOf(p)
+		fun = f.Pointer()
 	}
 
-	if size > 1<<20 {
-		return fmt.Sprintf("%0.2fM", float64(size)/(1<<20))
+	f := runtime.FuncForPC(fun)
+	file, line := f.FileLine(fun)
+	ls := strings.Split(file, "/")
+	if len(ls) > n {
+		ls = ls[len(ls)-n:]
 	}
-
-	if size > 1<<10 {
-		return fmt.Sprintf("%0.2fK", float64(size)/(1<<10))
-	}
-
-	return fmt.Sprintf("%dB", size)
-}
-func FmtTime(t int64) string {
-	sign, time := "", t
-	if time < 0 {
-		sign, time = "-", -t
-	}
-
-	list := []string{}
-	if time > 24*3600*1000000000 {
-		list = append(list, fmt.Sprintf("%s%dd", sign, time/(24*3600*1000000000)))
-		time = time % (24 * 3600 * 1000000000)
-	}
-	if time > 3600*1000000000 {
-		list = append(list, fmt.Sprintf("%s%dh", sign, time/3600/1000000000))
-		time = time % (3600 * 1000000000)
-	}
-	if len(list) > 0 {
-		return strings.Join(list, "")
-	}
-	if time > 1000000000 {
-		return fmt.Sprintf("%s%d.%ds", sign, time/1000000000, (time/1000000)%1000*100/1000)
-	}
-	if time > 1000000 {
-		return fmt.Sprintf("%s%d.%dms", sign, time/1000000, (time/1000)%1000*100/1000)
-	}
-	if time > 1000 {
-		return fmt.Sprintf("%s%d.%dus", sign, time/1000, (time/1000)%1000*100/1000)
-	}
-	return fmt.Sprintf("%s%dns", sign, time)
-}
-func FileExists(name string) bool {
-	if s, e := os.Stat(name); s != nil && e == nil {
-		return true
-	}
-	return false
+	return Format("%s:%d", strings.Join(ls, "/"), line)
 }

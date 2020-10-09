@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"sort"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -102,6 +103,56 @@ func Time(arg ...string) int64 {
 		}
 	}
 	return 0
+}
+func FmtSize(size int64) string {
+	if size > 1<<30 {
+		return fmt.Sprintf("%0.2fG", float64(size)/(1<<30))
+	}
+
+	if size > 1<<20 {
+		return fmt.Sprintf("%0.2fM", float64(size)/(1<<20))
+	}
+
+	if size > 1<<10 {
+		return fmt.Sprintf("%0.2fK", float64(size)/(1<<10))
+	}
+
+	return fmt.Sprintf("%dB", size)
+}
+func FmtTime(t int64) string {
+	sign, time := "", t
+	if time < 0 {
+		sign, time = "-", -t
+	}
+
+	list := []string{}
+	if time > 24*3600*1000000000 {
+		list = append(list, fmt.Sprintf("%s%dd", sign, time/(24*3600*1000000000)))
+		time = time % (24 * 3600 * 1000000000)
+	}
+	if time > 3600*1000000000 {
+		list = append(list, fmt.Sprintf("%s%dh", sign, time/3600/1000000000))
+		time = time % (3600 * 1000000000)
+	}
+	if len(list) > 0 {
+		return strings.Join(list, "")
+	}
+	if time > 1000000000 {
+		return fmt.Sprintf("%s%d.%ds", sign, time/1000000000, (time/1000000)%1000*100/1000)
+	}
+	if time > 1000000 {
+		return fmt.Sprintf("%s%d.%dms", sign, time/1000000, (time/1000)%1000*100/1000)
+	}
+	if time > 1000 {
+		return fmt.Sprintf("%s%d.%dus", sign, time/1000, (time/1000)%1000*100/1000)
+	}
+	return fmt.Sprintf("%s%dns", sign, time)
+}
+func Width(str string, mul int) int {
+	return len([]rune(str)) + (len(str)-len([]rune(str)))/2/mul
+}
+func Join(str []string, key string) string {
+	return strings.Join(str, key)
 }
 
 func Select(def string, arg ...interface{}) string {
