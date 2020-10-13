@@ -188,6 +188,9 @@ func KeyValue(res map[string]interface{}, key string, arg interface{}) map[strin
 }
 
 func FileLine(p interface{}, n int) string {
+	if p == nil {
+		return ""
+	}
 	var fun uintptr
 	switch p := p.(type) {
 	case uintptr:
@@ -199,6 +202,9 @@ func FileLine(p interface{}, n int) string {
 	default:
 		f := reflect.ValueOf(p)
 		fun = f.Pointer()
+	}
+	if fun == 0 {
+		return ""
 	}
 
 	f := runtime.FuncForPC(fun)
