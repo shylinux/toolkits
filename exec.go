@@ -12,14 +12,16 @@ const (
 	SSH_STEP  = "step"
 	SSH_HOST  = "host"
 	SSH_PORT  = "port"
+	SSH_LIST  = "list"
+	SSH_SHOW  = "show"
 
 	SSH_POD = "pod"
 	SSH_CTX = "ctx"
 	SSH_CMD = "cmd"
+	SSH_ARG = "arg"
 	SSH_RUN = "run"
 	SSH_RES = "res"
 	SSH_PID = "pid"
-	SSH_ARG = "arg"
 	SSH_ENV = "env"
 	SSH_DIR = "dir"
 )
