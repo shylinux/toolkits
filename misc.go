@@ -11,6 +11,7 @@ import (
 	"path"
 	"reflect"
 	"runtime"
+	"sort"
 	"strings"
 )
 
@@ -214,4 +215,9 @@ func FileLine(p interface{}, n int) string {
 		ls = ls[len(ls)-n:]
 	}
 	return Format("%s:%d", strings.Join(ls, "/"), line)
+}
+
+func Sort(list []string) []string {
+	sort.Strings(list)
+	return list
 }

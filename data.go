@@ -45,6 +45,7 @@ const (
 	MDB_VALUE  = "value"
 	MDB_TOPIC  = "topic"
 	MDB_STYLE  = "style"
+	MDB_IMAGE  = "image"
 
 	MDB_LINK = "link"
 	MDB_SIZE = "size"
