@@ -221,3 +221,7 @@ func Sort(list []string) []string {
 	sort.Strings(list)
 	return list
 }
+
+func SubKey(name string) string {
+	return Keys(MDB_HASH, Hashs(name))
+}
