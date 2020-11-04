@@ -40,7 +40,7 @@ func (pool *Pool) Wait(args []interface{}, cb func(*Task, *Lock) error) *Pool {
 }
 func (pool *Pool) Put(arg interface{}, cb func(*Task) error) *Task {
 	id := atomic.AddInt64(&pool.taskID, 1)
-	log.Show("task", "task put", log.FileLine(cb, 3), "arg", arg, "id", id, "pool", pool.ID)
+	// log.Show("task", "task put", log.FileLine(cb, 3), "arg", arg, "id", id, "pool", pool.ID)
 	task := &Task{ID: id, Arg: arg, CB: cb, PrepareTime: time.Now()}
 
 	if pool.channel <- task; len(pool.channel) > 0 && pool.workID < pool.limit {

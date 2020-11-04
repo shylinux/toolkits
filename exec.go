@@ -15,6 +15,7 @@ const (
 	SSH_LIST  = "list"
 	SSH_SHOW  = "show"
 
+	SSH_WEB = "web"
 	SSH_POD = "pod"
 	SSH_CTX = "ctx"
 	SSH_CMD = "cmd"
