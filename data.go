@@ -54,6 +54,7 @@ const (
 	MDB_PATH = "path"
 
 	MDB_HELP = "help"
+	MDB_DATA = "data"
 	MDB_TEXT = "text"
 	MDB_NAME = "name"
 	MDB_TYPE = "type"
