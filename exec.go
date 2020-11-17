@@ -1,11 +1,12 @@
 package kit
 
 const (
-	SSH_ROUTE = "route"
-	SSH_REPOS = "repos"
-	SSH_PROXY = "proxy"
-	SSH_SHARE = "share"
-	SSH_CACHE = "cache"
+	SSH_SOURCE = "source"
+	SSH_ROUTE  = "route"
+	SSH_REPOS  = "repos"
+	SSH_PROXY  = "proxy"
+	SSH_SHARE  = "share"
+	SSH_CACHE  = "cache"
 
 	SSH_GROUP = "group"
 	SSH_USER  = "user"
