@@ -83,7 +83,12 @@ var trans = map[string]string{
 	"yellow": "\033[33m",
 }
 
+var LogDisable = false
+
 func (log *Log) output(level string, arg ...interface{}) bool {
+	if LogDisable {
+		return false
+	}
 	if log == nil {
 		return false
 	}
