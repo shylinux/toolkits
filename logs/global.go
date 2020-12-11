@@ -8,6 +8,7 @@ var log, _ = Open(conf.Sub("log"))
 
 func init() { log.stack = STACK + 1 }
 
+func Debug(arg ...interface{}) { log.Info(append(arg, " ", FileLine(2, 3))...) }
 func Info(arg ...interface{})  { log.Info(arg...) }
 func Warn(arg ...interface{})  { log.Warn(arg...) }
 func Error(arg ...interface{}) { log.Error(arg...) }
