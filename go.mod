@@ -1,3 +1,3 @@
 module github.com/shylinux/toolkits
 
-go 1.13
+go 1.11
