@@ -67,10 +67,15 @@ func (miss *Miss) Grow(prefix string, cache map[string]interface{}, data interfa
 		keys := []string{}
 		w := csv.NewWriter(f)
 		if s.Size() == 0 {
-			for k := range list[0].(map[string]interface{}) {
-				keys = append(keys, k)
+			if field := kit.Simple(meta["field"]); len(field) > 0 {
+				keys = append(keys, field...)
+			} else {
+				for k := range list[0].(map[string]interface{}) {
+					keys = append(keys, k)
+				}
+				sort.Strings(keys)
 			}
-			sort.Strings(keys)
+
 			w.Write(keys)
 			log.Show("miss", "write head", keys)
 			w.Flush()
