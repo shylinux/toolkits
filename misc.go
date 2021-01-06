@@ -227,3 +227,7 @@ func Sort(list []string) []string {
 func SubKey(name string) string {
 	return Keys(MDB_HASH, Hashs(name))
 }
+
+func Contains(str, sub string) bool {
+	return strings.Contains(str, sub)
+}
