@@ -41,6 +41,7 @@ const (
 	MDB_BUTTON = "button"
 	MDB_ACTION = "action"
 	MDB_STATUS = "status"
+	MDB_EXPIRE = "expire"
 	MDB_ERROR  = "error"
 	MDB_EXTRA  = "extra"
 	MDB_VALUE  = "value"
@@ -117,6 +118,9 @@ func Data(arg ...interface{}) map[string]interface{} {
 }
 func Keys(arg ...interface{}) string {
 	return strings.TrimSuffix(strings.TrimPrefix(strings.Join(Simple(arg...), "."), "."), ".")
+}
+func Keym(arg ...interface{}) string {
+	return Keys(MDB_META, Keys(arg))
 }
 func List(arg ...interface{}) []interface{} {
 	list, data := []interface{}{}, map[string]interface{}{}
