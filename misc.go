@@ -27,6 +27,8 @@ func MergeURL(str string, arg ...interface{}) string {
 	if len(list) > 1 && list[1] != "" {
 		for _, l := range strings.Split(list[1], "&") {
 			ls := strings.SplitN(l, "=", 2)
+			ls[0], _ = url.QueryUnescape(ls[0])
+			ls[1], _ = url.QueryUnescape(ls[1])
 			args[ls[0]] = append(args[ls[0]], ls[1])
 		}
 	}
@@ -40,8 +42,8 @@ func MergeURL(str string, arg ...interface{}) string {
 	list = []string{}
 	for k, v := range args {
 		for _, v := range v {
-			// list = append(list, url.QueryEscape(k)+"="+url.QueryEscape(v))
-			list = append(list, k+"="+v)
+			list = append(list, url.QueryEscape(k)+"="+url.QueryEscape(v))
+			// list = append(list, k+"="+v)
 		}
 	}
 	if len(list) > 0 {
