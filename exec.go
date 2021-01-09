@@ -15,6 +15,9 @@ const (
 	SSH_PORT  = "port"
 	SSH_STEP  = "step"
 
+	SSH_SHELL = "shell"
+	SSH_BREAK = "break"
+
 	SSH_WEB = "web"
 	SSH_POD = "pod"
 	SSH_CTX = "ctx"

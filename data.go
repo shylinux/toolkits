@@ -39,6 +39,7 @@ const (
 
 	MDB_PREFIX = "prefix"
 	MDB_BUTTON = "button"
+	MDB_SCRIPT = "script"
 	MDB_ACTION = "action"
 	MDB_STATUS = "status"
 	MDB_EXPIRE = "expire"
