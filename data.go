@@ -47,6 +47,7 @@ const (
 	MDB_EXTRA  = "extra"
 	MDB_VALUE  = "value"
 	MDB_PROTO  = "proto"
+	MDB_TITLE  = "title"
 	MDB_TOPIC  = "topic"
 	MDB_STYLE  = "style"
 	MDB_IMAGE  = "image"
