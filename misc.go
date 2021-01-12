@@ -228,6 +228,6 @@ func SubKey(name string) string {
 	return Keys(MDB_HASH, Hashs(name))
 }
 
-func Contains(str, sub string) bool {
-	return strings.Contains(str, sub)
+func Contains(str, sub interface{}) bool {
+	return strings.Contains(Format(str), Format(sub))
 }
