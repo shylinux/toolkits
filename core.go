@@ -385,8 +385,7 @@ func Hashs(arg ...interface{}) string {
 }
 func Render(str string, arg interface{}) (b []byte, e error) {
 	t := template.New("render").Funcs(template.FuncMap{
-		"Value":  Value,
-		"Format": Format,
+		"Format": Format, "Value": Value,
 	})
 	if strings.HasPrefix(str, "@") {
 		if t, e = template.ParseFiles(str[1:]); e != nil {
