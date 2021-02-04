@@ -122,6 +122,13 @@ func Path(str string, rest ...string) string {
 	}
 	return str
 }
+func Ext(str string) string {
+	if strings.Contains(str, ".") {
+		ls := strings.Split(str, ".")
+		return strings.ToLower(ls[len(ls)-1])
+	}
+	return ""
+}
 
 func CSV(file string, limit int, cb func(index int, value map[string]string, head []string)) error {
 	f, e := os.Open(file)

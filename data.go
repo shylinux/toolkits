@@ -37,6 +37,8 @@ const (
 	MDB_LEAST = "least"
 	MDB_TABLE = "table"
 
+	MDB_TEMPLATE = "template"
+
 	MDB_PREFIX = "prefix"
 	MDB_BUTTON = "button"
 	MDB_SCRIPT = "script"
