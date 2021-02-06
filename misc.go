@@ -129,6 +129,13 @@ func Ext(str string) string {
 	}
 	return ""
 }
+func ExtIsImage(str string) bool {
+	switch Ext(str) {
+	case "png":
+		return true
+	}
+	return false
+}
 
 func CSV(file string, limit int, cb func(index int, value map[string]string, head []string)) error {
 	f, e := os.Open(file)
