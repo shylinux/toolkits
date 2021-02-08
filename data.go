@@ -45,6 +45,7 @@ const (
 	MDB_ACTION = "action"
 	MDB_STATUS = "status"
 	MDB_EXPIRE = "expire"
+	MDB_EVENT  = "event"
 	MDB_ERROR  = "error"
 	MDB_EXTRA  = "extra"
 	MDB_VALUE  = "value"

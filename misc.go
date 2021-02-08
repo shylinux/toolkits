@@ -131,7 +131,7 @@ func Ext(str string) string {
 }
 func ExtIsImage(str string) bool {
 	switch Ext(str) {
-	case "png":
+	case "png", "jpg", "jpeg":
 		return true
 	}
 	return false
