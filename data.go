@@ -39,6 +39,7 @@ const (
 
 	MDB_TEMPLATE = "template"
 
+	MDB_DOMAIN = "domain"
 	MDB_PREFIX = "prefix"
 	MDB_BUTTON = "button"
 	MDB_SCRIPT = "script"
