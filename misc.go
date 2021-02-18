@@ -204,6 +204,15 @@ func KeyValue(res map[string]interface{}, key string, arg interface{}) map[strin
 	return res
 }
 
+func SourcePath(arg ...string) string {
+	pp := path.Join(arg...)
+	if strings.HasPrefix(pp, "/") {
+		return pp
+	}
+
+	ls := strings.Split(FileLine(2, 100), "usr")
+	return path.Join("/require/github.com/shylinux", path.Dir(ls[len(ls)-1]), pp)
+}
 func FileLine(p interface{}, n int) string {
 	if p == nil {
 		return ""
@@ -240,6 +249,14 @@ func Sort(list []string) []string {
 
 func SubKey(name string) string {
 	return Keys(MDB_HASH, Hashs(name))
+}
+
+func FormatKV(data map[string]interface{}, args ...string) string {
+	list := []string{}
+	for k, v := range data {
+		list = append(list, Format("%v%v%v", k, Select(":", args, 0), v))
+	}
+	return strings.Join(list, Select(";", args, 1))
 }
 
 func Contains(str, sub interface{}) bool {

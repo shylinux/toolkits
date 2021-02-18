@@ -38,6 +38,8 @@ const (
 	MDB_TABLE = "table"
 
 	MDB_TEMPLATE = "template"
+	MDB_DISPLAY  = "display"
+	MDB_TRANS    = "trans"
 
 	MDB_DOMAIN = "domain"
 	MDB_PREFIX = "prefix"
