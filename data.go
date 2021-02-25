@@ -5,10 +5,12 @@ import (
 )
 
 const (
+	MIME_FORM = "application/x-www-form-urlencoded"
 	MIME_FILE = "application/octet-stream"
 	MIME_JSON = "application/json"
 	MIME_TEXT = "text/plain"
 	MIME_HTML = "text/html"
+	MIME_PNG  = "image/png"
 )
 
 const (
@@ -38,14 +40,19 @@ const (
 	MDB_TABLE = "table"
 
 	MDB_TEMPLATE = "template"
+	MDB_CONTENT  = "content"
 	MDB_DISPLAY  = "display"
+	MDB_ACTION   = "action"
+	MDB_BUTTON   = "button"
+	MDB_TITLE    = "title"
 	MDB_TRANS    = "trans"
+	MDB_TOPIC    = "topic"
+	MDB_STYLE    = "style"
+	MDB_IMAGE    = "image"
 
 	MDB_DOMAIN = "domain"
 	MDB_PREFIX = "prefix"
-	MDB_BUTTON = "button"
 	MDB_SCRIPT = "script"
-	MDB_ACTION = "action"
 	MDB_STATUS = "status"
 	MDB_EXPIRE = "expire"
 	MDB_EVENT  = "event"
@@ -53,19 +60,19 @@ const (
 	MDB_EXTRA  = "extra"
 	MDB_VALUE  = "value"
 	MDB_PROTO  = "proto"
-	MDB_TITLE  = "title"
-	MDB_TOPIC  = "topic"
-	MDB_STYLE  = "style"
-	MDB_IMAGE  = "image"
+
+	MDB_MAIN = "main"
+	MDB_FROM = "from"
+	MDB_MAKE = "make"
 
 	MDB_LINK = "link"
 	MDB_SIZE = "size"
 	MDB_LINE = "line"
 	MDB_FILE = "file"
 	MDB_PATH = "path"
+	MDB_DATA = "data"
 
 	MDB_HELP = "help"
-	MDB_DATA = "data"
 	MDB_TEXT = "text"
 	MDB_NAME = "name"
 	MDB_TYPE = "type"
@@ -132,6 +139,9 @@ func Keys(arg ...interface{}) string {
 }
 func Keym(arg ...interface{}) string {
 	return Keys(MDB_META, Keys(arg))
+}
+func Keycb(arg ...interface{}) string {
+	return Keys(Keys(arg), "cb")
 }
 func List(arg ...interface{}) []interface{} {
 	list, data := []interface{}{}, map[string]interface{}{}

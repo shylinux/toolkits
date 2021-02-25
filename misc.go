@@ -10,6 +10,7 @@ import (
 	"os"
 	"path"
 	"reflect"
+	"regexp"
 	"runtime"
 	"sort"
 	"strings"
@@ -261,4 +262,14 @@ func FormatKV(data map[string]interface{}, args ...string) string {
 
 func Contains(str, sub interface{}) bool {
 	return strings.Contains(Format(str), Format(sub))
+}
+
+func ForEach(arg []string, cb func(string)) {
+	for _, v := range arg {
+		cb(v)
+	}
+}
+func Regexp(arg string) *regexp.Regexp {
+	reg, _ := regexp.Compile(arg)
+	return reg
 }
