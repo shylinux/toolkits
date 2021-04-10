@@ -48,6 +48,7 @@ const (
 	MDB_TRANS    = "trans"
 	MDB_TOPIC    = "topic"
 	MDB_STYLE    = "style"
+	MDB_COLOR    = "color"
 	MDB_IMAGE    = "image"
 
 	MDB_DOMAIN = "domain"
