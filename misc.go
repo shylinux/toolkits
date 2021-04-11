@@ -137,6 +137,10 @@ func ExtIsImage(str string) bool {
 	}
 	return false
 }
+func Pwd() string {
+	wd, _ := os.Getwd()
+	return wd
+}
 
 func CSV(file string, limit int, cb func(index int, value map[string]string, head []string)) error {
 	f, e := os.Open(file)
@@ -243,15 +247,9 @@ func FileLine(p interface{}, n int) string {
 	return Format("%s:%d", strings.Join(ls, "/"), line)
 }
 
-func Sort(list []string) []string {
-	sort.Strings(list)
-	return list
-}
-
 func SubKey(name string) string {
 	return Keys(MDB_HASH, Hashs(name))
 }
-
 func FormatKV(data map[string]interface{}, args ...string) string {
 	list := []string{}
 	for k, v := range data {
@@ -260,14 +258,17 @@ func FormatKV(data map[string]interface{}, args ...string) string {
 	return strings.Join(list, Select(";", args, 1))
 }
 
-func Contains(str, sub interface{}) bool {
-	return strings.Contains(Format(str), Format(sub))
+func Sort(list []string) []string {
+	sort.Strings(list)
+	return list
 }
-
 func ForEach(arg []string, cb func(string)) {
 	for _, v := range arg {
 		cb(v)
 	}
+}
+func Contains(str, sub interface{}) bool {
+	return strings.Contains(Format(str), Format(sub))
 }
 func Regexp(arg string) *regexp.Regexp {
 	reg, _ := regexp.Compile(arg)
