@@ -57,6 +57,9 @@ func MergeURL2(str string, uri string, arg ...interface{}) string {
 	get, _ := url.Parse(uri)
 	return MergeURL(Select(raw.Scheme, get.Scheme)+"://"+Select(raw.Host, get.Host)+""+Select(raw.Path, get.Path)+"?"+Select(raw.RawQuery, get.RawQuery), arg...)
 }
+func MergePOD(str string, pod string) string {
+	return MergeURL(str, SSH_POD, Keys(ParseURL(str).Query().Get(SSH_POD), pod))
+}
 
 func Create(p string) (*os.File, string, error) {
 	switch p {

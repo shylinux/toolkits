@@ -32,6 +32,7 @@ const (
 	SSH_PID = "pid"
 	SSH_ENV = "env"
 	SSH_DIR = "dir"
+	SSH_PWD = "pwd"
 
 	SSH_SRC = "src"
 	SSH_ETC = "etc"
