@@ -2,6 +2,7 @@ package kit
 
 const (
 	SSH_REPOS  = "repos"
+	SSH_MASTER = "master"
 	SSH_BRANCH = "branch"
 	SSH_SOURCE = "source"
 	SSH_STATIC = "static"

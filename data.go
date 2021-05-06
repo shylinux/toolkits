@@ -55,6 +55,7 @@ const (
 	MDB_PREFIX = "prefix"
 	MDB_SCRIPT = "script"
 	MDB_STATUS = "status"
+	MDB_STREAM = "stream"
 	MDB_EXPIRE = "expire"
 	MDB_EVENT  = "event"
 	MDB_ERROR  = "error"
