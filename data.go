@@ -57,6 +57,7 @@ const (
 	MDB_STATUS = "status"
 	MDB_STREAM = "stream"
 	MDB_EXPIRE = "expire"
+	MDB_REGEXP = "regexp"
 	MDB_EVENT  = "event"
 	MDB_ERROR  = "error"
 	MDB_EXTRA  = "extra"
