@@ -38,6 +38,7 @@ const (
 	MDB_LIMIT = "limit"
 	MDB_LEAST = "least"
 	MDB_TABLE = "table"
+	MDB_INDEX = "index"
 
 	MDB_TEMPLATE = "template"
 	MDB_CONTENT  = "content"
