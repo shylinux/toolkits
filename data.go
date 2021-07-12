@@ -144,6 +144,9 @@ func Keys(arg ...interface{}) string {
 func Keym(arg ...interface{}) string {
 	return Keys(MDB_META, Keys(arg))
 }
+func KeyHash(arg ...interface{}) string {
+	return Keys(MDB_HASH, Hashs(arg[0]))
+}
 func Keycb(arg ...interface{}) string {
 	return Keys(Keys(arg), "cb")
 }
