@@ -277,3 +277,32 @@ func Regexp(arg string) *regexp.Regexp {
 	reg, _ := regexp.Compile(arg)
 	return reg
 }
+
+func Replace(str string, from string, to string) string {
+	trans := map[rune]rune{}
+	for i, c := range []rune(from) {
+		switch to := []rune(to); len(to) {
+		case 0:
+			trans[c] = '\000'
+		case 1:
+			trans[c] = to[0]
+		default:
+			if i < len(to) {
+				trans[c] = to[i]
+			} else {
+				trans[c] = '\000'
+			}
+		}
+	}
+
+	res := []rune{}
+	for _, c := range str {
+		switch c := trans[c]; c {
+		case '\000':
+			continue
+		default:
+			res = append(res, trans[c])
+		}
+	}
+	return string(res)
+}

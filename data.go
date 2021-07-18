@@ -20,6 +20,7 @@ const (
 )
 
 const (
+	// 结构
 	MDB_DICT = "dict"
 	MDB_META = "meta"
 	MDB_HASH = "hash"
@@ -28,6 +29,7 @@ const (
 	MDB_FOREACH = "*"
 	MDB_RANDOMS = "%"
 
+	// 存储
 	MDB_INPUT = "_input"
 	MDB_SHORT = "short"
 	MDB_FIELD = "field"
@@ -40,6 +42,7 @@ const (
 	MDB_TABLE = "table"
 	MDB_INDEX = "index"
 
+	// 显示
 	MDB_TEMPLATE = "template"
 	MDB_CONTENT  = "content"
 	MDB_DISPLAY  = "display"
@@ -52,6 +55,7 @@ const (
 	MDB_COLOR    = "color"
 	MDB_IMAGE    = "image"
 
+	// 程序
 	MDB_DOMAIN = "domain"
 	MDB_PREFIX = "prefix"
 	MDB_SCRIPT = "script"
@@ -63,23 +67,25 @@ const (
 	MDB_ERROR  = "error"
 	MDB_EXTRA  = "extra"
 	MDB_VALUE  = "value"
-	MDB_PROTO  = "proto"
 
-	MDB_MAIN = "main"
-	MDB_FROM = "from"
-	MDB_MAKE = "make"
+	// 文件
+	MDB_PROTO = "proto"
+	MDB_LINK  = "link"
+	MDB_PATH  = "path"
+	MDB_FILE  = "file"
+	MDB_LINE  = "line"
+	MDB_DATA  = "data"
+	MDB_SIZE  = "size"
+	MDB_MAKE  = "make"
+	MDB_FROM  = "from"
+	MDB_MAIN  = "main"
 
-	MDB_LINK = "link"
-	MDB_SIZE = "size"
-	MDB_LINE = "line"
-	MDB_FILE = "file"
-	MDB_PATH = "path"
-	MDB_DATA = "data"
-
+	// 数据
 	MDB_HELP = "help"
 	MDB_TEXT = "text"
 	MDB_NAME = "name"
 	MDB_TYPE = "type"
+	MDB_CODE = "code"
 	MDB_ZONE = "zone"
 	MDB_TIME = "time"
 	MDB_KEY  = "key"
