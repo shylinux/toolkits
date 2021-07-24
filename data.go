@@ -67,6 +67,8 @@ const (
 	MDB_ERROR  = "error"
 	MDB_EXTRA  = "extra"
 	MDB_VALUE  = "value"
+	MDB_CODE   = "code"
+	MDB_BACK   = "back"
 
 	// 文件
 	MDB_PROTO = "proto"
@@ -85,7 +87,6 @@ const (
 	MDB_TEXT = "text"
 	MDB_NAME = "name"
 	MDB_TYPE = "type"
-	MDB_CODE = "code"
 	MDB_ZONE = "zone"
 	MDB_TIME = "time"
 	MDB_KEY  = "key"
