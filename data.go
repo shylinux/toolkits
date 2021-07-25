@@ -65,6 +65,8 @@ const (
 	MDB_REGEXP = "regexp"
 	MDB_EVENT  = "event"
 	MDB_ERROR  = "error"
+	MDB_LEVEL  = "level"
+	MDB_ALIAS  = "alias"
 	MDB_EXTRA  = "extra"
 	MDB_VALUE  = "value"
 	MDB_CODE   = "code"
@@ -81,6 +83,7 @@ const (
 	MDB_MAKE  = "make"
 	MDB_FROM  = "from"
 	MDB_MAIN  = "main"
+	MDB_MENU  = "menu"
 
 	// 数据
 	MDB_HELP = "help"
