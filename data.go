@@ -107,30 +107,29 @@ func _merge(meta map[string]interface{}, arg ...interface{}) map[string]interfac
 		}
 	}
 
-	for i := 0; i < len(arg); i += 2 {
-		if i == len(arg)-1 {
-			switch arg := arg[i].(type) {
-			case []string:
-				for i := 0; i < len(arg)-1; i += 2 {
-					Value(meta, arg[i], arg[i+1])
-				}
-			case []interface{}:
-				for i := 0; i < len(arg)-1; i += 2 {
-					Value(meta, arg[i], arg[i+1])
-				}
-			case map[string]interface{}:
-				for k, v := range arg {
-					if Value(meta, k) == nil {
-						Value(meta, k, v)
-					}
-				}
-			case map[string]string:
-				for k, v := range arg {
+	for i := 0; i < len(arg); i++ {
+		switch args := arg[i].(type) {
+		case []string:
+			for i := 0; i < len(args)-1; i += 2 {
+				Value(meta, args[i], args[i+1])
+			}
+		case []interface{}:
+			for i := 0; i < len(args)-1; i += 2 {
+				Value(meta, args[i], args[i+1])
+			}
+		case map[string]interface{}:
+			for k, v := range args {
+				if Value(meta, k) == nil {
 					Value(meta, k, v)
 				}
 			}
-		} else {
+		case map[string]string:
+			for k, v := range args {
+				Value(meta, k, v)
+			}
+		default:
 			Value(meta, arg[i], arg[i+1])
+			i++
 		}
 	}
 	return meta

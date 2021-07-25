@@ -188,11 +188,36 @@ func Select(def string, arg ...interface{}) string {
 	}
 	return def
 }
-func Slice(list []string, begin int) []string {
-	if begin < len(list) {
-		return list[begin:]
+func Slice(list []string, index ...int) []string {
+	begin := 0
+	if len(index) > 0 {
+		if index[0] < 0 {
+			begin = index[0] + len(list)
+		} else {
+			begin = index[0]
+		}
 	}
-	return []string{}
+	if begin > len(list) {
+		begin = len(list)
+	}
+
+	end := len(list)
+	if len(index) > 1 {
+		if index[1] < 0 {
+			end = index[1] + len(list)
+		} else if index[1] < end {
+			end = index[1]
+		}
+	}
+
+	step := 1
+	if len(index) > 2 {
+		step = index[3]
+	}
+	if step == 1 {
+		return list[begin:end]
+	}
+	return nil
 }
 func Simple(val ...interface{}) []string {
 	res := []string{}
