@@ -48,6 +48,7 @@ const (
 	// MDB_DISPLAY  = "display"
 	MDB_ACTION = "action"
 	MDB_BUTTON = "button"
+	MDB_PROMPT = "prompt"
 	MDB_TITLE  = "title"
 	MDB_TRANS  = "trans"
 	MDB_TOPIC  = "topic"
