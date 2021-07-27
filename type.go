@@ -232,6 +232,10 @@ func Simple(val ...interface{}) []string {
 			for _, v := range val {
 				res = append(res, Simple(v)...)
 			}
+		case map[string]int:
+			for k, v := range val {
+				res = append(res, k, Format(v))
+			}
 		case map[string]interface{}:
 			keys := []string{}
 			for k := range val {
