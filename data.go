@@ -45,16 +45,13 @@ const (
 	// 显示
 	MDB_TEMPLATE = "template"
 	MDB_CONTENT  = "content"
-	// MDB_DISPLAY  = "display"
-	MDB_ACTION = "action"
-	MDB_BUTTON = "button"
-	MDB_PROMPT = "prompt"
-	MDB_TITLE  = "title"
-	MDB_TRANS  = "trans"
-	MDB_TOPIC  = "topic"
-	MDB_STYLE  = "style"
-	MDB_COLOR  = "color"
-	MDB_IMAGE  = "image"
+	MDB_BUTTON   = "button"
+	MDB_TITLE    = "title"
+	MDB_TRANS    = "trans"
+	MDB_TOPIC    = "topic"
+	MDB_STYLE    = "style"
+	MDB_COLOR    = "color"
+	MDB_IMAGE    = "image"
 
 	// 程序
 	MDB_DOMAIN = "domain"

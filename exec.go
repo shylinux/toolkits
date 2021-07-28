@@ -24,16 +24,6 @@ const (
 	SSH_BREAK = "break"
 
 	SSH_WEB = "web"
-	SSH_POD = "pod"
-	SSH_CTX = "ctx"
-	SSH_CMD = "cmd"
-	SSH_ARG = "arg"
-	SSH_RUN = "run"
-	SSH_RES = "res"
-	SSH_PID = "pid"
-	SSH_ENV = "env"
-	SSH_DIR = "dir"
-	SSH_PWD = "pwd"
 
 	SSH_SRC = "src"
 	SSH_ETC = "etc"
