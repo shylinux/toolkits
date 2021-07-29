@@ -306,3 +306,6 @@ func Replace(str string, from string, to string) string {
 	}
 	return string(res)
 }
+func Join(str []string, arg ...string) string {
+	return strings.Join(str, Select(",", arg, 0))
+}

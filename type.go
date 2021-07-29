@@ -151,9 +151,6 @@ func FmtTime(t int64) string {
 func Width(str string, mul int) int {
 	return len([]rune(str)) + (len(str)-len([]rune(str)))/2/mul
 }
-func Join(str []string, key string) string {
-	return strings.Join(str, key)
-}
 
 func Select(def string, arg ...interface{}) string {
 	if len(arg) == 0 {

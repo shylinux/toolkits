@@ -46,6 +46,8 @@ const (
 	MDB_TEMPLATE = "template"
 	MDB_CONTENT  = "content"
 	MDB_BUTTON   = "button"
+	MDB_ACTION   = "action"
+	MDB_SCRIPT   = "script"
 	MDB_TITLE    = "title"
 	MDB_TRANS    = "trans"
 	MDB_TOPIC    = "topic"
@@ -56,7 +58,6 @@ const (
 	// 程序
 	MDB_DOMAIN = "domain"
 	MDB_PREFIX = "prefix"
-	MDB_SCRIPT = "script"
 	MDB_STATUS = "status"
 	MDB_STREAM = "stream"
 	MDB_EXPIRE = "expire"
