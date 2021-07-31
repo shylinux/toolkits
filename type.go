@@ -211,6 +211,11 @@ func Slice(list []string, index ...int) []string {
 	if len(index) > 2 {
 		step = index[3]
 	}
+	for ; end > 0; end-- {
+		if list[end-1] != "" {
+			break
+		}
+	}
 	if step == 1 {
 		return list[begin:end]
 	}
