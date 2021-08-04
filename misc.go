@@ -127,11 +127,7 @@ func Path(str string, rest ...string) string {
 	return str
 }
 func Ext(str string) string {
-	if strings.Contains(str, ".") {
-		ls := strings.Split(str, ".")
-		return strings.ToLower(ls[len(ls)-1])
-	}
-	return ""
+	return strings.ToLower(path.Base(Select(str, strings.TrimPrefix(path.Ext(str), "."))))
 }
 func ExtIsImage(str string) bool {
 	switch strings.ToLower(Ext(str)) {
