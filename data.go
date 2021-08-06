@@ -45,6 +45,7 @@ const (
 	// 显示
 	MDB_TEMPLATE = "template"
 	MDB_CONTENT  = "content"
+	MDB_TIMEOUT  = "timeout"
 	MDB_BUTTON   = "button"
 	MDB_ACTION   = "action"
 	MDB_SCRIPT   = "script"
