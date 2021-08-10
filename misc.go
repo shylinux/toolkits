@@ -20,6 +20,12 @@ func ParseURL(str string) *url.URL {
 	u, _ := url.Parse(str)
 	return u
 }
+func ParseURLMap(str string) map[string]string {
+	u := ParseURL(str)
+	res := map[string]string{}
+	res["host"] = u.Host
+	return res
+}
 func MergeURL(str string, arg ...interface{}) string {
 	list := strings.Split(str, "?")
 	res := list[0]
