@@ -12,13 +12,11 @@ const (
 	MIME_HTML = "text/html"
 	MIME_PNG  = "image/png"
 )
-
 const (
 	META_SOURCE = "meta.source"
 	META_FIELD  = "meta.field"
 	META_PATH   = "meta.path"
 )
-
 const (
 	// 结构
 	MDB_DICT = "dict"
