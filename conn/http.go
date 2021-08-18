@@ -7,7 +7,7 @@ import (
 	"net"
 	"net/http"
 
-	"github.com/shylinux/toolkits/logs"
+	"shylinux.com/x/toolkits/logs"
 )
 
 var (

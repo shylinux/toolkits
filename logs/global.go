@@ -1,7 +1,7 @@
 package log
 
 import (
-	"github.com/shylinux/toolkits/conf"
+	"shylinux.com/x/toolkits/conf"
 )
 
 var log, _ = Open(conf.Sub("log"))

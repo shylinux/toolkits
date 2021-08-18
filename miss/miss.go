@@ -3,7 +3,7 @@ package miss
 import (
 	"time"
 
-	"github.com/shylinux/toolkits/conf"
+	"shylinux.com/x/toolkits/conf"
 )
 
 type Miss struct {

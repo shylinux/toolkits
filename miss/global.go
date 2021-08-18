@@ -1,7 +1,7 @@
 package miss
 
 import (
-	"github.com/shylinux/toolkits/conf"
+	"shylinux.com/x/toolkits/conf"
 )
 
 var miss = New(conf.Sub("miss"))

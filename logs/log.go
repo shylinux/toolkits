@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/shylinux/toolkits/conf"
+	"shylinux.com/x/toolkits/conf"
 )
 
 const (

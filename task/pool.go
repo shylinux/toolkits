@@ -6,8 +6,8 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/shylinux/toolkits/conf"
-	log "github.com/shylinux/toolkits/logs"
+	"shylinux.com/x/toolkits/conf"
+	log "shylinux.com/x/toolkits/logs"
 )
 
 type Pool struct {

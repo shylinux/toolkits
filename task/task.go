@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	log "github.com/shylinux/toolkits/logs"
+	log "shylinux.com/x/toolkits/logs"
 )
 
 const (

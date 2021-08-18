@@ -5,7 +5,7 @@ import (
 	"os"
 	"strings"
 
-	kit "github.com/shylinux/toolkits"
+	kit "shylinux.com/x/toolkits"
 )
 
 type Conf struct {

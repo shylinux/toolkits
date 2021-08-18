@@ -10,8 +10,8 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/shylinux/toolkits/conn"
-	"github.com/shylinux/toolkits/task"
+	"shylinux.com/x/toolkits/conn"
+	"shylinux.com/x/toolkits/task"
 )
 
 type Stat struct {

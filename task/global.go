@@ -1,7 +1,7 @@
 package task
 
 import (
-	"github.com/shylinux/toolkits/conf"
+	"shylinux.com/x/toolkits/conf"
 )
 
 var pool = New(conf.Sub("task"))

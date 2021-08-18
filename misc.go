@@ -221,7 +221,7 @@ func SourcePath(arg ...string) string {
 	}
 
 	ls := strings.Split(FileLine(2, 100), "usr")
-	return path.Join("/require/github.com/shylinux", path.Dir(ls[len(ls)-1]), pp)
+	return path.Join("/require/shylinux.com/x", path.Dir(ls[len(ls)-1]), pp)
 }
 func FileLine(p interface{}, n int) string {
 	if p == nil {

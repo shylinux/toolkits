@@ -1,7 +1,7 @@
 package conf
 
 import (
-	kit "github.com/shylinux/toolkits"
+	kit "shylinux.com/x/toolkits"
 )
 
 var conf = New(kit.Dict(
