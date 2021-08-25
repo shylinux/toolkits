@@ -152,7 +152,7 @@ func Keym(arg ...interface{}) string {
 	return Keys(MDB_META, Keys(arg))
 }
 func KeyHash(arg ...interface{}) string {
-	return Keys(MDB_HASH, Hashs(arg[0]))
+	return Keys(MDB_HASH, Hashs(arg[0]), arg[1:])
 }
 func Keycb(arg ...interface{}) string {
 	return Keys(Keys(arg), "cb")
