@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"encoding/csv"
 	"encoding/json"
+	"io"
 	"io/ioutil"
 	"net/url"
 	"os"
@@ -310,4 +311,21 @@ func Replace(str string, from string, to string) string {
 }
 func Join(str []string, arg ...string) string {
 	return strings.Join(str, Select(",", arg, 0))
+}
+
+type ReadCloser struct {
+	r io.Reader
+}
+
+func (r *ReadCloser) Read(buf []byte) (int, error) {
+	return r.r.Read(buf)
+}
+func (r *ReadCloser) Close() error {
+	if c, ok := r.r.(io.Closer); ok {
+		return c.Close()
+	}
+	return nil
+}
+func NewReadCloser(r io.Reader) *ReadCloser {
+	return &ReadCloser{r: r}
 }
