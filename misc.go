@@ -15,6 +15,7 @@ import (
 	"runtime"
 	"sort"
 	"strings"
+	"unicode"
 )
 
 func ParseURL(str string) *url.URL {
@@ -224,35 +225,65 @@ func SourcePath(arg ...string) string {
 	ls := strings.Split(FileLine(2, 100), "usr")
 	return path.Join("/require/shylinux.com/x", path.Dir(ls[len(ls)-1]), pp)
 }
-func FileLine(p interface{}, n int) string {
+func getFunc(p interface{}) (fun uintptr) {
 	if p == nil {
-		return ""
+		return 0
 	}
-	var fun uintptr
 	switch p := p.(type) {
 	case uintptr:
 		fun = p
 	case int:
-		fun, _, _, _ = runtime.Caller(p)
+		fun, _, _, _ = runtime.Caller(p + 1)
 	case nil:
-		return ""
+		fun = 0
 	default:
-		f := reflect.ValueOf(p)
-		fun = f.Pointer()
+		fun = reflect.ValueOf(p).Pointer()
 	}
+	return fun
+}
+func FuncName(p interface{}) string {
+	fun := getFunc(p)
+	if fun == 0 {
+		return ""
+	}
+	list := strings.Split(runtime.FuncForPC(fun).Name(), ".")
+	return strings.TrimSuffix(list[len(list)-1], "-fm")
+}
+func FileName(p interface{}) string {
+	fun := getFunc(p)
+	if fun == 0 {
+		return ""
+	}
+	file, _ := runtime.FuncForPC(fun).FileLine(fun)
+	return strings.Split(path.Base(file), ".")[0]
+}
+func FileLine(p interface{}, n int) string {
+	fun := getFunc(p)
 	if fun == 0 {
 		return ""
 	}
 
-	f := runtime.FuncForPC(fun)
-	file, line := f.FileLine(fun)
-	ls := strings.Split(file, "/")
-	if len(ls) > n {
-		ls = ls[len(ls)-n:]
+	file, line := runtime.FuncForPC(fun).FileLine(fun)
+	list := strings.Split(file, "/")
+	if len(list) > n {
+		list = list[len(list)-n:]
 	}
-	return Format("%s:%d", strings.Join(ls, "/"), line)
+	return Format("%s:%d", strings.Join(list, "/"), line)
 }
 
+func TransArg(arg []string, key string, trans map[string]string) []string {
+	for i := 0; i < len(arg); i += 2 {
+		if arg[i] == key {
+			if val, ok := trans[arg[i+1]]; ok {
+				arg[i+1] = val
+			}
+		}
+	}
+	return arg
+}
+func Capital(str string) string {
+	return string(unicode.ToUpper(rune(str[0]))) + str[1:]
+}
 func SubKey(name string) string {
 	return Keys(MDB_HASH, Hashs(name))
 }
