@@ -117,7 +117,7 @@ func FileExists(name string) bool {
 }
 func TrimExt(str string, ext ...string) string {
 	if len(ext) == 0 {
-		ext = []string{".zip", ".tar.xz", ".tar.gz", ".tar.bz2"}
+		ext = []string{".zip", ".tgz", ".tar.xz", ".tar.gz", ".tar.bz2"}
 	}
 	str = path.Base(str)
 	for _, k := range ext {
