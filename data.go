@@ -59,6 +59,7 @@ const (
 	MDB_PREFIX = "prefix"
 	MDB_STATUS = "status"
 	MDB_STREAM = "stream"
+	MDB_BEFORE = "before"
 	MDB_EXPIRE = "expire"
 	MDB_REGEXP = "regexp"
 	MDB_EVENT  = "event"

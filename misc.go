@@ -63,7 +63,11 @@ func MergeURL(str string, arg ...interface{}) string {
 func MergeURL2(str string, uri string, arg ...interface{}) string {
 	raw, _ := url.Parse(str)
 	get, _ := url.Parse(uri)
-	return MergeURL(Select(raw.Scheme, get.Scheme)+"://"+Select(raw.Host, get.Host)+""+Select(raw.Path, get.Path)+"?"+Select(raw.RawQuery, get.RawQuery), arg...)
+	p := get.Path
+	if !strings.HasPrefix(p, "/") {
+		p = path.Join(raw.Path, get.Path)
+	}
+	return MergeURL(Select(raw.Scheme, get.Scheme)+"://"+Select(raw.Host, get.Host)+path.Join("/", p)+"?"+Select(raw.RawQuery, get.RawQuery), arg...)
 }
 func MergePOD(str string, pod string) string {
 	return MergeURL(str, "pod", Keys(ParseURL(str).Query().Get("pod"), pod))
@@ -241,6 +245,9 @@ func getFunc(p interface{}) (fun uintptr) {
 	}
 	return fun
 }
+func ModName(p interface{}) string {
+	return Split(reflect.TypeOf(p).PkgPath(), "/-")[2]
+}
 func FuncName(p interface{}) string {
 	fun := getFunc(p)
 	if fun == 0 {
@@ -248,6 +255,14 @@ func FuncName(p interface{}) string {
 	}
 	list := strings.Split(runtime.FuncForPC(fun).Name(), ".")
 	return strings.TrimSuffix(list[len(list)-1], "-fm")
+}
+func PathName(p interface{}) string {
+	fun := getFunc(p)
+	if fun == 0 {
+		return ""
+	}
+	file, _ := runtime.FuncForPC(fun).FileLine(fun)
+	return path.Base(path.Dir(file))
 }
 func FileName(p interface{}) string {
 	fun := getFunc(p)
