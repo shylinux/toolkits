@@ -70,6 +70,7 @@ const (
 	MDB_VALUE  = "value"
 	MDB_CODE   = "code"
 	MDB_BACK   = "back"
+	MDB_COST   = "cost"
 
 	// 文件
 	MDB_PROTO = "proto"
@@ -161,9 +162,11 @@ func Keycb(arg ...interface{}) string {
 func List(arg ...interface{}) []interface{} {
 	list, data := []interface{}{}, map[string]interface{}{}
 	for i := 0; i < len(arg)-1; i += 2 {
-		if arg[i] == MDB_INPUT {
+		if arg[i] == MDB_INPUT || arg[i] == MDB_TYPE {
 			data = map[string]interface{}{}
 			list = append(list, data)
+		} else if i == 0 {
+			return arg
 		}
 		Value(data, arg[i], arg[i+1])
 	}

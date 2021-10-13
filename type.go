@@ -3,6 +3,7 @@ package kit
 import (
 	"encoding/json"
 	"fmt"
+	"reflect"
 	"sort"
 	"strconv"
 	"strings"
@@ -55,6 +56,10 @@ func Format(val interface{}, arg ...interface{}) string {
 		return val.String()
 	case time.Time:
 		return val.Format("2006-01-02 15:04:05")
+	default:
+		if t := reflect.TypeOf(val); t.Kind() == reflect.Func {
+			return FuncName(val)
+		}
 	}
 	b, _ := json.Marshal(val)
 	return string(b)
