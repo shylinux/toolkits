@@ -4,10 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"reflect"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
+	"unicode"
 )
 
 func Int(val interface{}) int {
@@ -73,6 +75,10 @@ func Formats(val interface{}) string {
 	}
 	b, _ := json.MarshalIndent(val, "", "  ")
 	return string(b)
+}
+func Regexp(arg string) *regexp.Regexp {
+	reg, _ := regexp.Compile(arg)
+	return reg
 }
 func Duration(str interface{}) time.Duration {
 	switch str := str.(type) {
@@ -271,4 +277,50 @@ func IndexOf(str []string, sub string) int {
 		}
 	}
 	return -1
+}
+func Sort(list []string) []string {
+	sort.Strings(list)
+	return list
+}
+func Join(str []string, arg ...string) string {
+	return strings.Join(str, Select(",", arg, 0))
+}
+func Contains(str, sub interface{}) bool {
+	return strings.Contains(Format(str), Format(sub))
+}
+func Replace(str string, from string, to string) string {
+	trans := map[rune]rune{}
+	for i, c := range []rune(from) {
+		switch to := []rune(to); len(to) {
+		case 0:
+			trans[c] = '\000'
+		case 1:
+			trans[c] = to[0]
+		default:
+			if i < len(to) {
+				trans[c] = to[i]
+			} else {
+				trans[c] = '\000'
+			}
+		}
+	}
+
+	res := []rune{}
+	for _, c := range str {
+		switch c := trans[c]; c {
+		case '\000':
+			continue
+		default:
+			res = append(res, trans[c])
+		}
+	}
+	return string(res)
+}
+func Capital(str string) string {
+	return string(unicode.ToUpper(rune(str[0]))) + str[1:]
+}
+func ForEach(arg []string, cb func(string)) {
+	for _, v := range arg {
+		cb(v)
+	}
 }
