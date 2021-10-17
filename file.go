@@ -3,7 +3,6 @@ package kit
 import (
 	"bufio"
 	"bytes"
-	"io"
 	"io/ioutil"
 	"os"
 	"path"
@@ -156,21 +155,4 @@ func FileLine(p interface{}, n int) string {
 		list = list[len(list)-n:]
 	}
 	return Format("%s:%d", strings.Join(list, "/"), line)
-}
-
-type ReadCloser struct {
-	r io.Reader
-}
-
-func (r *ReadCloser) Read(buf []byte) (int, error) {
-	return r.r.Read(buf)
-}
-func (r *ReadCloser) Close() error {
-	if c, ok := r.r.(io.Closer); ok {
-		return c.Close()
-	}
-	return nil
-}
-func NewReadCloser(r io.Reader) *ReadCloser {
-	return &ReadCloser{r: r}
 }
