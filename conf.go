@@ -64,7 +64,6 @@ const (
 	MDB_MENU   = "menu"
 
 	// 存储
-	MDB_INPUT = "_input"
 	MDB_SHORT = "short"
 	MDB_FIELD = "field"
 	MDB_STORE = "store"

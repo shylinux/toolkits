@@ -58,7 +58,7 @@ func Data(arg ...interface{}) map[string]interface{} {
 func List(arg ...interface{}) []interface{} {
 	list, data := []interface{}{}, map[string]interface{}{}
 	for i := 0; i < len(arg)-1; i += 2 {
-		if arg[i] == MDB_INPUT || arg[i] == MDB_TYPE {
+		if arg[i] == MDB_TYPE {
 			data = map[string]interface{}{}
 			list = append(list, data)
 		} else if i == 0 {
