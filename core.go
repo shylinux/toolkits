@@ -434,3 +434,4 @@ func ShortKey(list map[string]interface{}, min int, arg ...interface{}) string {
 	}
 	return h
 }
+func Fields(arg ...interface{}) string { return Join(Simple(arg...)) }
