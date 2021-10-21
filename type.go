@@ -55,6 +55,8 @@ func Format(val interface{}, arg ...interface{}) string {
 		if len(val) == 0 {
 			return "{}"
 		}
+	case []byte:
+		return hex.EncodeToString(val[:])
 	case [20]byte:
 		return hex.EncodeToString(val[:])
 	case time.Duration:
