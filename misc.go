@@ -124,9 +124,6 @@ func FormatKV(data map[string]interface{}, args ...string) string {
 	}
 	return strings.Join(list, Select(";", args, 1))
 }
-func SubKey(name string) string {
-	return Keys(MDB_HASH, Hashs(name))
-}
 
 const (
 	SSH_ROUTE  = "route"
