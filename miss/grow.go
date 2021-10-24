@@ -23,9 +23,9 @@ func (miss *Miss) Grow(prefix string, cache map[string]interface{}, data interfa
 
 	// 通用数据
 	id := kit.Int(meta[kit.MDB_COUNT]) + 1
-	nest := kit.Select("", "meta.", kit.Value(data, "meta") != nil)
-	if kit.Value(data, nest+kit.MDB_ID, id); kit.Value(data, nest+kit.MDB_TIME) == nil {
-		kit.Value(data, nest+kit.MDB_TIME, kit.Select(time.Now().Format("2006-01-02 15:04:05")))
+	nest := kit.Select("", kit.MDB_META, kit.Value(data, kit.MDB_META) != nil)
+	if kit.Value(data, kit.Keys(nest, kit.MDB_ID), id); kit.Value(data, kit.Keys(nest, kit.MDB_TIME)) == nil {
+		kit.Value(data, kit.Keys(nest, kit.MDB_TIME), kit.Select(time.Now().Format("2006-01-02 15:04:05")))
 	}
 
 	// 添加数据
@@ -33,92 +33,93 @@ func (miss *Miss) Grow(prefix string, cache map[string]interface{}, data interfa
 	cache[kit.MDB_LIST] = list
 	meta[kit.MDB_COUNT] = id
 
-	// 保存数据
-	if len(list) >= kit.Int(kit.Select(miss.limit, kit.Format(meta[kit.MDB_LIMIT]))) {
-		least := kit.Int(kit.Select(miss.least, kit.Format(meta[kit.MDB_LEAST])))
-		store := kit.Select(miss.store, kit.Format(meta[kit.MDB_STORE]))
-
-		record, _ := meta["record"].([]interface{})
-
-		// 文件命名
-		dir := path.Join(store, prefix)
-		name := path.Join(dir, kit.Keys("list", "csv"))
-		if len(record) > 0 {
-			name = kit.Format(kit.Value(record, kit.Keys(len(record)-1, "file")))
-			if s, e := os.Stat(name); e == nil {
-				if s.Size() > kit.Int64(kit.Select(miss.fsize, kit.Format(meta[kit.MDB_FSIZE]))) {
-					name = path.Join(dir, kit.Keys("list"+"_"+kit.Format(meta["offset"]), "csv"))
-				}
-			}
-		}
-
-		// 打开文件
-		f, e := os.OpenFile(name, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0666)
-		if e != nil {
-			f, _, e = kit.Create(name)
-			log.Show("miss", "create", name)
-		} else {
-			log.Show("miss", "append", name)
-		}
-		defer f.Close()
-		s, _ := f.Stat()
-
-		// 保存表头
-		keys := []string{}
-		w := csv.NewWriter(f)
-		if s.Size() == 0 {
-			if field := kit.Simple(meta["field"]); len(field) > 0 {
-				keys = append(keys, field...)
-			} else {
-				for k := range list[0].(map[string]interface{}) {
-					keys = append(keys, k)
-				}
-				sort.Strings(keys)
-			}
-
-			w.Write(keys)
-			log.Show("miss", "write head", keys)
-			w.Flush()
-			s, e = f.Stat()
-		} else {
-			r := csv.NewReader(f)
-			keys, e = r.Read()
-			log.Show("miss", "read head", keys)
-		}
-
-		// 创建索引
-		count := len(list) - least
-		offset := kit.Int(meta["offset"])
-		meta["record"] = append(record, map[string]interface{}{
-			"time": miss.now(), "offset": offset, "count": count,
-			"file": name, "position": s.Size(),
-		})
-
-		// 保存数据
-		for i, v := range list {
-			if i >= count {
-				break
-			}
-
-			val := v.(map[string]interface{})
-
-			values := []string{}
-			for _, k := range keys {
-				values = append(values, kit.Format(val[k]))
-			}
-			w.Write(values)
-
-			if i < least {
-				list[i] = list[count+i]
-			}
-		}
-
-		log.Show("miss", "save", name, "offset", offset, "count", count)
-		meta["offset"] = offset + count
-		list = list[count:]
-		cache[kit.MDB_LIST] = list
-		w.Flush()
+	if len(list) < kit.Int(kit.Select(miss.limit, kit.Format(meta[kit.MDB_LIMIT]))) {
+		return id
 	}
+
+	// 保存数据
+	least := kit.Int(kit.Select(miss.least, kit.Format(meta[kit.MDB_LEAST])))
+	store := kit.Select(miss.store, kit.Format(meta[kit.MDB_STORE]))
+	record, _ := meta["record"].([]interface{})
+
+	// 文件命名
+	dir := path.Join(store, prefix)
+	name := path.Join(dir, "list.csv")
+	if len(record) > 0 {
+		name = kit.Format(kit.Value(record, "-3.file"))
+		if s, e := os.Stat(name); e == nil {
+			if s.Size() > kit.Int64(kit.Select(miss.fsize, kit.Format(meta[kit.MDB_FSIZE]))) {
+				name = path.Join(dir, kit.Keys("list_"+kit.Format(meta["offset"]), "csv"))
+			}
+		}
+	}
+
+	// 打开文件
+	f, e := os.OpenFile(name, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0666)
+	if e != nil {
+		f, _, e = kit.Create(name)
+		log.Show("miss", "create", name)
+	} else {
+		log.Show("miss", "append", name)
+	}
+	defer f.Close()
+	s, _ := f.Stat()
+
+	// 保存表头
+	keys := []string{}
+	w := csv.NewWriter(f)
+	if s.Size() == 0 {
+		if field := kit.Split(kit.Format(meta["field"])); len(field) > 0 {
+			keys = append(keys, field...)
+		} else {
+			for k := range list[0].(map[string]interface{}) {
+				keys = append(keys, k)
+			}
+			sort.Strings(keys)
+		}
+
+		w.Write(keys)
+		log.Show("miss", "write head", keys)
+		w.Flush()
+		s, e = f.Stat()
+	} else {
+		r := csv.NewReader(f)
+		keys, e = r.Read()
+		log.Show("miss", "read head", keys)
+	}
+
+	// 创建索引
+	count := len(list) - least
+	offset := kit.Int(meta["offset"])
+	meta["record"] = append(record, map[string]interface{}{
+		"time": miss.now(), "offset": offset, "count": count,
+		"file": name, "position": s.Size(),
+	})
+
+	// 保存数据
+	for i, v := range list {
+		if i >= count {
+			break
+		}
+
+		val := v.(map[string]interface{})
+
+		values := []string{}
+		for _, k := range keys {
+			values = append(values, kit.Format(val[k]))
+		}
+		w.Write(values)
+
+		if i < least {
+			list[i] = list[count+i]
+		}
+	}
+
+	log.Show("miss", "save", name, "offset", offset, "count", count)
+	meta["offset"] = offset + count
+	list = list[count:]
+	cache[kit.MDB_LIST] = list
+	w.Flush()
 	return id
 }
 func (miss *Miss) Grows(prefix string, cache map[string]interface{}, offend, limit int, match string, value string, cb interface{}) map[string]interface{} {
