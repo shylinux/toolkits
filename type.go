@@ -81,6 +81,38 @@ func Formats(val interface{}) string {
 	b, _ := json.MarshalIndent(val, "", "  ")
 	return string(b)
 }
+func Simple(val ...interface{}) []string {
+	res := []string{}
+	for _, v := range val {
+		switch val := v.(type) {
+		case nil:
+		case float64:
+			res = append(res, fmt.Sprintf("%d", int64(val)))
+		case []string:
+			res = append(res, val...)
+		case []interface{}:
+			for _, v := range val {
+				res = append(res, Simple(v)...)
+			}
+		case map[string]int:
+			for k, v := range val {
+				res = append(res, k, Format(v))
+			}
+		case map[string]interface{}:
+			keys := []string{}
+			for k := range val {
+				keys = append(keys, k)
+			}
+			sort.Strings(keys)
+			for _, k := range keys {
+				res = append(res, k, Format(val[k]))
+			}
+		default:
+			res = append(res, Format(val))
+		}
+	}
+	return res
+}
 func Regexp(arg string) *regexp.Regexp {
 	reg, _ := regexp.Compile(arg)
 	return reg
@@ -164,10 +196,41 @@ func FmtTime(t int64) string {
 	}
 	return fmt.Sprintf("%s%dns", sign, time)
 }
-func Width(str string, mul int) int {
-	return len([]rune(str)) + (len(str)-len([]rune(str)))/2/mul
-}
 
+func Contains(str, sub interface{}) bool {
+	return strings.Contains(Format(str), Format(sub))
+}
+func Replace(str string, from string, to string) string {
+	trans := map[rune]rune{}
+	for i, c := range []rune(from) {
+		switch to := []rune(to); len(to) {
+		case 0:
+			trans[c] = '\000'
+		case 1:
+			trans[c] = to[0]
+		default:
+			if i < len(to) {
+				trans[c] = to[i]
+			} else {
+				trans[c] = '\000'
+			}
+		}
+	}
+
+	res := []rune{}
+	for _, c := range str {
+		switch c := trans[c]; c {
+		case '\000':
+			continue
+		default:
+			res = append(res, trans[c])
+		}
+	}
+	return string(res)
+}
+func Capital(str string) string {
+	return string(unicode.ToUpper(rune(str[0]))) + str[1:]
+}
 func Select(def string, arg ...interface{}) string {
 	if len(arg) == 0 {
 		return def
@@ -200,6 +263,29 @@ func Select(def string, arg ...interface{}) string {
 		}
 	}
 	return def
+}
+func Width(str string, mul int) int {
+	return len([]rune(str)) + (len(str)-len([]rune(str)))/2/mul
+}
+
+func IndexOf(str []string, sub string) int {
+	for i, v := range str {
+		if v == sub {
+			return i
+		}
+	}
+	return -1
+}
+func ForEach(arg []string, cb func(string)) {
+	for _, v := range arg {
+		cb(v)
+	}
+}
+func Revert(str []string) []string {
+	for i := 0; i < len(str)/2; i++ {
+		str[i], str[len(str)-1-i] = str[len(str)-1-i], str[i]
+	}
+	return str
 }
 func Slice(list []string, index ...int) []string {
 	begin := 0
@@ -237,95 +323,10 @@ func Slice(list []string, index ...int) []string {
 	}
 	return nil
 }
-func Simple(val ...interface{}) []string {
-	res := []string{}
-	for _, v := range val {
-		switch val := v.(type) {
-		case nil:
-		case float64:
-			res = append(res, fmt.Sprintf("%d", int64(val)))
-		case []string:
-			res = append(res, val...)
-		case []interface{}:
-			for _, v := range val {
-				res = append(res, Simple(v)...)
-			}
-		case map[string]int:
-			for k, v := range val {
-				res = append(res, k, Format(v))
-			}
-		case map[string]interface{}:
-			keys := []string{}
-			for k := range val {
-				keys = append(keys, k)
-			}
-			sort.Strings(keys)
-			for _, k := range keys {
-				res = append(res, k, Format(val[k]))
-			}
-		default:
-			res = append(res, Format(val))
-		}
-	}
-	return res
-}
-func Revert(str []string) []string {
-	for i := 0; i < len(str)/2; i++ {
-		str[i], str[len(str)-1-i] = str[len(str)-1-i], str[i]
-	}
-	return str
-}
-func IndexOf(str []string, sub string) int {
-	for i, v := range str {
-		if v == sub {
-			return i
-		}
-	}
-	return -1
+func Join(str []string, arg ...string) string {
+	return strings.Join(str, Select(",", arg, 0))
 }
 func Sort(list []string) []string {
 	sort.Strings(list)
 	return list
-}
-func Join(str []string, arg ...string) string {
-	return strings.Join(str, Select(",", arg, 0))
-}
-func Contains(str, sub interface{}) bool {
-	return strings.Contains(Format(str), Format(sub))
-}
-func Replace(str string, from string, to string) string {
-	trans := map[rune]rune{}
-	for i, c := range []rune(from) {
-		switch to := []rune(to); len(to) {
-		case 0:
-			trans[c] = '\000'
-		case 1:
-			trans[c] = to[0]
-		default:
-			if i < len(to) {
-				trans[c] = to[i]
-			} else {
-				trans[c] = '\000'
-			}
-		}
-	}
-
-	res := []rune{}
-	for _, c := range str {
-		switch c := trans[c]; c {
-		case '\000':
-			continue
-		default:
-			res = append(res, trans[c])
-		}
-	}
-	return string(res)
-}
-func Capital(str string) string {
-	return string(unicode.ToUpper(rune(str[0]))) + str[1:]
-}
-func ForEach(arg []string, cb func(string)) {
-	for _, v := range arg {
-		cb(v)
-	}
 }
