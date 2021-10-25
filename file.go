@@ -119,6 +119,11 @@ func getFunc(p interface{}) (fun uintptr) {
 func ModName(p interface{}) string {
 	return Split(reflect.TypeOf(p).PkgPath(), "/-")[2]
 }
+func ModPath(p interface{}, arg ...string) string {
+	ls := strings.Split(runtime.FuncForPC(getFunc(p)).Name(), "/")
+	ls[len(ls)-1] = strings.Split(ls[len(ls)-1], ".")[0]
+	return path.Join(path.Join(ls...), path.Join(arg...))
+}
 func FuncName(p interface{}) string {
 	fun := getFunc(p)
 	if fun == 0 {
