@@ -65,7 +65,7 @@ func Format(val interface{}, arg ...interface{}) string {
 		return val.Format("2006-01-02 15:04:05")
 	default:
 		if t := reflect.TypeOf(val); t.Kind() == reflect.Func {
-			return FuncName(val)
+			return strings.ToLower(FuncName(val))
 		}
 	}
 	b, _ := json.Marshal(val)
