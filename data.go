@@ -56,7 +56,10 @@ func Data(arg ...interface{}) map[string]interface{} {
 	}
 }
 func List(arg ...interface{}) []interface{} {
-	list, data := []interface{}{}, map[string]interface{}{}
+	if len(arg) == 0 || arg[0] != MDB_TYPE {
+		return arg
+	}
+	list, data := List(), Dict()
 	for i := 0; i < len(arg)-1; i += 2 {
 		if arg[i] == MDB_TYPE {
 			data = map[string]interface{}{}
