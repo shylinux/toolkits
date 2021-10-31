@@ -59,7 +59,7 @@ func FileExists(name string) bool {
 }
 func TrimExt(str string, ext ...string) string {
 	if len(ext) == 0 {
-		ext = []string{".zip", ".tgz", ".tar.xz", ".tar.gz", ".tar.bz2"}
+		ext = []string{".go", ".zip", ".tgz", ".tar.gz", ".tar.xz", ".tar.bz2"}
 	}
 	str = path.Base(str)
 	for _, k := range ext {
@@ -91,15 +91,6 @@ func Pwd() string {
 	return wd
 }
 
-func SourcePath(arg ...string) string {
-	pp := path.Join(arg...)
-	if strings.HasPrefix(pp, "/") {
-		return pp
-	}
-
-	ls := strings.Split(FileLine(2, 100), "usr")
-	return path.Join("/require/shylinux.com/x", path.Dir(ls[len(ls)-1]), pp)
-}
 func getFunc(p interface{}) (fun uintptr) {
 	if p == nil {
 		return 0
