@@ -84,3 +84,6 @@ func Keycb(arg ...interface{}) string {
 func KeyHash(arg ...interface{}) string {
 	return Keys(MDB_HASH, Hashs(arg[0]), arg[1:])
 }
+func KeyExtra(arg ...interface{}) string {
+	return Keys(MDB_EXTRA, Keys(arg[1:]...))
+}
