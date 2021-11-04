@@ -318,6 +318,9 @@ func Slice(list []string, index ...int) []string {
 			break
 		}
 	}
+	if begin > end {
+		begin = end
+	}
 	if step == 1 {
 		return list[begin:end]
 	}
