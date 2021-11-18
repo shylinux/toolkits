@@ -85,9 +85,9 @@ const (
 	MDB_LINE  = "line"
 	MDB_DATA  = "data"
 	MDB_SIZE  = "size"
+	MDB_SCAN  = "scan"
 
 	// 数据
-	MDB_SCAN = "scan"
 	MDB_HELP = "help"
 	MDB_TEXT = "text"
 	MDB_NAME = "name"
