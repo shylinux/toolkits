@@ -63,7 +63,7 @@ func MergeURL2(str string, uri string, arg ...interface{}) string {
 	if !strings.HasPrefix(p, "/") {
 		p = path.Join(raw.Path, get.Path)
 	}
-	return MergeURL(Select(raw.Scheme, get.Scheme)+"://"+Select(raw.Host, get.Host)+path.Join("/", p)+"?"+Select(raw.RawQuery, get.RawQuery), arg...)
+	return MergeURL(Select(raw.Scheme, get.Scheme)+"://"+Select(raw.Host, get.Host)+p+"?"+Select(raw.RawQuery, get.RawQuery), arg...)
 }
 func MergePOD(str string, pod string) string {
 	return MergeURL(str, "pod", Keys(ParseURL(str).Query().Get("pod"), pod))
