@@ -69,6 +69,19 @@ func MergePOD(str string, pod string) string {
 	return MergeURL(str, "pod", Keys(ParseURL(str).Query().Get("pod"), pod))
 }
 
+func Max(list ...int) (max int) {
+	for i := 0; i < len(list); i++ {
+		if i == 0 {
+			max = list[i]
+			continue
+		}
+		if list[i] > max {
+			max = list[i]
+		}
+	}
+	return max
+}
+
 func CSV(file string, limit int, cb func(index int, value map[string]string, head []string)) error {
 	f, e := os.Open(file)
 	if e != nil {

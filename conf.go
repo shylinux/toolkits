@@ -36,6 +36,9 @@ const (
 	MDB_COLOR    = "color"
 	MDB_IMAGE    = "image"
 	MDB_VIDEO    = "video"
+	MDB_NEXT     = "next"
+	MDB_PREV     = "prev"
+	MDB_ECHO     = "echo"
 
 	// 程序
 	MDB_PREFIX = "prefix"
@@ -74,6 +77,7 @@ const (
 	MDB_LEAST = "least"
 	MDB_TABLE = "table"
 	MDB_INDEX = "index"
+	MDB_ORDER = "order"
 	MDB_VALUE = "value"
 	MDB_EXTRA = "extra"
 
