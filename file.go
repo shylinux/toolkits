@@ -69,7 +69,7 @@ func TrimExt(str string, ext ...string) string {
 }
 func Path(str string, rest ...string) string {
 	if strings.HasPrefix(str, "/") {
-		return path.Join(append([]string{str}, rest...)...)
+		return path.Join(append([]string{str}, rest...)...) + Select("", "/", len(rest) == 0 && strings.HasSuffix(str, "/"))
 	}
 	if wd, e := os.Getwd(); e == nil {
 		return path.Join(append([]string{wd, str}, rest...)...)
