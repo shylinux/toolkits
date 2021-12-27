@@ -18,6 +18,8 @@ func ParseURLMap(str string) map[string]string {
 	u := ParseURL(str)
 	res := map[string]string{}
 	res["host"] = u.Host
+	res["hostname"] = strings.Split(u.Host, ":")[0]
+	res["origin"] = u.Scheme + "://" + u.Host
 	return res
 }
 func MergeURL(str string, arg ...interface{}) string {

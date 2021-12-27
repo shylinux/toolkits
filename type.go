@@ -81,6 +81,12 @@ func Formats(val interface{}) string {
 	b, _ := json.MarshalIndent(val, "", "  ")
 	return string(b)
 }
+func SimpleKV(key string, arg ...string) (res []string) {
+	for i, k := range Split(key) {
+		res = append(res, k, Select("", arg, i))
+	}
+	return
+}
 func Simple(val ...interface{}) []string {
 	res := []string{}
 	for _, v := range val {
@@ -200,34 +206,6 @@ func FmtTime(t int64) string {
 func Contains(str, sub interface{}) bool {
 	return strings.Contains(Format(str), Format(sub))
 }
-func Replace(str string, from string, to string) string {
-	trans := map[rune]rune{}
-	for i, c := range []rune(from) {
-		switch to := []rune(to); len(to) {
-		case 0:
-			trans[c] = '\000'
-		case 1:
-			trans[c] = to[0]
-		default:
-			if i < len(to) {
-				trans[c] = to[i]
-			} else {
-				trans[c] = '\000'
-			}
-		}
-	}
-
-	res := []rune{}
-	for _, c := range str {
-		switch c := trans[c]; c {
-		case '\000':
-			continue
-		default:
-			res = append(res, trans[c])
-		}
-	}
-	return string(res)
-}
 func Capital(str string) string {
 	return string(unicode.ToUpper(rune(str[0]))) + str[1:]
 }
@@ -268,6 +246,12 @@ func Width(str string, mul int) int {
 	return len([]rune(str)) + (len(str)-len([]rune(str)))/2/mul
 }
 
+func Replace(str string, arg ...string) string {
+	for i := 0; i < len(arg); i += 2 {
+		str = strings.Replace(str, arg[i], arg[i+1], 1)
+	}
+	return str
+}
 func IndexOf(str []string, sub string) int {
 	for i, v := range str {
 		if v == sub {
