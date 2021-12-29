@@ -252,6 +252,12 @@ func Replace(str string, arg ...string) string {
 	}
 	return str
 }
+func ReplaceAll(str string, arg ...string) string {
+	for i := 0; i < len(arg); i += 2 {
+		str = strings.ReplaceAll(str, arg[i], arg[i+1])
+	}
+	return str
+}
 func IndexOf(str []string, sub string) int {
 	for i, v := range str {
 		if v == sub {
