@@ -82,7 +82,7 @@ func Formats(val interface{}) string {
 	return string(b)
 }
 func SimpleKV(key string, arg ...string) (res []string) {
-	for i, k := range Split(key) {
+	for i, k := range Split(Select("type,name,text", key)) {
 		res = append(res, k, Select("", arg, i))
 	}
 	return
