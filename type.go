@@ -81,9 +81,20 @@ func Formats(val interface{}) string {
 	b, _ := json.MarshalIndent(val, "", "  ")
 	return string(b)
 }
-func SimpleKV(key string, arg ...string) (res []string) {
+func SimpleKV(key string, arg ...interface{}) (res []string) {
+	defs, args := Dict(), []string{}
+	for _, v := range arg {
+		switch v := v.(type) {
+		case map[string]interface{}:
+			defs = v
+		default:
+			args = append(args, Format(v))
+		}
+	}
 	for i, k := range Split(Select("type,name,text", key)) {
-		res = append(res, k, Select("", arg, i))
+		if v := Select(Format(defs[k]), args, i); v != "" {
+			res = append(res, k, v)
+		}
 	}
 	return
 }

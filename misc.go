@@ -67,8 +67,13 @@ func MergeURL2(str string, uri string, arg ...interface{}) string {
 	}
 	return MergeURL(Select(raw.Scheme, get.Scheme)+"://"+Select(raw.Host, get.Host)+p+"?"+Select(raw.RawQuery, get.RawQuery), arg...)
 }
-func MergePOD(str string, pod string) string {
-	return MergeURL(str, "pod", Keys(ParseURL(str).Query().Get("pod"), pod))
+func MergePOD(url string, pod string, arg ...interface{}) string {
+	uri := ParseURL(url)
+	p := uri.Query().Get("pod")
+	if strings.HasPrefix(uri.Path, "/chat/pod") {
+		p = strings.Split(uri.Path, "/")[3]
+	}
+	return MergeURL2(url, "/chat/pod/"+Keys(p, pod), "pod", "", arg)
 }
 
 func Max(list ...int) (max int) {
@@ -141,9 +146,5 @@ func FormatKV(data map[string]interface{}, args ...string) string {
 }
 
 const (
-	SSH_ROUTE  = "route"
-	SSH_REPOS  = "repos"
-	SSH_SOURCE = "source"
-	SSH_BRANCH = "branch"
-	SSH_MASTER = "master"
+	SSH_ROUTE = "route"
 )
