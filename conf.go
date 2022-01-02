@@ -76,8 +76,8 @@ const (
 	MDB_LIMIT = "limit"
 	MDB_LEAST = "least"
 	MDB_TABLE = "table"
-	MDB_INDEX = "index"
 	MDB_ORDER = "order"
+	MDB_INDEX = "index"
 	MDB_VALUE = "value"
 	MDB_EXTRA = "extra"
 

@@ -107,25 +107,17 @@ func getFunc(p interface{}) (fun uintptr) {
 	}
 	return fun
 }
+func ModPath(p interface{}, arg ...string) string {
+	ls := strings.Split(runtime.FuncForPC(getFunc(p)).Name(), "/")
+	ls[len(ls)-1] = strings.Split(ls[len(ls)-1], ".")[0]
+	return path.Join(path.Join(ls...), path.Join(arg...))
+}
 func ModName(p interface{}) string {
 	ls := strings.Split(runtime.FuncForPC(getFunc(p)).Name(), "/")
 	if strings.Contains(ls[0], ".") {
 		return Select(ls[0], ls, 2)
 	}
 	return ls[0]
-}
-func ModPath(p interface{}, arg ...string) string {
-	ls := strings.Split(runtime.FuncForPC(getFunc(p)).Name(), "/")
-	ls[len(ls)-1] = strings.Split(ls[len(ls)-1], ".")[0]
-	return path.Join(path.Join(ls...), path.Join(arg...))
-}
-func FuncName(p interface{}) string {
-	fun := getFunc(p)
-	if fun == 0 {
-		return ""
-	}
-	list := strings.Split(runtime.FuncForPC(fun).Name(), ".")
-	return strings.TrimSuffix(list[len(list)-1], "-fm")
 }
 func PathName(p interface{}) string {
 	fun := getFunc(p)
@@ -142,6 +134,14 @@ func FileName(p interface{}) string {
 	}
 	file, _ := runtime.FuncForPC(fun).FileLine(fun)
 	return strings.Split(path.Base(file), ".")[0]
+}
+func FuncName(p interface{}) string {
+	fun := getFunc(p)
+	if fun == 0 {
+		return ""
+	}
+	list := strings.Split(runtime.FuncForPC(fun).Name(), ".")
+	return strings.TrimSuffix(list[len(list)-1], "-fm")
 }
 func FileLine(p interface{}, n int) string {
 	fun := getFunc(p)
