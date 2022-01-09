@@ -59,6 +59,9 @@ func List(arg ...interface{}) []interface{} {
 	if len(arg) == 0 || arg[0] != MDB_TYPE {
 		return arg
 	}
+	if len(arg) == 1 {
+		return arg[0].([]interface{})
+	}
 	list, data := List(), Dict()
 	for i := 0; i < len(arg)-1; i += 2 {
 		if arg[i] == MDB_TYPE {
