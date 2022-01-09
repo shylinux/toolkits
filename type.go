@@ -13,6 +13,18 @@ import (
 	"unicode"
 )
 
+func Max(list ...int) (max int) {
+	for i := 0; i < len(list); i++ {
+		if i == 0 {
+			max = list[i]
+			continue
+		}
+		if list[i] > max {
+			max = list[i]
+		}
+	}
+	return max
+}
 func Int(val interface{}) int {
 	return int(Int64(val))
 }

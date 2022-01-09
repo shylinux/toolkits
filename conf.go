@@ -18,25 +18,6 @@ const (
 	MDB_FOREACH = "*"
 	MDB_RANDOMS = "%"
 
-	// 显示
-	MDB_CONTENT = "content"
-	MDB_TIMEOUT = "timeout"
-	MDB_BUTTON  = "button"
-	MDB_SCRIPT  = "script"
-	MDB_TITLE   = "title"
-	MDB_TOPIC   = "topic"
-	MDB_STYLE   = "style"
-
-	// 程序
-	MDB_PREFIX = "prefix"
-	MDB_DOMAIN = "domain"
-	MDB_ACTION = "action"
-	MDB_ALIAS  = "alias"
-	MDB_ARGS   = "args"
-	MDB_COST   = "cost"
-	MDB_CODE   = "code"
-	MDB_BACK   = "back"
-
 	// 存储
 	MDB_SHORT = "short"
 	MDB_FIELD = "field"
@@ -51,6 +32,7 @@ const (
 	MDB_INDEX  = "index"
 	MDB_VALUE  = "value"
 	MDB_EXTRA  = "extra"
+	MDB_ALIAS  = "alias"
 	MDB_EXPIRE = "expire"
 	MDB_STATUS = "status"
 	MDB_STREAM = "stream"
@@ -65,6 +47,7 @@ const (
 	MDB_FILE = "file"
 	MDB_LINE = "line"
 	MDB_SIZE = "size"
+	MDB_COST = "cost"
 
 	// 数据
 	MDB_TEXT = "text"

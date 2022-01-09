@@ -24,6 +24,7 @@ func Split(str string, arg ...string) (res []string) {
 	space := _list(Select("\t ,\n", arg, 0)) // 空白符
 	block := _list(Select("{[()]}", arg, 1)) // 分隔符
 	quote := _list(Select("\"'`", arg, 2))   // 引用符
+	trans := _list(Select("\\", arg, 3))     // 转义符
 
 	list := []rune(str)
 	left, void, begin := '\000', true, 0
@@ -36,13 +37,6 @@ func Split(str string, arg ...string) (res []string) {
 				}
 				void, begin = true, i+1
 			}
-		case quote[list[i]]: // 引用符
-			if left == '\000' {
-				left, void, begin = list[i], false, i+1
-			} else if left == list[i] {
-				res = append(res, string(list[begin:i]))
-				left, void, begin = '\000', true, i+1
-			}
 		case block[list[i]]: // 分隔符
 			if left == '\000' {
 				if !void {
@@ -51,7 +45,14 @@ func Split(str string, arg ...string) (res []string) {
 				res = append(res, string(list[i:i+1]))
 				void, begin = true, i+1
 			}
-		case list[i] == '\\': // 转义符
+		case quote[list[i]]: // 引用符
+			if left == '\000' {
+				left, void, begin = list[i], false, i+1
+			} else if left == list[i] {
+				res = append(res, string(list[begin:i]))
+				left, void, begin = '\000', true, i+1
+			}
+		case trans[list[i]]: // 转义符
 			for i := i; i < len(list)-1; i++ {
 				list[i] = list[i+1]
 			}
@@ -341,12 +342,12 @@ func Hash(arg ...interface{}) (string, []string) {
 	args := []string{}
 	for _, v := range Simple(arg...) {
 		switch v {
+		case "uniq":
+			args = append(args, Format(time.Now()))
+			args = append(args, Format(rand.Int()))
 		case "time":
 			args = append(args, Format(time.Now()))
 		case "rand":
-			args = append(args, Format(rand.Int()))
-		case "uniq":
-			args = append(args, Format(time.Now()))
 			args = append(args, Format(rand.Int()))
 		default:
 			args = append(args, v)

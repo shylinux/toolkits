@@ -38,7 +38,6 @@ func MergeURL(str string, arg ...interface{}) string {
 
 	list = Simple(arg...)
 	for i := 0; i < len(list)-1; i += 2 {
-		// args[list[i]] = append(args[list[i]], list[i+1])
 		if list[i+1] == "" {
 			delete(args, list[i])
 			continue
@@ -50,7 +49,6 @@ func MergeURL(str string, arg ...interface{}) string {
 	for k, v := range args {
 		for _, v := range v {
 			list = append(list, url.QueryEscape(k)+"="+url.QueryEscape(v))
-			// list = append(list, k+"="+v)
 		}
 	}
 	if len(list) > 0 {
@@ -74,19 +72,6 @@ func MergePOD(url string, pod string, arg ...interface{}) string {
 		p = strings.Split(uri.Path, "/")[3]
 	}
 	return MergeURL2(url, "/chat/pod/"+Keys(p, pod), "pod", "", arg)
-}
-
-func Max(list ...int) (max int) {
-	for i := 0; i < len(list); i++ {
-		if i == 0 {
-			max = list[i]
-			continue
-		}
-		if list[i] > max {
-			max = list[i]
-		}
-	}
-	return max
 }
 
 func CSV(file string, limit int, cb func(index int, value map[string]string, head []string)) error {
@@ -144,7 +129,3 @@ func FormatKV(data map[string]interface{}, args ...string) string {
 	}
 	return strings.Join(list, Select(";", args, 1))
 }
-
-const (
-	SSH_ROUTE = "route"
-)
