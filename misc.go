@@ -105,10 +105,14 @@ func UnMarshal(data string) interface{} {
 	var res interface{}
 	if strings.HasSuffix(data, ".json") {
 		if b, e := ioutil.ReadFile(data); e == nil {
-			json.Unmarshal(b, &res)
+			if json.Unmarshal(b, &res) != nil {
+				return string(b)
+			}
 		}
 	} else {
-		json.Unmarshal([]byte(data), &res)
+		if json.Unmarshal([]byte(data), &res) != nil {
+			return data
+		}
 	}
 	return res
 }

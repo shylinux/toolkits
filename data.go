@@ -56,7 +56,10 @@ func Data(arg ...interface{}) map[string]interface{} {
 	}
 }
 func List(arg ...interface{}) []interface{} {
-	if len(arg) == 0 || arg[0] != MDB_TYPE {
+	if len(arg) == 0 {
+		return []interface{}{}
+	}
+	if arg[0] != MDB_TYPE {
 		return arg
 	}
 	if len(arg) == 1 {
