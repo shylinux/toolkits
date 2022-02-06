@@ -57,8 +57,14 @@ func MergeURL(str string, arg ...interface{}) string {
 	return res
 }
 func MergeURL2(str string, uri string, arg ...interface{}) string {
-	raw, _ := url.Parse(str)
-	get, _ := url.Parse(uri)
+	raw, err := url.Parse(str)
+	if err != nil {
+		return MergeURL(uri, arg...)
+	}
+	get, err := url.Parse(uri)
+	if err != nil {
+		return MergeURL(str, arg...)
+	}
 	p := get.Path
 	if !strings.HasPrefix(p, "/") {
 		p = path.Join(raw.Path, get.Path)
