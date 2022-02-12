@@ -8,6 +8,7 @@ import (
 	"os"
 	"path"
 	"strings"
+	"time"
 )
 
 func ParseURL(str string) *url.URL {
@@ -138,4 +139,8 @@ func FormatKV(data map[string]interface{}, args ...string) string {
 		list = append(list, Format("%v%v%v", k, Select(":", args, 0), v))
 	}
 	return strings.Join(list, Select(";", args, 1))
+}
+
+func Now(arg ...string) string {
+	return time.Now().Format(Select("2006-01-02 15:04:05", arg, 0))
 }
