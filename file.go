@@ -3,6 +3,7 @@ package kit
 import (
 	"bufio"
 	"bytes"
+	"io"
 	"io/ioutil"
 	"os"
 	"path"
@@ -11,6 +12,17 @@ import (
 	"strings"
 )
 
+func ReadFile(p string) string {
+	if buf, err := ioutil.ReadFile(p); err == nil && len(buf) > 0 {
+		return string(buf)
+	}
+	return ""
+}
+func Close(p interface{}) {
+	if w, ok := p.(io.Closer); ok {
+		w.Close()
+	}
+}
 func Create(p string) (*os.File, string, error) {
 	switch p {
 	case "", "null":
@@ -89,6 +101,9 @@ func ExtIsImage(str string) bool {
 func Pwd() string {
 	wd, _ := os.Getwd()
 	return wd
+}
+func Env(key string) string {
+	return os.Getenv(key)
 }
 
 func getFunc(p interface{}) (fun uintptr) {
