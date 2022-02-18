@@ -12,6 +12,14 @@ import (
 	"strings"
 )
 
+func WriteFile(p string, value interface{}) string {
+	os.MkdirAll(path.Dir(p), 0755)
+	switch v := value.(type) {
+	case []byte:
+		ioutil.WriteFile(p, v, 0644)
+	}
+	return p
+}
 func ReadFile(p string) string {
 	if buf, err := ioutil.ReadFile(p); err == nil && len(buf) > 0 {
 		return string(buf)

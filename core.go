@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"io"
 	"math/rand"
+	"path"
 	"sort"
 	"strconv"
 	"strings"
@@ -356,6 +357,10 @@ func Hash(arg ...interface{}) (string, []string) {
 
 	h := md5.Sum([]byte(strings.Join(args, "")))
 	return hex.EncodeToString(h[:]), args
+}
+func HashsPath(arg ...interface{}) string {
+	h := Hashs(arg...)
+	return path.Join(h[:2], h)
 }
 func Hashs(arg ...interface{}) string {
 	if len(arg) > 0 {
