@@ -103,11 +103,14 @@ func SimpleKV(key string, arg ...interface{}) (res []string) {
 			args = append(args, Format(v))
 		}
 	}
-	for i, k := range Split(Select("type,name,text", key)) {
+
+	keys := Split(Select("type,name,text", key))
+	for i, k := range keys {
 		if v := Select(Format(defs[k]), args, i); v != "" {
 			res = append(res, k, v)
 		}
 	}
+	res = append(res, Slice(args, len(keys))...)
 	return
 }
 func Simple(val ...interface{}) []string {
