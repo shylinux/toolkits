@@ -88,8 +88,8 @@ func TrimExt(str string, ext ...string) string {
 	return str
 }
 func Path(str string, rest ...string) string {
-	if strings.HasPrefix(str, "/") {
-		return path.Join(append([]string{str}, rest...)...) + Select("", "/", len(rest) == 0 && strings.HasSuffix(str, "/"))
+	if sep := string([]rune{os.PathSeparator}); strings.HasPrefix(str, sep) || strings.Contains(str, ":") {
+		return path.Join(append([]string{str}, rest...)...) + Select("", sep, len(rest) == 0 && strings.HasSuffix(str, sep))
 	}
 	if wd, e := os.Getwd(); e == nil {
 		return path.Join(append([]string{wd, str}, rest...)...)
