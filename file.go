@@ -87,6 +87,9 @@ func TrimExt(str string, ext ...string) string {
 	}
 	return str
 }
+func HomePath(str string, rest ...string) string {
+	return Path(path.Join(os.Getenv("HOME"), str), rest...)
+}
 func Path(str string, rest ...string) string {
 	if sep := string([]rune{os.PathSeparator}); strings.HasPrefix(str, sep) || strings.Contains(str, ":") {
 		return path.Join(append([]string{str}, rest...)...) + Select("", sep, len(rest) == 0 && strings.HasSuffix(str, sep))
