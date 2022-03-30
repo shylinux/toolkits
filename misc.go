@@ -124,11 +124,11 @@ func UnMarshal(data string) interface{} {
 	}
 	return res
 }
-func TransArg(arg []string, key string, trans map[string]string) []string {
+func TransArg(arg []string, key string, trans interface{}) []string {
 	for i := 0; i < len(arg); i += 2 {
 		if arg[i] == key {
-			if val, ok := trans[arg[i+1]]; ok {
-				arg[i+1] = val
+			if val := Value(trans, arg[i+1]); val != "" {
+				arg[i+1] = Format(val)
 			}
 		}
 	}
