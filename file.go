@@ -90,7 +90,7 @@ func TrimExt(str string, ext ...string) string {
 }
 func HomePath(str string, rest ...string) string {
 	if user, err := user.Current(); err == nil {
-		return user.HomeDir
+		return Path(path.Join(user.HomeDir, str), rest...)
 	}
 	return Path(path.Join(os.Getenv("HOME"), str), rest...)
 }
