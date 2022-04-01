@@ -6,6 +6,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"os/user"
 	"path"
 	"reflect"
 	"runtime"
@@ -88,6 +89,9 @@ func TrimExt(str string, ext ...string) string {
 	return str
 }
 func HomePath(str string, rest ...string) string {
+	if user, err := user.Current(); err == nil {
+		return user.HomeDir
+	}
 	return Path(path.Join(os.Getenv("HOME"), str), rest...)
 }
 func Path(str string, rest ...string) string {
