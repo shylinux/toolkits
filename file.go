@@ -88,6 +88,12 @@ func TrimExt(str string, ext ...string) string {
 	}
 	return str
 }
+func UserName() string {
+	if user, err := user.Current(); err == nil && user.Name != "" {
+		return user.Name
+	}
+	return Select("root", Select(os.Getenv("LOGNAME"), os.Getenv("USER")))
+}
 func HomePath(str string, rest ...string) string {
 	if user, err := user.Current(); err == nil {
 		return Path(path.Join(user.HomeDir, str), rest...)
