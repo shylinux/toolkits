@@ -40,6 +40,10 @@ func MergeURL(str string, arg ...interface{}) string {
 
 	list = Simple(arg...)
 	for i := 0; i < len(list)-1; i += 2 {
+		if list[i] == "" {
+			args = map[string][]string{}
+			break
+		}
 		if list[i+1] == "" {
 			delete(args, list[i])
 			continue
