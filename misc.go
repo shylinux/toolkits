@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"os"
 	"path"
+	"reflect"
 	"strings"
 	"time"
 )
@@ -148,4 +149,17 @@ func FormatKV(data map[string]interface{}, args ...string) string {
 
 func Now(arg ...string) string {
 	return time.Now().Format(Select("2006-01-02 15:04:05", arg, 0))
+}
+
+func Reflect(obj interface{}, cb func(name string, value interface{})) (reflect.Type, reflect.Value) {
+	t := reflect.TypeOf(obj)
+	v := reflect.ValueOf(obj)
+	if t.Kind() == reflect.Ptr {
+		t, v = t.Elem(), v.Elem()
+	}
+	for i := 0; i < v.NumMethod(); i++ {
+		method := v.Method(i)
+		cb(strings.ToLower(t.Method(i).Name), method.Interface())
+	}
+	return t, v
 }
