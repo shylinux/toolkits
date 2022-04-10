@@ -8,6 +8,7 @@ import (
 	"os"
 	"path"
 	"reflect"
+	"sort"
 	"strings"
 	"time"
 )
@@ -162,4 +163,18 @@ func Reflect(obj interface{}, cb func(name string, value interface{})) (reflect.
 		cb(strings.ToLower(t.Method(i).Name), method.Interface())
 	}
 	return t, v
+}
+
+func SortedKey(obj interface{}) (res []string) {
+	v := reflect.ValueOf(obj)
+	if v.Kind() == reflect.Map {
+		for _, val := range v.MapKeys() {
+			switch val := val.Interface().(type) {
+			case string:
+				res = append(res, val)
+			}
+		}
+	}
+	sort.Strings(res)
+	return res
 }
