@@ -165,6 +165,20 @@ func Reflect(obj interface{}, cb func(name string, value interface{})) (reflect.
 	return t, v
 }
 
+func Sort(list []string, cb ...func(a, b string) bool) []string {
+	if len(cb) == 0 {
+		sort.Strings(list)
+		return list
+	}
+	for i := 0; i < len(list)-1; i++ {
+		for j := i; j < len(list); j++ {
+			if cb[0](list[i], list[j]) {
+				list[j], list[i] = list[i], list[j]
+			}
+		}
+	}
+	return list
+}
 func SortedKey(obj interface{}) (res []string) {
 	v := reflect.ValueOf(obj)
 	if v.Kind() == reflect.Map {

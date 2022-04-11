@@ -345,7 +345,3 @@ func Slice(list []string, index ...int) []string {
 func Join(str []string, arg ...string) string {
 	return strings.Join(str, Select(",", arg, 0))
 }
-func Sort(list []string) []string {
-	sort.Strings(list)
-	return list
-}
