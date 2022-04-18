@@ -141,6 +141,11 @@ func Parse(value interface{}, key string, val ...string) interface{} {
 	return *list[0]
 }
 func Value(root interface{}, args ...interface{}) interface{} {
+	switch val := root.(type) {
+	case string:
+		root = UnMarshal(val)
+	}
+
 	for i := 0; i < len(args); i += 2 {
 		if arg, ok := args[i].(map[string]interface{}); ok {
 			argn := []interface{}{}
