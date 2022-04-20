@@ -39,7 +39,9 @@ func _merge(meta map[string]interface{}, arg ...interface{}) map[string]interfac
 				Value(meta, k, v)
 			}
 		default:
-			Value(meta, arg[i], arg[i+1])
+			if i < len(arg)-1 {
+				Value(meta, arg[i], arg[i+1])
+			}
 			i++
 		}
 	}
