@@ -343,15 +343,15 @@ func Fetch(val interface{}, cbs interface{}) interface{} {
 
 func Hash(arg ...interface{}) (string, []string) {
 	if len(arg) == 0 {
-		arg = append(arg, "uniq")
+		arg = append(arg, MDB_UNIQ)
 	}
 	args := []string{}
 	for _, v := range Simple(arg...) {
 		switch v {
-		case "uniq":
+		case MDB_UNIQ:
 			args = append(args, Format(time.Now()))
 			args = append(args, Format(rand.Int()))
-		case "time":
+		case MDB_TIME:
 			args = append(args, Format(time.Now()))
 		case "rand":
 			args = append(args, Format(rand.Int()))

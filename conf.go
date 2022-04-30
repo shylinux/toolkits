@@ -15,6 +15,8 @@ const (
 	MDB_HASH = "hash"
 	MDB_LIST = "list"
 
+	MDB_UNIQ = "uniq"
+
 	MDB_FOREACH = "*"
 	MDB_RANDOMS = "%"
 

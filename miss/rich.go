@@ -53,7 +53,7 @@ func (miss *Miss) Richs(prefix string, cache map[string]interface{}, raw interfa
 		}
 
 		switch kit.Format(kit.Value(meta, kit.MDB_SHORT)) {
-		case "", "uniq": // 查询失败
+		case "", kit.MDB_UNIQ: // 查询失败
 		default:
 			hh := kit.Hashs(h)
 			if res, ok = hash[hh].(map[string]interface{}); ok {
@@ -108,8 +108,8 @@ func (miss *Miss) Rich(prefix string, cache map[string]interface{}, data interfa
 	switch short := kit.Format(kit.Value(meta, kit.MDB_SHORT)); short {
 	case "":
 		h = kit.ShortKey(hash, 6)
-	case "uniq":
-		h = kit.Hashs("uniq")
+	case kit.MDB_UNIQ:
+		h = kit.Hashs(kit.MDB_UNIQ)
 	case "data":
 		h = kit.Hashs(kit.Format(data))
 	default:
