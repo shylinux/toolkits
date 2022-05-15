@@ -304,6 +304,9 @@ func Revert(str []string) []string {
 	return str
 }
 func Slice(list []string, index ...int) []string {
+	if len(list) == 0 {
+		return []string{}
+	}
 	begin := 0
 	if len(index) > 0 {
 		if index[0] < 0 {

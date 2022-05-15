@@ -27,7 +27,8 @@ func ParseURLMap(str string) map[string]string {
 	return res
 }
 func MergeURL(str string, arg ...interface{}) string {
-	list := strings.Split(str, "?")
+	list := strings.Split(str, "#")
+	list = strings.Split(list[0], "?")
 	res := list[0]
 
 	args := map[string][]string{}
