@@ -192,3 +192,9 @@ func FileLine(p interface{}, n int) string {
 	}
 	return Format("%s:%d", strings.Join(list, "/"), line)
 }
+func IsDir(p string) bool {
+	if _, e := ioutil.ReadDir(p); e == nil {
+		return true
+	}
+	return false
+}
