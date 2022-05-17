@@ -180,6 +180,16 @@ func Sort(list []string, cb ...func(a, b string) bool) []string {
 	}
 	return list
 }
+func Filter(arg []string, cb ...func(string) bool) (res []string) {
+	for _, k := range arg {
+		for _, cb := range cb {
+			if cb(k) {
+				res = append(res, k)
+			}
+		}
+	}
+	return res
+}
 func SortedKey(obj interface{}) (res []string) {
 	v := reflect.ValueOf(obj)
 	if v.Kind() == reflect.Map {
