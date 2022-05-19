@@ -10,7 +10,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"unicode"
 )
 
 func Max(list ...int) (max int) {
@@ -233,7 +232,10 @@ func Contains(str, sub interface{}) bool {
 	return strings.Contains(Format(str), Format(sub))
 }
 func Capital(str string) string {
-	return string(unicode.ToUpper(rune(str[0]))) + str[1:]
+	return strings.ToUpper(str[0:1]) + str[1:]
+}
+func LowerCapital(str string) string {
+	return strings.ToLower(str[0:1]) + str[1:]
 }
 func Select(def string, arg ...interface{}) string {
 	if len(arg) == 0 {
