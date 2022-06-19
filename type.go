@@ -217,13 +217,13 @@ func FmtTime(t int64) string {
 		return strings.Join(list, "")
 	}
 	if time > 1000000000 {
-		return fmt.Sprintf("%s%d.%ds", sign, time/1000000000, (time/1000000)%1000*100/1000)
+		return fmt.Sprintf("%s%0.2fs", sign, float64(time)/1000000000)
 	}
 	if time > 1000000 {
-		return fmt.Sprintf("%s%d.%dms", sign, time/1000000, (time/1000)%1000*100/1000)
+		return fmt.Sprintf("%s%0.2fms", sign, float64(time)/1000000)
 	}
 	if time > 1000 {
-		return fmt.Sprintf("%s%d.%dus", sign, time/1000, (time/1000)%1000*100/1000)
+		return fmt.Sprintf("%s%0.2fus", sign, float64(time)/1000)
 	}
 	return fmt.Sprintf("%s%dns", sign, time)
 }

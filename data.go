@@ -95,3 +95,4 @@ func KeyHash(arg ...interface{}) string {
 func KeyExtra(arg ...interface{}) string {
 	return Keys(MDB_EXTRA, Keys(arg...))
 }
+func Fields(arg ...interface{}) string { return Join(Simple(arg...)) }

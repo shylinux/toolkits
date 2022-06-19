@@ -337,6 +337,9 @@ func Fetch(val interface{}, cbs interface{}) interface{} {
 				cb(i, v)
 			}
 		}
+	case nil:
+	default:
+		panic("implements")
 	}
 	return val
 }
@@ -386,9 +389,7 @@ func Hashs(arg ...interface{}) string {
 	return h
 }
 func Render(str string, arg interface{}) (b []byte, e error) {
-	t := template.New("render").Funcs(template.FuncMap{
-		"Format": Format, "Value": Value,
-	})
+	t := template.New("render").Funcs(template.FuncMap{"Format": Format, "Value": Value})
 	if strings.HasPrefix(str, "@") {
 		if t, e = template.ParseFiles(str[1:]); e != nil {
 			return nil, e
@@ -440,4 +441,3 @@ func ShortKey(list map[string]interface{}, min int, arg ...interface{}) string {
 	}
 	return h
 }
-func Fields(arg ...interface{}) string { return Join(Simple(arg...)) }

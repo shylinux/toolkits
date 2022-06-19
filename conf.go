@@ -1,20 +1,11 @@
 package kit
 
 const (
-	MIME_FORM = "application/x-www-form-urlencoded"
-	MIME_FILE = "application/octet-stream"
-	MIME_JSON = "application/json"
-	MIME_TEXT = "text/plain"
-	MIME_HTML = "text/html"
-	MIME_PNG  = "image/png"
-)
-const (
 	// 结构
 	MDB_DICT = "dict"
 	MDB_META = "meta"
 	MDB_HASH = "hash"
 	MDB_LIST = "list"
-
 	MDB_UNIQ = "uniq"
 
 	MDB_FOREACH = "*"
