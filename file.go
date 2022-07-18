@@ -80,11 +80,15 @@ func FileExists(name string) bool {
 }
 func TrimExt(str string, ext ...string) string {
 	if len(ext) == 0 {
-		ext = []string{".go", ".zip", ".tgz", ".tar.gz", ".tar.xz", ".tar.bz2"}
+		ext = []string{"go", "zip", "tgz", "tar.gz", "tar.xz", "tar.bz2"}
 	}
 	str = path.Base(str)
 	for _, k := range ext {
-		str = strings.TrimSuffix(str, k)
+		if k == "" {
+			str = strings.Split(str, ".")[0]
+		} else {
+			str = strings.TrimSuffix(str, "."+k)
+		}
 	}
 	return str
 }
