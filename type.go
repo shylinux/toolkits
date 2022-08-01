@@ -12,6 +12,9 @@ import (
 	"time"
 )
 
+type Any = interface{}
+type Map = map[string]Any
+
 func Max(list ...int) (max int) {
 	for i := 0; i < len(list); i++ {
 		if i == 0 {
@@ -24,10 +27,10 @@ func Max(list ...int) (max int) {
 	}
 	return max
 }
-func Int(val interface{}) int {
+func Int(val Any) int {
 	return int(Int64(val))
 }
-func Int64(val interface{}) int64 {
+func Int64(val Any) int64 {
 	switch val := val.(type) {
 	case int:
 		return int64(val)
@@ -38,9 +41,9 @@ func Int64(val interface{}) int64 {
 	case string:
 		i, _ := strconv.ParseInt(val, 10, 64)
 		return i
-	case []interface{}:
+	case []Any:
 		return int64(len(val))
-	case map[string]interface{}:
+	case Map:
 		return int64(len(val))
 	case time.Time:
 		return val.UnixNano()
@@ -49,7 +52,7 @@ func Int64(val interface{}) int64 {
 	}
 	return 0
 }
-func Format(val interface{}, arg ...interface{}) string {
+func Format(val Any, arg ...Any) string {
 	switch val := val.(type) {
 	case nil:
 		return ""
@@ -58,11 +61,11 @@ func Format(val interface{}, arg ...interface{}) string {
 			return fmt.Sprintf(val, arg...)
 		}
 		return val
-	case []interface{}:
+	case []Any:
 		if len(val) == 0 {
 			return "[]"
 		}
-	case map[string]interface{}:
+	case Map:
 		if len(val) == 0 {
 			return "{}"
 		}
@@ -82,7 +85,7 @@ func Format(val interface{}, arg ...interface{}) string {
 	b, _ := json.Marshal(val)
 	return string(b)
 }
-func Formats(val interface{}) string {
+func Formats(val Any) string {
 	switch val := val.(type) {
 	case nil:
 		return ""
@@ -92,11 +95,11 @@ func Formats(val interface{}) string {
 	b, _ := json.MarshalIndent(val, "", "  ")
 	return string(b)
 }
-func SimpleKV(key string, arg ...interface{}) (res []string) {
+func SimpleKV(key string, arg ...Any) (res []string) {
 	defs, args := Dict(), []string{}
 	for _, v := range arg {
 		switch v := v.(type) {
-		case map[string]interface{}:
+		case Map:
 			defs = v
 		default:
 			args = append(args, Format(v))
@@ -112,7 +115,7 @@ func SimpleKV(key string, arg ...interface{}) (res []string) {
 	res = append(res, Slice(args, len(keys))...)
 	return
 }
-func Simple(val ...interface{}) []string {
+func Simple(val ...Any) []string {
 	res := []string{}
 	for _, v := range val {
 		switch val := v.(type) {
@@ -121,7 +124,7 @@ func Simple(val ...interface{}) []string {
 			res = append(res, fmt.Sprintf("%d", int64(val)))
 		case []string:
 			res = append(res, val...)
-		case []interface{}:
+		case []Any:
 			for _, v := range val {
 				res = append(res, Simple(v)...)
 			}
@@ -129,7 +132,7 @@ func Simple(val ...interface{}) []string {
 			for k, v := range val {
 				res = append(res, k, Format(v))
 			}
-		case map[string]interface{}:
+		case Map:
 			keys := []string{}
 			for k := range val {
 				keys = append(keys, k)
@@ -148,7 +151,7 @@ func Regexp(arg string) *regexp.Regexp {
 	reg, _ := regexp.Compile(arg)
 	return reg
 }
-func Duration(str interface{}) time.Duration {
+func Duration(str Any) time.Duration {
 	switch str := str.(type) {
 	case string:
 		d, _ := time.ParseDuration(str)
@@ -228,7 +231,7 @@ func FmtTime(t int64) string {
 	return fmt.Sprintf("%s%dns", sign, time)
 }
 
-func Contains(str, sub interface{}) bool {
+func Contains(str, sub Any) bool {
 	return strings.Contains(Format(str), Format(sub))
 }
 func Capital(str string) string {
@@ -237,7 +240,7 @@ func Capital(str string) string {
 func LowerCapital(str string) string {
 	return strings.ToLower(str[0:1]) + str[1:]
 }
-func Select(def string, arg ...interface{}) string {
+func Select(def string, arg ...Any) string {
 	if len(arg) == 0 {
 		return def
 	}

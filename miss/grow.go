@@ -2,244 +2,233 @@ package miss
 
 import (
 	kit "shylinux.com/x/toolkits"
-	log "shylinux.com/x/toolkits/logs"
 
 	"encoding/csv"
-	"os"
-	"path"
 	"sort"
 	"strings"
-	"time"
 )
 
-func (miss *Miss) Grow(prefix string, cache map[string]interface{}, data interface{}) int {
-	// 数据结构
-	meta, ok := cache[kit.MDB_META].(map[string]interface{})
-	if !ok {
-		meta = kit.Dict()
-		cache[kit.MDB_META] = meta
-	}
-	list, _ := cache[kit.MDB_LIST].([]interface{})
+const (
+	RECORDS = "records"
+	OFFSET  = "offset"
 
-	// 通用数据
-	id := kit.Int(meta[kit.MDB_COUNT]) + 1
-	nest := kit.Select("", kit.MDB_META, kit.Value(data, kit.MDB_META) != nil)
-	if kit.Value(data, kit.Keys(nest, kit.MDB_ID), id); kit.Value(data, kit.Keys(nest, kit.MDB_TIME)) == nil {
-		kit.Value(data, kit.Keys(nest, kit.MDB_TIME), kit.Select(time.Now().Format("2006-01-02 15:04:05")))
-	}
+	COUNT = kit.MDB_COUNT
+	EXTRA = kit.MDB_EXTRA
+	ID    = kit.MDB_ID
+)
+
+const CSV = "csv"
+
+func (miss *Miss) Grow(prefix string, cache Map, data Any) int {
+	meta, _, list := miss.cache(cache, true)
 
 	// 添加数据
+	id := kit.Int(meta[COUNT]) + 1
+	miss.data(data, ID, id)
+	meta[COUNT] = id
 	list = append(list, data)
-	cache[kit.MDB_LIST] = list
-	meta[kit.MDB_COUNT] = id
+	cache[LIST] = list
 
-	if len(list) < kit.Int(kit.Select(miss.limit, kit.Format(meta[kit.MDB_LIMIT]))) {
-		return id
-	}
-
-	// 保存数据
-	least := kit.Int(kit.Select(miss.least, kit.Format(meta[kit.MDB_LEAST])))
-	store := kit.Select(miss.store, kit.Format(meta[kit.MDB_STORE]))
-	record, _ := meta["record"].([]interface{})
-
-	// 文件命名
-	dir := path.Join(store, prefix)
-	name := path.Join(dir, "list.csv")
-	if len(record) > 0 {
-		name = kit.Format(kit.Value(record, "-3.file"))
-		if s, e := os.Stat(name); e == nil {
-			if s.Size() > kit.Int64(kit.Select(miss.fsize, kit.Format(meta[kit.MDB_FSIZE]))) {
-				name = path.Join(dir, kit.Keys("list_"+kit.Format(meta["offset"]), "csv"))
-			}
-		}
+	if len(list) < kit.Int(miss.meta(meta, LIMIT)) {
+		return id // 直接返回
 	}
 
 	// 打开文件
-	f, e := os.OpenFile(name, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0666)
-	if e != nil {
-		f, _, e = kit.Create(name)
-		log.Show("miss", "create", name)
-	} else {
-		log.Show("miss", "append", name)
-	}
+	p := miss.filename(meta, prefix, LIST, CSV)
+	f, _ := miss.file.AppendFile(p)
+	miss.Logger("open file", p)
 	defer f.Close()
-	s, _ := f.Stat()
 
 	// 保存表头
-	keys := []string{}
+	head := []string{}
 	w := csv.NewWriter(f)
-	if s.Size() == 0 {
-		if field := kit.Split(kit.Format(meta["field"])); len(field) > 0 {
-			keys = append(keys, field...)
+	s, _ := miss.file.StatFile(p)
+	if s.Size() > 0 {
+		head, _ = csv.NewReader(f).Read()
+		miss.Logger("read head", head)
+	}
+	if len(head) == 0 {
+		if field := kit.Split(kit.Format(meta[FIELD])); len(field) > 0 {
+			head = append(head, field...)
 		} else {
-			for k := range list[0].(map[string]interface{}) {
-				keys = append(keys, k)
+			for k := range list[0].(Map) {
+				head = append(head, k)
 			}
-			sort.Strings(keys)
+			sort.Strings(head)
 		}
 
-		w.Write(keys)
-		log.Show("miss", "write head", keys)
-		w.Flush()
-		s, e = f.Stat()
-	} else {
-		r := csv.NewReader(f)
-		keys, e = r.Read()
-		log.Show("miss", "read head", keys)
+		if s.Size() == 0 {
+			w.Write(head)
+			w.Flush()
+			miss.Logger("write head", head)
+			s, _ = miss.file.StatFile(p)
+		}
 	}
 
 	// 创建索引
-	count := len(list) - least
-	offset := kit.Int(meta["offset"])
-	meta["record"] = append(record, map[string]interface{}{
-		"time": miss.now(), "offset": offset, "count": count,
-		"file": name, "position": s.Size(),
+	least := kit.Int(miss.meta(meta, LEAST))
+	offset, count := kit.Int(meta[OFFSET]), len(list)-least
+	meta[RECORDS] = append(kit.List(meta[RECORDS]), Map{
+		TIME: miss.now(), FILE: p, "position": s.Size(),
+		OFFSET: offset, COUNT: count,
 	})
 
 	// 保存数据
+	defer w.Flush()
 	for i, v := range list {
 		if i >= count {
 			break
 		}
 
-		val := v.(map[string]interface{})
-
+		// 写出数据
+		val := v.(Map)
 		values := []string{}
-		for _, k := range keys {
+		for _, k := range head {
 			values = append(values, kit.Format(val[k]))
 		}
 		w.Write(values)
 
+		// 移动数据
 		if i < least {
 			list[i] = list[count+i]
 		}
 	}
 
-	log.Show("miss", "save", name, "offset", offset, "count", count)
-	meta["offset"] = offset + count
-	list = list[count:]
-	cache[kit.MDB_LIST] = list
-	w.Flush()
+	miss.Logger("write data", p, OFFSET, offset, COUNT, count)
+	meta[OFFSET], list = offset+count, list[count:]
+	cache[LIST] = list
 	return id
 }
-func (miss *Miss) Grows(prefix string, cache map[string]interface{}, offend, limit int, match string, value string, cb interface{}) map[string]interface{} {
-	// 数据结构
-	meta, ok := cache[kit.MDB_META].(map[string]interface{})
-	list, ok := cache[kit.MDB_LIST].([]interface{})
-	if !ok {
+func (miss *Miss) Grows(prefix string, cache Map, offend, limit int, match string, value string, cb Any) (res Map) {
+	meta, _, list := miss.cache(cache, false)
+	if list == nil || len(list) == 0 {
 		return nil
 	}
 
 	// 数据范围
-	current := kit.Int(meta["offset"])
-	end := current + len(list) - offend
+	offset := kit.Int(meta[OFFSET])
+	end := offset + len(list) - offend
 	begin := end - limit
 	switch limit {
 	case -1:
-		begin = current
+		begin = offset
 	case -2:
 		begin = 0
 	}
-
-	if match == kit.MDB_ID && value != "" {
+	if match == ID && value != "" {
 		begin, end = kit.Int(value)-1, kit.Int(value)
 		match, value = "", ""
 	}
 
-	order := 0
-	if begin < current {
-		// 读取文件
-		// m.Log(LOG_INFO, "%s.%v read %v-%v from %v-%v", key, chain, begin, end, current, current+len(list))
-		store, _ := meta["record"].([]interface{})
-		for s := len(store) - 1; s > -1; s-- {
-			item, _ := store[s].(map[string]interface{})
-			line := kit.Int(item["offset"])
-			log.Show("miss", "action", "check", "record", s, "offset", line, "count", item["count"])
-			if begin < line && s > 0 {
-				if kit.Int(item["count"]) != 0 {
-					s -= (line - begin) / kit.Int(item["count"])
-				}
-				// 向后查找
-				continue
-			}
-
-			for ; begin < end && s < len(store); s++ {
-				item, _ := store[s].(map[string]interface{})
-				name := kit.Format(item["file"])
-				pos := kit.Int(item["position"])
-				offset := kit.Int(item["offset"])
-				if offset+kit.Int(item["count"]) <= begin {
-					log.Show("miss", "action", "check", "record", s, "offset", line, "count", item["count"])
-					// 向前查找
-					continue
-				}
-
-				if f, e := os.Open(name); e == nil {
-					defer f.Close()
-					// 打开文件
-					r := csv.NewReader(f)
-					heads, _ := r.Read()
-					log.Show("miss", "import head", heads)
-
-					f.Seek(int64(pos), os.SEEK_SET)
-					r = csv.NewReader(f)
-					for i := offset; i < end; i++ {
-						lines, e := r.Read()
-						if e != nil {
-							log.Show("miss", "import line", e)
-							break
-						}
-						if i < begin {
-							continue
-						}
-
-						// 读取数据
-						item := map[string]interface{}{}
-						for i := range heads {
-							if heads[i] == "extra" {
-								item[heads[i]] = kit.UnMarshal(lines[i])
-							} else {
-								item[heads[i]] = lines[i]
-							}
-						}
-						log.Show("miss", "offset", i, "type", item["type"], "name", item["name"], "text", item["text"])
-
-						if match == "" || strings.Contains(kit.Format(item[match]), value) {
-							// 匹配成功
-							switch cb := cb.(type) {
-							case func(int, map[string]interface{}):
-								cb(order, item)
-							case func(int, map[string]interface{}) bool:
-								if cb(order, item) {
-									return meta
-								}
-							}
-							order++
-						}
-						begin = i + 1
-					}
-				}
-			}
+	// 读取数据
+	index, done := 0, false
+	if begin < offset && miss._grows_record(meta, begin, end, func(item Map) bool { // 读取文件
+		res, index, done = _grow_match(item, match, value, index, cb)
+		return done
+	}) {
+		return
+	}
+	if begin < offset {
+		begin = offset
+	}
+	for i := begin - offset; i < len(list) && i < end-offset; i++ { // 读取缓存
+		if res, index, done = _grow_match(kit.Dict(list[i]), match, value, index, cb); done {
 			break
 		}
 	}
+	return
+}
 
-	if begin < current {
-		begin = current
-	}
-	for i := begin - current; i < len(list) && i < end-current; i++ {
-		// 读取缓存
-		if match == "" || strings.Contains(kit.Format(kit.Value(list[i], match)), value) {
-			switch cb := cb.(type) {
-			case func(int, map[string]interface{}):
-				cb(order, list[i].(map[string]interface{}))
-			case func(int, map[string]interface{}) bool:
-				if cb(order, list[i].(map[string]interface{})) {
-					return meta
-				}
+func (miss *Miss) _grows_record(meta Map, begin, end int, cb func(Map) bool) bool {
+	records := kit.List(meta[RECORDS])
+	for i := len(records) - 1; i > -1; i-- {
+		record := kit.Dict(records[i])
+		offset := kit.Int(record[OFFSET])
+		miss.Logger(RECORDS, i, OFFSET, offset, COUNT, record[COUNT])
+		if begin < offset && i > 0 {
+			if kit.Int(record[COUNT]) != 0 {
+				i -= (offset - begin) / kit.Int(record[COUNT])
 			}
-			order++
+			continue // 向后查找
+		}
+
+		for ; begin < end && i < len(records); i++ {
+			record := kit.Dict(records[i])
+			offset := kit.Int(record[OFFSET])
+			miss.Logger(RECORDS, i, OFFSET, offset, COUNT, record[COUNT])
+			if offset+kit.Int(record[COUNT]) <= begin {
+				continue // 向前查找
+			}
+
+			// 打开文件
+			done := false
+			miss._grows_file(kit.Format(record[FILE]), func(data, head []string) bool {
+				defer func() { offset++ }()
+				if offset < begin {
+					return false
+				}
+				if offset < end {
+					item := Map{}
+					for i := range head {
+						if head[i] == EXTRA {
+							item[head[i]] = kit.UnMarshal(data[i])
+						} else {
+							item[head[i]] = data[i]
+						}
+					}
+					miss.Logger(OFFSET, offset, "type", item["type"], "name", item["name"], "text", item["text"])
+					if done = cb(item); done {
+						return true
+					}
+					return false
+				}
+				done = true
+				return true
+			})
+			if done {
+				return true
+			}
+		}
+		break
+	}
+	return false
+}
+func (miss *Miss) _grows_file(p string, cb func(data []string, head []string) bool) {
+	miss.Logger("open file", p)
+	if f, e := miss.file.OpenFile(p); e == nil {
+		defer f.Close()
+
+		r := csv.NewReader(f)
+		head, _ := r.Read()
+		miss.Logger("read head", head)
+
+		for {
+			data, e := r.Read()
+			if e != nil {
+				miss.Logger("read data", e)
+				break
+			}
+			if cb(data, head) {
+				break
+			}
 		}
 	}
-	return meta
+}
+
+func _grow_match(item Map, match, value string, index int, cb Any) (Map, int, bool) {
+	if match == "" || strings.Contains(kit.Format(kit.Value(item, match)), value) {
+		switch cb := cb.(type) {
+		case func(Map):
+			cb(item)
+		case func(int, Map):
+			cb(index, item)
+		case func(int, Map) bool:
+			if cb(index, item) {
+				return item, index, true
+			}
+		}
+		index++
+		return item, index, false
+	}
+	return nil, index, false
 }

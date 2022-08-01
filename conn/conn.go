@@ -1,23 +1,28 @@
 package conn
 
 import (
-	"fmt"
 	"net"
+
+	kit "shylinux.com/x/toolkits"
 )
 
+const CONN = "conn"
+
 type Conn struct {
-	client interface{}
+	id int64
+
+	client kit.Any
 	net.Conn
 
-	nread  int
+	closed bool
 	nwrite int
+	nread  int
 
-	ID   int64
 	pool *Pool
 }
 
 func (conn *Conn) Info() string {
-	return fmt.Sprintf("connID: %d poolID: %d", conn.ID, conn.pool.ID)
+	return kit.FormatShow(CONN, conn.id, POOL, conn.pool.id)
 }
 func (conn *Conn) Read(b []byte) (int, error) {
 	n, e := conn.Conn.Read(b)
@@ -30,6 +35,10 @@ func (conn *Conn) Write(b []byte) (int, error) {
 	return n, e
 }
 func (conn *Conn) Close() error {
-	conn.pool.Put(conn)
+	if !conn.closed {
+		conn.pool.Put(conn)
+	} else {
+		conn.Conn.Close()
+	}
 	return nil
 }

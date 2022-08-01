@@ -1,15 +1,22 @@
 package conf
 
 import (
-	"io/ioutil"
-	"os"
-	"strings"
+	"context"
+	"sync"
 
 	kit "shylinux.com/x/toolkits"
 )
 
+type Any = interface{}
+
 type Conf struct {
-	data interface{}
+	data Any
+
+	cancel context.CancelFunc
+	ctx    context.Context
+	wg     sync.WaitGroup
+
+	sup *Conf
 }
 
 func (conf *Conf) GetBool(key string, def ...bool) bool {
@@ -27,17 +34,6 @@ func (conf *Conf) GetBool(key string, def ...bool) bool {
 		}
 	}
 	return false
-}
-func (conf *Conf) GetVal(key string, def ...interface{}) interface{} {
-	if val := kit.Value(conf.data, key); val != nil {
-		return val
-	}
-	for _, v := range def {
-		if v != nil {
-			return v
-		}
-	}
-	return nil
 }
 func (conf *Conf) GetInt(key string, def ...int) int {
 	if val := kit.Value(conf.data, key); val != nil {
@@ -81,7 +77,7 @@ func (conf *Conf) GetDict(key string, def ...map[string]string) map[string]strin
 		switch val := val.(type) {
 		case map[string]string:
 			return val
-		case map[string]interface{}:
+		case kit.Map:
 			for k, v := range val {
 				res[k] = kit.Format(v)
 			}
@@ -96,40 +92,22 @@ func (conf *Conf) GetDict(key string, def ...map[string]string) map[string]strin
 	}
 	return res
 }
-
-func New(data interface{}) *Conf {
-	return &Conf{data: data}
+func (conf *Conf) GetVal(key string, def ...Any) Any {
+	if val := kit.Value(conf.data, key); val != nil {
+		return val
+	}
+	for _, v := range def {
+		if v != nil {
+			return v
+		}
+	}
+	return nil
 }
-func Parse(text string) (*Conf, error) {
-	prefix, list := false, []string{}
-	for _, v := range kit.Split(text, "\n", "\n") {
-		if strings.TrimSpace(v) == "" {
-			continue
-		}
-		if strings.HasPrefix(strings.TrimSpace(v), "#") {
-			continue
-		}
-		if !prefix && strings.HasPrefix(strings.TrimSpace(v), "{") {
-			prefix = true
-		}
-		list = append(list, kit.Split(v, "\t :=,;\n", "{[]}")...)
-	}
-	if !prefix {
-		list = append([]string{"{"}, list...)
-	}
-
-	return New(kit.Parse(nil, "", list...)), nil
+func (conf *Conf) Sub(key string) *Conf {
+	ctx, cancel := context.WithCancel(conf.ctx)
+	return &Conf{data: kit.Value(conf.data, key), cancel: cancel, ctx: ctx, sup: conf}
 }
-func Open(file string) (*Conf, error) {
-	f, e := os.Open(file)
-	if e != nil {
-		return nil, e
-	}
-	defer f.Close()
-
-	b, e := ioutil.ReadAll(f)
-	if e != nil {
-		return nil, e
-	}
-	return Parse(string(b))
+func New(data Any) *Conf {
+	ctx, cancel := context.WithCancel(context.TODO())
+	return &Conf{data: data, cancel: cancel, ctx: ctx}
 }

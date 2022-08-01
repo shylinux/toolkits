@@ -2,28 +2,39 @@ package task
 
 import (
 	"context"
+	"time"
 
-	log "shylinux.com/x/toolkits/logs"
+	kit "shylinux.com/x/toolkits"
+	"shylinux.com/x/toolkits/logs"
 )
 
-type Work struct {
-	ID int64
+const WORK = "work"
 
-	Ctx  context.Context
+type Work struct {
+	id int64
+
+	Logger func(...Any)
+
 	pool *Pool
 }
 
-func (work *Work) Run() {
-	defer log.Cost("work", " err: ", work.Ctx.Err(), " id: ", work.ID, " pool: ", work.pool.ID, " ")()
+func (work *Work) Info() string {
+	return kit.FormatShow(WORK, work.id, POOL, work.pool.id)
+}
+func (work *Work) Run(ctx context.Context) {
+	work.Logger("work add", work.Info())
+	defer logs.CostTime(func(d time.Duration) {
+		work.Logger("work end", "err", ctx.Err(), work.Info())
+	})()
 
 	for {
 		select {
-		case <-work.Ctx.Done():
-			return
-		case task := <-work.pool.channel:
+		case task, ok := <-work.pool.channel:
+			if !ok {
+				return
+			}
 			task.work = work
-			task.Ctx = context.WithValue(work.Ctx, "id", task.ID)
-			task.Run()
+			task.Run(context.WithValue(ctx, TASK, task.id))
 		}
 	}
 }

@@ -4,13 +4,16 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"os"
 	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
 
+	kit "shylinux.com/x/toolkits"
+	"shylinux.com/x/toolkits/conf"
 	"shylinux.com/x/toolkits/conn"
+	"shylinux.com/x/toolkits/file"
+	"shylinux.com/x/toolkits/logs"
 	"shylinux.com/x/toolkits/task"
 )
 
@@ -107,11 +110,26 @@ func (s *Stat) Show() string {
 }
 
 func HTTP(nconn, nreq int64, req []*http.Request, check func(*http.Request, *http.Response)) (*Stat, error) {
-	// 响应输出
-	nout, e := os.OpenFile("/dev/null", os.O_WRONLY, 0777)
-	if e != nil {
-		return nil, e
+	// 输出流
+	f := file.NewVoidFile()
+	defer f.Close()
+
+	// 日志流
+	l := logs.New(conf.Sub(logs.LOG), file.NewDiskFile())
+
+	// 协程池
+	p := task.New(conf.Sub(task.TASK))
+	p.Logger = l.Logger(task.TASK)
+	defer p.Close()
+
+	// 连接池
+	hosts := []string{}
+	for _, v := range req {
+		hosts = append(hosts, v.Host)
 	}
+	c := conn.New(conf.Sub(conn.CONN), nconn, hosts, 3)
+	c.Logger = l.Logger(task.TASK)
+	defer c.Close()
 
 	// 请求统计
 	s := &Stat{BeginTime: time.Now(), List: make(map[int64]int64, 100)}
@@ -126,63 +144,51 @@ func HTTP(nconn, nreq int64, req []*http.Request, check func(*http.Request, *htt
 		}
 	}()
 
-	// 连接池
-	hosts := []string{}
-	for _, v := range req {
-		hosts = append(hosts, v.Host)
-	}
-	c := conn.New(nil, hosts, nconn, 3)
-
-	// 协程池
-	list := []interface{}{}
-	for i := int64(0); i < nconn; i++ {
-		list = append(list, i)
-	}
-
-	task.Wait(list, func(task *task.Task, lock *task.Lock) error {
-		p := task.Pool()
-		hc, e := c.GetHttp(p.Ctx)
+	p.WaitN(int(nconn), func(task *task.Task, lock *task.Lock) error {
+		order := kit.Int(task.Params)
+		hc, e := c.GetHttp(task.Context())
 		if e != nil {
 			return e
 		}
+		defer hc.Release()
 
-		// 请求汇总
 		var nerr, nok int64
-		defer func() {
+		defer func() { // 请求计数
 			atomic.AddInt64(&s.NReq, nreq)
 			atomic.AddInt64(&s.NErr, nerr)
 			atomic.AddInt64(&s.NOK, nok)
-			atomic.AddInt64(&s.NRead, hc.NRead())
-			atomic.AddInt64(&s.NWrite, hc.NWrite())
+			atomic.AddInt64(&s.NRead, int64(hc.NRead()))
+			atomic.AddInt64(&s.NWrite, int64(hc.NWrite()))
 		}()
 
 		for i := int64(0); i < nreq; i++ {
 			func() {
-				// 请求耗时
 				begin := time.Now()
-				defer func() {
+				defer func() { // 请求耗时
 					d := int64(time.Now().Sub(begin) / time.Millisecond)
-					s.mu.Lock()
-					defer s.mu.Unlock()
+					defer lock.Lock()()
 					s.List[d]++
 				}()
 
 				req := req[nreq%int64(len(req))]
-				if res, err := hc.Do(req); err != nil {
-					// 请求失败
+				if res, err := hc.Do(req); err != nil { // 请求失败
 					nerr++
-				} else {
-					// 请求成功
+				} else { // 请求完成
 					defer res.Body.Close()
 					if check == nil {
-						io.Copy(nout, res.Body)
+						f, _, e := f.CreateFile(kit.Format("var/bench/some/%s-%s-res-body.txt", order, i))
+						if e != nil {
+							return
+						}
+						defer f.Close()
+
+						io.Copy(f, res.Body)
 					} else {
 						check(req, res)
 					}
 
-					// 请求状态
 					switch res.StatusCode {
-					case http.StatusOK:
+					case http.StatusOK: // 请求成功
 						nok++
 					}
 				}

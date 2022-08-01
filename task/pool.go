@@ -4,70 +4,94 @@ import (
 	"context"
 	"sync"
 	"sync/atomic"
-	"time"
 
 	"shylinux.com/x/toolkits/conf"
-	log "shylinux.com/x/toolkits/logs"
+	"shylinux.com/x/toolkits/logs"
 )
 
+type Any = interface{}
+
+const POOL = "pool"
+
 type Pool struct {
-	limit int64
+	id int64
+	mu Lock
 
-	ID int64
-	mu sync.Mutex
-
-	workID  int64
-	taskID  int64
+	ntask   int64
+	nwork   int64
+	maxwork int64
 	channel chan *Task
 
-	Ctx    context.Context
+	Logger func(...Any)
+
+	closed bool
 	cancel context.CancelFunc
+	ctx    context.Context
+	conf   *conf.Conf
 }
 
-func (pool *Pool) Wait(args []interface{}, cb func(*Task, *Lock) error) *Pool {
-	var lock Lock
+func (pool *Pool) WaitN(n int, cb func(*Task, *Lock) error) {
+	args := []Any{}
+	for i := 1; i <= n; i++ {
+		args = append(args, i)
+	}
+	pool.Wait(args, cb)
+}
+func (pool *Pool) Wait(args []Any, cb func(*Task, *Lock) error) {
+	wg, lock := &sync.WaitGroup{}, &Lock{}
+	defer wg.Wait()
 
-	w := &sync.WaitGroup{}
 	for _, arg := range args {
-		w.Add(1)
+		wg.Add(1)
 		pool.Put(arg, func(task *Task) error {
-			defer w.Done()
-			return cb(task, &lock)
+			defer wg.Done()
+			return cb(task, lock)
 		})
 	}
-	w.Wait()
-	return pool
 }
-func (pool *Pool) Put(arg interface{}, cb func(*Task) error) *Task {
-	id := atomic.AddInt64(&pool.taskID, 1)
-	// log.Show("task", "task put", log.FileLine(cb, 3), "arg", arg, "id", id, "pool", pool.ID)
-	task := &Task{ID: id, Arg: arg, CB: cb, PrepareTime: time.Now()}
-
-	if pool.channel <- task; len(pool.channel) > 0 && pool.workID < pool.limit {
-		pool.Add(1)
+func (pool *Pool) Put(params Any, action func(*Task) error) {
+	if pool.closed {
+		return
 	}
-	return task
+	task := &Task{id: atomic.AddInt64(&pool.ntask, 1), Action: action, Params: params, PrepareTime: logs.Now(), pool: pool, Logger: pool.Logger}
+	pool.Logger("task put", logs.FileLine(action, 3), task.Info())
+	pool.channel <- task
+	pool.add()
 }
-func (pool *Pool) Add(count int) *Pool {
-	pool.mu.Lock()
-	defer pool.mu.Unlock()
-
-	for i := 0; i < count && pool.workID < pool.limit; i++ {
-		id := atomic.AddInt64(&pool.workID, 1)
-		ctx := context.WithValue(pool.Ctx, "id", id)
-		work := &Work{ID: id, pool: pool, Ctx: ctx}
-		log.Show("work", "work add", log.FileLine(work.Run, 3), "id", id, "pool", pool.ID)
-		go work.Run()
+func (pool *Pool) add() {
+	defer pool.mu.Lock()()
+	if len(pool.channel) > 0 && pool.nwork < pool.maxwork {
+		pool.conf.Daemon("task work", func(_ context.Context) {
+			work := &Work{id: atomic.AddInt64(&pool.nwork, 1), pool: pool, Logger: pool.Logger}
+			work.Run(context.WithValue(pool.ctx, WORK, work.id))
+		})
 	}
-	return pool
 }
-func (pool *Pool) Close() { pool.cancel() }
+func (pool *Pool) Close() {
+	pool.closed = true
+	close(pool.channel)
+	pool.cancel()
+}
 
-var poolID int64
+var npool int64
 
 func New(conf *conf.Conf) *Pool {
-	id := atomic.AddInt64(&poolID, 1)
-	ctx, cancel := context.WithCancel(context.Background())
-	p := &Pool{limit: int64(conf.GetInt("limit", 10)), ID: id, channel: make(chan *Task, 1024), Ctx: ctx, cancel: cancel}
-	return p
+	ctx, cancel := context.WithCancel(conf.Context())
+	pool := &Pool{id: atomic.AddInt64(&npool, 1),
+		maxwork: int64(conf.GetInt("maxwork", 30)),
+		channel: make(chan *Task, conf.GetInt("maxtask", 300)),
+		cancel:  cancel, ctx: ctx, conf: conf,
+		Logger: logs.Logger(TASK),
+	}
+	conf.Daemon("task pool", func(ctx context.Context) {
+		for {
+			select {
+			case <-ctx.Done():
+				pool.closed = true
+				close(pool.channel)
+				return
+			}
+		}
+	})
+	return pool
 }

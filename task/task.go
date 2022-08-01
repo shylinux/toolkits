@@ -2,10 +2,10 @@ package task
 
 import (
 	"context"
-	"fmt"
 	"time"
 
-	log "shylinux.com/x/toolkits/logs"
+	kit "shylinux.com/x/toolkits"
+	"shylinux.com/x/toolkits/logs"
 )
 
 const (
@@ -15,11 +15,14 @@ const (
 	StatusFinish
 )
 
-type Task struct {
-	Arg interface{}
-	CB  func(*Task) error
+const TASK = "task"
 
-	ID     int64
+type Task struct {
+	id int64
+
+	Action func(*Task) error
+	Params interface{}
+
 	Error  interface{}
 	Status int
 
@@ -27,36 +30,45 @@ type Task struct {
 	ProcessTime time.Time
 	FinishTime  time.Time
 
-	Ctx  context.Context
+	Logger func(...Any)
+
+	ctx  context.Context
 	work *Work
+	pool *Pool
 }
 
-func (task *Task) Info() string {
-	return fmt.Sprintf("poolID: %d workID: %d taskID: %d", task.work.pool.ID, task.work.ID, task.ID)
-}
 func (task *Task) Pool() *Pool {
-	return task.work.pool
+	return task.pool
 }
-func (task *Task) Run() {
-	log.Show("task", "task run", log.FileLine(task.CB, 3), "arg", task.Arg, "id", task.ID, "work", task.work.ID, "pool", task.work.pool.ID)
-	defer log.Cost("task end: ", log.FileLine(task.CB, 3), " arg: ", task.Arg, " err: ", task.Error, " id: ", task.ID, " work: ", task.work.ID, " pool: ", task.work.pool.ID, " ")()
+func (task *Task) Context() context.Context {
+	return task.ctx
+}
+func (task *Task) Info() string {
+	if task.work == nil {
+		return kit.FormatShow(TASK, task.id, WORK, 0, POOL, task.pool.id)
+	}
+	return kit.FormatShow(TASK, task.id, WORK, task.work.id, POOL, task.pool.id)
+}
 
-	task.Status = StatusProcess
-	task.ProcessTime = time.Now()
-	defer func() { task.FinishTime = time.Now() }()
+func (task *Task) Run(ctx context.Context) {
+	task.Logger("task run", logs.FileLine(task.Action, 3), "params", task.Params, task.Info())
+	defer logs.CostTime(func(d time.Duration) {
+		task.Logger("task end", logs.FileLine(task.Action, 3), "params", task.Params, "cost", logs.FmtDuration(d), "err", task.Error, task.Info())
+	})()
+
+	task.Status, task.ProcessTime, task.ctx = StatusProcess, time.Now(), ctx
 	defer func() {
 		if e := recover(); e != nil {
 			for i := 1; i < 6; i++ {
-				log.Show("task", "task err", e, "pos", log.FileLine(i, 3))
+				task.Logger("task err", e, "stack", logs.FileLine(i, 3))
 			}
-			task.Status = StatusCancel
-			task.Error = e
+			task.Status, task.Error = StatusCancel, e
 		}
+		task.FinishTime = logs.Now()
 	}()
 
-	if e := task.CB(task); e != nil {
-		task.Status = StatusCancel
-		task.Error = e
+	if e := task.Action(task); e != nil {
+		task.Status, task.Error = StatusCancel, e
 	} else {
 		task.Status = StatusFinish
 	}

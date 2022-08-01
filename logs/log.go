@@ -1,40 +1,45 @@
-package log
+package logs
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"os"
 	"strings"
-	"time"
 
+	kit "shylinux.com/x/toolkits"
 	"shylinux.com/x/toolkits/conf"
+	"shylinux.com/x/toolkits/file"
 )
+
+type Any = interface{}
 
 const (
 	INFO  = "info"
 	WARN  = "warn"
 	ERROR = "error"
 	DEBUG = "debug"
-	COST  = "cost"
 	SHOW  = "show"
-	STACK = 3
+	COST  = "cost"
 )
 
+const LOG = "log"
+
 type Log struct {
+	Output   string
 	Filter   []string
 	Prefix   []string
 	Notice   []string
-	Out, Err *os.File
+	Out, Err io.WriteCloser
 
-	column  int
-	stack   int
 	debug   bool
 	color   bool
 	colors  map[string]string
 	channel chan string
-	Output  string
+	disable bool
 
-	*conf.Conf
+	file file.File
+	conf *conf.Conf
 }
 
 func (log *Log) filter(key string) bool {
@@ -48,7 +53,7 @@ func (log *Log) filter(key string) bool {
 	}
 	return false
 }
-func (log *Log) prefix(level string, stack int, arg ...interface{}) (io.Writer, string) {
+func (log *Log) prefix(level string) (io.Writer, string) {
 	if log.filter(level) {
 		return nil, ""
 	}
@@ -57,18 +62,16 @@ func (log *Log) prefix(level string, stack int, arg ...interface{}) (io.Writer, 
 	for _, v := range log.Prefix {
 		switch v {
 		case "time":
-			list = append(list, FmtTime(time.Now()))
+			list = append(list, FmtTime(Now()))
 		case "pid":
 			list = append(list, FmtInt(os.Getpid()))
-		case "fileline":
-			list = append(list, FileLine(stack, log.column))
 		case "level":
 			list = append(list, level)
 		}
 	}
 	return log.notice(level), strings.Join(list, " ")
 }
-func (log *Log) notice(key string) *os.File {
+func (log *Log) notice(key string) io.Writer {
 	for _, k := range log.Notice {
 		if k == key {
 			return log.Err
@@ -77,106 +80,106 @@ func (log *Log) notice(key string) *os.File {
 	return log.Out
 }
 
-var trans = map[string]string{
-	"red":    "\033[31m",
-	"green":  "\033[32m",
-	"yellow": "\033[33m",
-}
+var trans = map[string]string{"red": "\033[31m", "green": "\033[32m", "yellow": "\033[33m"}
 
-var LogDisable = true
-
-func (log *Log) output(level string, arg ...interface{}) bool {
-	if LogDisable {
+func (log *Log) output(level string, text string) bool {
+	if log == nil || log.disable {
 		return false
 	}
-	if log == nil {
-		return false
-	}
-	if output, prefix := log.prefix(level, log.stack, arg...); output != nil {
+	if output, prefix := log.prefix(level); output != nil {
 		color, end := trans[log.colors[level]], ""
 		if color != "" {
 			end = "\033[0m"
 		}
 		if log.channel == nil {
-			fmt.Fprint(output, prefix, " ", color, fmt.Sprint(arg...), end, "\n")
+			fmt.Fprintln(output, prefix, color, text, end)
 		} else {
-			log.channel <- fmt.Sprint(prefix, " ", color, fmt.Sprint(arg...), end, "\n")
+			log.channel <- fmt.Sprintln(prefix, color, text, end)
 		}
 	}
 	return true
 }
 
-func (log *Log) Info(arg ...interface{})  { log.output(INFO, arg...) }
-func (log *Log) Warn(arg ...interface{})  { log.output(WARN, arg...) }
-func (log *Log) Error(arg ...interface{}) { log.output(ERROR, arg...) }
+func (log *Log) Info(arg ...Any)  { log.output(INFO, Format("", arg...)) }
+func (log *Log) Warn(arg ...Any)  { log.output(WARN, Format("", arg...)) }
+func (log *Log) Error(arg ...Any) { log.output(ERROR, Format("", arg...)) }
 
-func (log *Log) Infof(str string, arg ...interface{})  { log.output(INFO, fmt.Sprintf(str, arg...)) }
-func (log *Log) Warnf(str string, arg ...interface{})  { log.output(WARN, fmt.Sprintf(str, arg...)) }
-func (log *Log) Errorf(str string, arg ...interface{}) { log.output(ERROR, fmt.Sprintf(str, arg...)) }
+func (log *Log) Infof(str string, arg ...Any)  { log.output(INFO, Format(str, arg...)) }
+func (log *Log) Warnf(str string, arg ...Any)  { log.output(WARN, Format(str, arg...)) }
+func (log *Log) Errorf(str string, arg ...Any) { log.output(ERROR, Format(str, arg...)) }
 
-func (log *Log) Debugf(str string, arg ...interface{}) bool {
-	return log.debug && log.output(DEBUG, fmt.Sprintf(str, arg...))
+func (log *Log) Debugf(str string, arg ...Any) bool {
+	return log.debug && log.output(DEBUG, Format(str, arg...))
 }
-func (log *Log) Debug(arg ...interface{}) bool {
-	return log.debug && log.output(DEBUG, arg...)
+func (log *Log) Debug(arg ...Any) bool {
+	return log.debug && log.output(DEBUG, Format("", arg...))
 }
-
-func (log *Log) Show(arg ...interface{}) {
-	list := []interface{}{}
-	for i := 1; i < len(arg)-1; i += 2 {
-		if len(list) > 0 {
-			list = append(list, " ")
+func (log *Log) Show(arg ...Any) {
+	list, meta := []Any{}, []Any{}
+	for i := 1; i < len(arg); i++ {
+		switch v := arg[i].(type) {
+		case Meta:
+			meta = append(meta, v)
+		default:
+			list = append(list, v)
 		}
-		list = append(list, arg[i], ": ", arg[i+1])
 	}
-	log.output(fmt.Sprint(arg[0]), list...)
+	log.output(fmt.Sprint(arg[0]), Format(kit.FormatShow(list...), meta...))
 }
-func (log *Log) Cost(arg ...interface{}) func(...func() []interface{}) {
-	begin := time.Now()
-	return func(cbs ...func() []interface{}) {
-		list := []interface{}{fmt.Sprint(arg...)}
+func (log *Log) Cost(arg ...Any) func(...func() []Any) {
+	begin := Now()
+	return func(cbs ...func() []Any) {
+		arg = append(arg, COST, FmtDuration(Now().Sub(begin)))
 		for _, cb := range cbs {
-			list = append(list, cb()...)
+			arg = append(arg, cb()...)
 		}
-		list = append(list, "cost: ", FmtDuration(Now().Sub(begin)))
-		log.output(COST, list...)
+		log.Show(append([]Any{COST}, arg...)...)
 	}
 }
 
-func Open(conf *conf.Conf) (*Log, error) {
-	out, err := os.Stderr, os.Stderr
-	switch conf.Get("log.name", "stderr") {
-	case "stdout":
-	case "stderr":
-	default:
-		if f, e := os.OpenFile(conf.Get("log.name")+".log", os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0660); e == nil {
-			out = f
-		}
-		if f, e := os.OpenFile(conf.Get("log.name")+".log.err", os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0660); e == nil {
-			err = f
-		}
+func (log *Log) Logger(key string) func(...Any) {
+	return func(arg ...Any) {
+		log.Show(kit.List(key, arg, FileLineMeta(kit.FileLine(2, 3)))...)
 	}
+}
 
+func New(conf *conf.Conf, file file.File) *Log {
 	log := &Log{
-		Output:  conf.Get("log.name", "stderr"),
-		Prefix:  conf.GetList("log.prefix", []string{"time"}),
-		Filter:  conf.GetList("log.filter"),
-		Notice:  conf.GetList("log.notice"),
-		column:  conf.GetInt("log.column", 3),
-		debug:   conf.GetBool("log.debug"),
-		color:   conf.GetBool("log.color"),
-		colors:  conf.GetDict("log.colors"),
-		channel: make(chan string, conf.GetInt("log.nchan", 1024)),
-		Out:     out, Err: err, Conf: conf, stack: STACK,
+		Output: conf.Get("name", "stderr"),
+		Filter: conf.GetList("filter"),
+		Prefix: conf.GetList("prefix", kit.Simple("time")),
+		Notice: conf.GetList("notice"),
+		Out:    os.Stderr, Err: os.Stderr,
+
+		debug:  conf.GetBool("debug"),
+		color:  conf.GetBool("color"),
+		colors: conf.GetDict("colors"),
+
+		file: file, conf: conf,
 	}
 
-	go func() {
+	if f, e := file.AppendFile(log.Output + ".log"); e == nil {
+		log.Out = f
+	}
+	if f, e := file.AppendFile(log.Output + ".err.log"); e == nil {
+		log.Err = f
+	}
+
+	return log
+	log.channel = make(chan string, 1024)
+	conf.Daemon(LOG, func(ctx context.Context) {
 		for {
 			select {
-			case str := <-log.channel:
-				fmt.Fprint(log.Out, str)
+			case <-ctx.Done():
+				close(log.channel)
+			case str, ok := <-log.channel:
+				if ok {
+					fmt.Fprint(log.Out, str)
+				} else {
+					return
+				}
 			}
 		}
-	}()
-	return log, nil
+	})
+	return log
 }

@@ -1,144 +1,114 @@
 package miss
 
 import (
-	kit "shylinux.com/x/toolkits"
-	log "shylinux.com/x/toolkits/logs"
-
-	"encoding/json"
-	"io/ioutil"
 	"math/rand"
-	"os"
-	"path"
 	"sort"
-	"strings"
-	"time"
+
+	kit "shylinux.com/x/toolkits"
 )
 
-func (miss *Miss) Richs(prefix string, cache map[string]interface{}, raw interface{}, cb interface{}) (res map[string]interface{}) {
-	// 数据结构
-	meta, ok := cache[kit.MDB_META].(map[string]interface{})
-	hash, ok := cache[kit.MDB_HASH].(map[string]interface{})
-	if !ok {
+const (
+	UNIQ    = kit.MDB_UNIQ
+	DATA    = kit.MDB_DATA
+	FOREACH = kit.MDB_FOREACH
+	RANDOMS = kit.MDB_RANDOMS
+)
+
+const JSON = "json"
+
+func (miss *Miss) Richs(prefix string, cache Map, raw Any, cb Any) (res Map) {
+	meta, hash, _ := miss.cache(cache, false)
+	if hash == nil || len(hash) == 0 { // 没有数据
 		return nil
 	}
 
 	h := kit.Format(raw)
 	switch h {
-	case kit.MDB_FOREACH:
-		// 全部遍历
+	case FOREACH: // 全部遍历
 		switch cb := cb.(type) {
+		case func(string, Map):
+			for k, v := range hash {
+				cb(k, v.(Map))
+			}
 		case func(string, string):
 			for k, v := range hash {
 				cb(k, kit.Format(v))
 			}
-		case func(string, map[string]interface{}):
-			for k, v := range hash {
-				cb(k, v.(map[string]interface{}))
-			}
 		}
 		return res
-	case kit.MDB_RANDOMS:
-		// 随机选取
+	case RANDOMS: // 随机选取
 		if len(hash) > 0 {
 			list := []string{}
 			for k := range hash {
 				list = append(list, k)
 			}
 			h = list[rand.Intn(len(list))]
-			res, _ = hash[h].(map[string]interface{})
+			res, _ = hash[h].(Map)
 		}
 	default:
-		if res, ok = hash[h].(map[string]interface{}); ok {
+		var ok bool
+		if res, ok = hash[h].(Map); ok {
 			break // 键值查询
 		}
 
-		switch kit.Format(kit.Value(meta, kit.MDB_SHORT)) {
-		case "", kit.MDB_UNIQ: // 查询失败
+		switch miss.meta(meta, SHORT) {
+		case "", UNIQ: // 查询失败
 		default:
-			hh := kit.Hashs(h)
-			if res, ok = hash[hh].(map[string]interface{}); ok {
+			hh := miss.Hashs(h)
+			if res, ok = hash[hh].(Map); ok {
 				h = hh
 				break // 哈希查询
 			}
 
-			dir := path.Join(kit.Select(miss.store, kit.Format(meta[kit.MDB_STORE])), prefix)
 			for _, k := range []string{h, hh} {
-				p := path.Join(dir, kit.Keys(k, "json"))
-				if f, e := os.Open(p); e == nil {
-					defer f.Close()
-
-					if b, e := ioutil.ReadAll(f); e == nil {
-						if json.Unmarshal(b, &res) == e {
-							log.Show("miss", "import", p)
-							h = k
-							break // 磁盘查询
-						}
-					}
+				if b, e := miss.readfile(miss.filename(meta, prefix, k, JSON)); e == nil {
+					res, h = kit.Dict(b), k
+					break // 磁盘查询
 				}
 			}
 		}
 	}
 
-	// 返回数据
-	if res != nil {
+	if res != nil { // 同步回调
 		switch cb := cb.(type) {
-		case func(map[string]interface{}):
+		case func(Map):
 			cb(res)
-		case func(string, map[string]interface{}):
+		case func(string, Map):
 			cb(h, res)
 		}
 	}
-	return res
+	return res // 返回数据
 }
-func (miss *Miss) Rich(prefix string, cache map[string]interface{}, data interface{}) string {
-	// 数据结构
-	meta, ok := cache[kit.MDB_META].(map[string]interface{})
-	if !ok {
-		meta = map[string]interface{}{}
-		cache[kit.MDB_META] = meta
-	}
-	hash, ok := cache[kit.MDB_HASH].(map[string]interface{})
-	if !ok {
-		hash = map[string]interface{}{}
-		cache[kit.MDB_HASH] = hash
-	}
+func (miss *Miss) Rich(prefix string, cache Map, data Any) string {
+	meta, hash, _ := miss.cache(cache, true)
 
 	// 生成键值
 	h := ""
-	switch short := kit.Format(kit.Value(meta, kit.MDB_SHORT)); short {
+	switch short := miss.meta(meta, SHORT); short {
 	case "":
-		h = kit.ShortKey(hash, 6)
-	case kit.MDB_UNIQ:
-		h = kit.Hashs(kit.MDB_UNIQ)
-	case "data":
-		h = kit.Hashs(kit.Format(data))
+		h = kit.ShortKey(hash, miss.short)
+	case UNIQ:
+		h = miss.Hashs(UNIQ)
+	case DATA:
+		h = miss.Hashs(kit.Format(data))
 	default:
 		list := []string{}
-		for _, k := range strings.Split(short, ",") {
-			if kit.Value(data, "meta") != nil {
-				list = append(list, kit.Format(kit.Value(data, "meta."+k)))
-			} else {
-				list = append(list, kit.Format(kit.Value(data, k)))
-			}
+		for _, k := range kit.Split(short) {
+			list = append(list, kit.Format(kit.Value(kit.GetMeta(kit.Dict(data)), k)))
 		}
-		h = kit.Hashs(strings.Join(list, ","))
+		h = miss.Hashs(kit.Join(list))
 	}
 
-	// 通用数据
-	nest := kit.Select("", "meta.", kit.Value(data, "meta") != nil)
-	if kit.Value(data, nest+kit.MDB_TIME) == nil {
-		kit.Value(data, nest+kit.MDB_TIME, time.Now().Format("2006-01-02 15:03:04"))
-	}
-
+	// 添加数据
+	miss.data(data)
 	if old, ok := hash[h]; ok {
-		for k, v := range data.(map[string]interface{}) {
+		for k, v := range data.(Map) {
 			switch k {
-			case kit.MDB_META, kit.MDB_HASH:
-				for k1, v1 := range v.(map[string]interface{}) {
+			case META, HASH:
+				for k1, v1 := range v.(Map) {
 					kit.Value(old, kit.Keys(k, k1), v1)
 				}
-			case kit.MDB_LIST:
-
+			case LIST:
 			default:
 				kit.Value(old, k, v)
 			}
@@ -147,42 +117,23 @@ func (miss *Miss) Rich(prefix string, cache map[string]interface{}, data interfa
 		hash[h] = data
 	}
 
-	// 添加数据
-	if len(hash) >= kit.Int(kit.Select(miss.limit, kit.Format(meta[kit.MDB_LIMIT]))) {
-		least := kit.Int(kit.Select(miss.least, kit.Format(meta[kit.MDB_LEAST])))
-		store := kit.Select(miss.store, kit.Format(meta[kit.MDB_STORE]))
-
-		// 时间淘汰
-		list := []int{}
-		keys := map[string]int{}
-		for k, v := range hash {
-			list = append(list, int(kit.Time(kit.Format(kit.Value(v, "time")))))
-			keys[k] = int(kit.Time(kit.Format(kit.Value(v, "time"))))
-		}
-		sort.Ints(list)
-
-		dead := 0
-		if len(list) > 0 {
-			dead = list[len(list)-1-least]
-		}
-
-		dir := path.Join(store, prefix)
-		for k, t := range keys {
-			if t > dead {
-				continue
-			}
-
-			name := path.Join(dir, kit.Keys(k, "json"))
-			if f, p, e := kit.Create(name); e == nil {
-				defer f.Close()
-				// 保存数据
-				if n, e := f.WriteString(kit.Format(hash[k])); e == nil {
-					log.Show("miss", "export", p, kit.MDB_SIZE, n)
-					delete(hash, k)
-				}
-			}
-		}
+	if len(hash) < kit.Int(miss.meta(meta, LIMIT)) {
+		return h // 直接返回
 	}
 
+	// 淘汰时间
+	keys, list := map[string]int{}, []int{}
+	kit.Fetch(hash, func(k string, v Map) {
+		t := int(kit.Time(kit.Format(kit.Value(kit.GetMeta(v), TIME))))
+		keys[k], list = t, append(list, t)
+	})
+	sort.Ints(list)
+
+	dead := list[len(list)-1-kit.Int(miss.meta(meta, LEAST))]
+	for k, t := range keys {
+		if t < dead && miss.writefile(miss.filename(meta, prefix, k, JSON), kit.Format(hash[k])) == nil {
+			delete(hash, k) // 淘汰数据
+		}
+	}
 	return h
 }

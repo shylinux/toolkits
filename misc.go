@@ -26,7 +26,7 @@ func ParseURLMap(str string) map[string]string {
 	}
 	return res
 }
-func MergeURL(str string, arg ...interface{}) string {
+func MergeURL(str string, arg ...Any) string {
 	list := strings.Split(str, "#")
 	list = strings.Split(list[0], "?")
 	res := list[0]
@@ -65,7 +65,7 @@ func MergeURL(str string, arg ...interface{}) string {
 	}
 	return res
 }
-func MergeURL2(str string, uri string, arg ...interface{}) string {
+func MergeURL2(str string, uri string, arg ...Any) string {
 	raw, err := url.Parse(str)
 	if err != nil {
 		return MergeURL(uri, arg...)
@@ -80,7 +80,7 @@ func MergeURL2(str string, uri string, arg ...interface{}) string {
 	}
 	return MergeURL(Select(raw.Scheme, get.Scheme)+"://"+Select(raw.Host, get.Host)+p+"?"+Select(raw.RawQuery, get.RawQuery), arg...)
 }
-func MergePOD(url string, pod string, arg ...interface{}) string {
+func MergePOD(url string, pod string, arg ...Any) string {
 	uri := ParseURL(url)
 	p := uri.Query().Get("pod")
 	if strings.HasPrefix(uri.Path, "/chat/pod") {
@@ -116,8 +116,8 @@ func CSV(file string, limit int, cb func(index int, value map[string]string, hea
 	}
 	return nil
 }
-func UnMarshal(data string) interface{} {
-	var res interface{}
+func UnMarshal(data string) Any {
+	var res Any
 	if strings.HasSuffix(data, ".json") {
 		if b, e := ioutil.ReadFile(data); e == nil {
 			if json.Unmarshal(b, &res) != nil {
@@ -131,7 +131,7 @@ func UnMarshal(data string) interface{} {
 	}
 	return res
 }
-func TransArg(arg []string, key string, trans interface{}) []string {
+func TransArg(arg []string, key string, trans Any) []string {
 	for i := 0; i < len(arg); i += 2 {
 		if arg[i] == key {
 			if val := Value(trans, arg[i+1]); val != "" {
@@ -141,19 +141,31 @@ func TransArg(arg []string, key string, trans interface{}) []string {
 	}
 	return arg
 }
-func FormatKV(data map[string]interface{}, args ...string) string {
+func FormatKV(data Map, args ...string) string {
 	list := []string{}
 	for k, v := range data {
 		list = append(list, Format("%v%v%v", k, Select(":", args, 0), v))
 	}
 	return strings.Join(list, Select(";", args, 1))
 }
+func FormatShow(arg ...Any) string {
+	res := []string{}
+	for i := 0; i < len(arg); i += 2 {
+		if i+1 < len(arg) {
+			res = append(res, Format(arg[i])+":", Format(arg[i+1]))
+		} else {
+			res = append(res, Format(arg[i]))
+		}
+
+	}
+	return Join(res, " ")
+}
 
 func Now(arg ...string) string {
 	return time.Now().Format(Select("2006-01-02 15:04:05", arg, 0))
 }
 
-func Reflect(obj interface{}, cb func(name string, value interface{})) (reflect.Type, reflect.Value) {
+func Reflect(obj Any, cb func(name string, value Any)) (reflect.Type, reflect.Value) {
 	t := reflect.TypeOf(obj)
 	v := reflect.ValueOf(obj)
 	if t.Kind() == reflect.Ptr {
@@ -190,7 +202,7 @@ func Filter(arg []string, cb ...func(string) bool) (res []string) {
 	}
 	return res
 }
-func SortedKey(obj interface{}) (res []string) {
+func SortedKey(obj Any) (res []string) {
 	v := reflect.ValueOf(obj)
 	if v.Kind() == reflect.Map {
 		for _, val := range v.MapKeys() {

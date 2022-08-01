@@ -3,12 +3,13 @@ package conn
 import (
 	"context"
 	"errors"
-	"fmt"
 	"net"
 	"net/http"
 
-	"shylinux.com/x/toolkits/logs"
+	kit "shylinux.com/x/toolkits"
 )
+
+const HTTP = "http"
 
 var (
 	ErrTypeError = errors.New("type error")
@@ -18,59 +19,59 @@ var (
 type HttpClient struct {
 	*http.Client
 
-	PostCount int64
-	GetCount  int64
-	DoCount   int64
-	ErrCount  int64
+	DoCount   int
+	GetCount  int
+	PostCount int
+	ErrCount  int
+
+	Logger func(...Any)
 
 	conn *Conn
 }
 
-func (hc *HttpClient) Info() string {
-	return fmt.Sprintf("connID: %d poolID: %d", hc.conn.ID, hc.conn.pool.ID)
+func (client *HttpClient) Info() string {
+	return kit.FormatShow(CONN, client.conn.id, POOL, client.conn.pool.id)
 }
-func (hc *HttpClient) Get(url string) (*http.Response, error) {
-	res, err := hc.Client.Get(url)
-	if hc.GetCount++; err != nil {
-		hc.ErrCount++
+func (client *HttpClient) Do(req *http.Request) (*http.Response, error) {
+	res, err := client.Client.Do(req)
+	if client.DoCount++; err != nil {
+		client.ErrCount++
 	}
-	log.Show("http", "conn", hc.conn.ID, "count", hc.GetCount, "GET", url, "err", err)
+	client.Logger(CONN, client.conn.id, "count", client.DoCount, "DO", req.URL, "err", err)
 	return res, err
 }
-func (hc *HttpClient) Do(req *http.Request) (*http.Response, error) {
-	res, err := hc.Client.Do(req)
-	if hc.DoCount++; err != nil {
-		hc.ErrCount++
+func (client *HttpClient) Get(url string) (*http.Response, error) {
+	res, err := client.Client.Get(url)
+	if client.GetCount++; err != nil {
+		client.ErrCount++
 	}
-	log.Show("http", "conn", hc.conn.ID, "count", hc.DoCount, "DO", req.URL, "err", err)
+	client.Logger(CONN, client.conn.id, "count", client.GetCount, "GET", url, "err", err)
 	return res, err
 }
-func (hc *HttpClient) NRead() int64 {
-	return int64(hc.conn.nread)
+func (client *HttpClient) NWrite() int {
+	return client.conn.nwrite
 }
-func (hc *HttpClient) NWrite() int64 {
-	return int64(hc.conn.nwrite)
+func (client *HttpClient) NRead() int {
+	return client.conn.nread
 }
-func (hc *HttpClient) Close() {
-	hc.conn.Close()
+func (client *HttpClient) Release() {
+	client.conn.Close()
 }
 
 func (pool *Pool) GetHttp(ctx context.Context) (*HttpClient, error) {
-	if c := pool.Get(ctx); c != nil {
-		switch hc := c.client.(type) {
-		case *HttpClient:
-			return hc, nil
+	if conn := pool.Get(ctx); conn != nil {
+		switch client := conn.client.(type) {
 		case nil:
-			client := &HttpClient{Client: &http.Client{Transport: &http.Transport{
-				DialContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
-					return c, nil
-				},
-			}}, conn: c}
-			c.client = client
+		case *HttpClient:
 			return client, nil
 		default:
 			return nil, ErrTypeError
 		}
+		client := &HttpClient{Client: &http.Client{Transport: &http.Transport{
+			DialContext: func(ctx context.Context, network, addr string) (net.Conn, error) { return conn, nil },
+		}}, conn: conn, Logger: pool.Logger}
+		conn.client = client
+		return client, nil
 	}
 	return nil, ErrUnknown
 }

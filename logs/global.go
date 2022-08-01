@@ -1,28 +1,34 @@
-package log
+package logs
 
 import (
+	"io"
+	"os"
+
 	"shylinux.com/x/toolkits/conf"
+	"shylinux.com/x/toolkits/file"
 )
 
-var log, _ = Open(conf.Sub("log"))
+var log = New(conf.Sub(LOG), file.NewDiskFile())
 
-func init() { log.stack = STACK + 1 }
+func Init(conf *conf.Conf, file file.File) { log = New(conf, file) }
 
-func Debug(arg ...interface{}) { log.Info(append(arg, " ", FileLine(2, 3))...) }
-func Info(arg ...interface{})  { log.Info(arg...) }
-func Warn(arg ...interface{})  { log.Warn(arg...) }
-func Error(arg ...interface{}) { log.Error(arg...) }
+func Disable(status bool) { log.disable = status }
 
-func Show(arg ...interface{}) { log.Show(arg...) }
-func Cost(arg ...interface{}) func(...func() []interface{}) {
-	return log.Cost(arg...)
+func Info(arg ...Any)  { log.Info(fileline(arg)...) }
+func Warn(arg ...Any)  { log.Warn(fileline(arg)...) }
+func Error(arg ...Any) { log.Error(fileline(arg)...) }
+func Debug(arg ...Any) { log.Debug(fileline(arg)...) }
+func Show(arg ...Any)  { log.Show(fileline(arg)...) }
+func Cost(arg ...Any) func(...func() []Any) {
+	return log.Cost(fileline(arg)...)
 }
+func Infof(str string, arg ...Any)   { log.Infof(str, fileline(arg)...) }
+func Logger(key string) func(...Any) { return log.Logger(key) }
 
-func Init(conf *conf.Conf) {
-	l, e := Open(conf)
-	if e != nil {
-		panic(e)
+func CreateFile(p string) (io.WriteCloser, string, error) {
+	if log.disable {
+		return nil, "", os.ErrInvalid
 	}
-	l.stack = STACK + 1
-	log = l
+	return log.file.CreateFile(p)
 }
+func fileline(arg []Any) []Any { return append(arg, FileLineMeta(FileLine(3, 3))) }

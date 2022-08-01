@@ -7,68 +7,90 @@ import (
 	"sync/atomic"
 
 	"shylinux.com/x/toolkits/conf"
-	log "shylinux.com/x/toolkits/logs"
+	"shylinux.com/x/toolkits/logs"
+	"shylinux.com/x/toolkits/task"
 )
 
+type Any = interface{}
+
+const (
+	CONN_ERR = "conn err"
+	CONN_ADD = "conn add"
+	CONN_GET = "conn get"
+	CONN_PUT = "conn put"
+	CONN_END = "conn end"
+)
+const POOL = "pool"
+
 type Pool struct {
-	addrs []string
-	limit int64
-	retry int
+	id int64
+	mu task.Lock
 
-	mu      sync.Mutex
+	nconn   int64
+	maxconn int64
 	channel chan *Conn
-	connID  int64
 
-	ID int64
+	target []string
+	retry  int
+
+	Logger func(...Any)
+
 	sync.Pool
+	conf *conf.Conf
 }
 
 func (pool *Pool) Get(ctx context.Context) *Conn {
 	pool.add()
-
 	for {
 		select {
 		case <-ctx.Done():
-			log.Show("conn", "conn err", ctx.Err(), "pool", pool.ID)
+			pool.Logger(CONN_ERR, ctx.Err(), POOL, pool.id)
 			return nil
 		case c := <-pool.channel:
-			log.Show("conn", "conn get", c.LocalAddr(), "id", c.ID, "pool", pool.ID)
+			pool.Logger(CONN_GET, c.LocalAddr(), c.Info())
 			return c
 		}
 	}
 	return nil
 }
-func (pool *Pool) Put(c *Conn) {
-	log.Show("conn", "conn put", c.LocalAddr(), "id", c.ID, "pool", pool.ID)
-	pool.channel <- c
-}
 func (pool *Pool) add() {
-	pool.mu.Lock()
-	defer pool.mu.Unlock()
-
-	if len(pool.channel) == 0 && pool.connID < pool.limit {
+	defer pool.mu.Lock()()
+	if len(pool.channel) == 0 && pool.nconn < pool.maxconn {
 		if c, ok := pool.Pool.Get().(*Conn); ok {
+			pool.Logger(CONN_ADD, c.LocalAddr(), c.Info())
 			pool.channel <- c
 		}
 	}
 }
+func (pool *Pool) Put(c *Conn) {
+	pool.Logger(CONN_PUT, c.LocalAddr(), c.Info())
+	pool.channel <- c
+}
 
-var poolID int64
+func (pool *Pool) Close() {
+	close(pool.channel)
+	for c := range pool.channel {
+		pool.Logger(CONN_END, c.LocalAddr(), c.Info())
+		c.closed = true
+		c.Close()
+	}
+}
 
-func New(conf *conf.Conf, addrs []string, limit int64, retry int) *Pool {
-	pool := &Pool{
-		addrs: addrs, limit: limit, retry: retry,
-		channel: make(chan *Conn, limit),
-		ID:      atomic.AddInt64(&poolID, 1),
+var npool int64
+
+func New(conf *conf.Conf, maxconn int64, target []string, retry int) *Pool {
+	pool := &Pool{id: atomic.AddInt64(&npool, 1),
+		maxconn: maxconn, channel: make(chan *Conn, maxconn),
+		target: target, retry: retry, conf: conf,
+		Logger: logs.Logger(CONN),
 	}
 	pool.Pool = sync.Pool{New: func() interface{} {
-		id := atomic.AddInt64(&pool.connID, 1)
+		id := atomic.AddInt64(&pool.nconn, 1)
 		for i := 0; i < pool.retry; i++ {
-			if c, e := net.Dial("tcp", addrs[id%int64(len(addrs))]); e == nil {
-				log.Show("conn", "conn add", c.LocalAddr(), "id", id, "pool", pool.ID)
-				return &Conn{ID: id, Conn: c, pool: pool}
+			if c, e := net.Dial("tcp", target[id%int64(len(target))]); e == nil {
+				return &Conn{id: id, Conn: c, pool: pool}
 			} else {
-				log.Warn("dial", addrs, i, e)
+				logs.Warn(CONN, " dial: ", target, " ", e)
 			}
 		}
 		return nil

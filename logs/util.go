@@ -1,4 +1,4 @@
-package log
+package logs
 
 import (
 	"fmt"
@@ -7,6 +7,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	kit "shylinux.com/x/toolkits"
 )
 
 func Now() time.Time  { return time.Now() }
@@ -50,10 +52,29 @@ func FileLine(h interface{}, n int) string {
 	var line int
 	var file string
 	switch h := h.(type) {
+	case nil:
+		return ""
+	case []string:
+		return kit.Join(h, " ")
+	case string:
+		return h
 	case int:
+		if h == -1 {
+			call := strings.Split(FileLine(2, n), ":")[0]
+			for i := 3; i < 10; i++ {
+				if strings.Split(FileLine(i, n), ":")[0] != call {
+					h = i - 1
+					break
+				}
+			}
+		}
 		_, file, line, _ = runtime.Caller(h)
 	default:
+		if t := reflect.TypeOf(h); t.Kind() != reflect.Func {
+			return ""
+		}
 		p := reflect.ValueOf(h)
+
 		f := runtime.FuncForPC(p.Pointer())
 		file, line = f.FileLine(p.Pointer())
 	}
@@ -63,4 +84,34 @@ func FileLine(h interface{}, n int) string {
 		ls = ls[len(ls)-n:]
 	}
 	return fmt.Sprintf("%s:%d", strings.Join(ls, "/"), line)
+}
+func CostTime(cb func(time.Duration)) func() {
+	begin := Now()
+	return func() { cb(Now().Sub(begin)) }
+}
+func Println(arg ...Any) {
+	println(FmtTime(Now()), kit.Format(arg[0], arg[1:]...), FileLine(2, 3))
+}
+func PrintStack() {
+	Println(Stack(2, 100))
+}
+func Stack(skip, deep int) string {
+	pc := make([]uintptr, deep+10)
+	frames := runtime.CallersFrames(pc[:runtime.Callers(skip+1, pc)])
+
+	list := []string{}
+	for {
+		frame, more := frames.Next()
+		file := kit.Slice(kit.Split(frame.File, "/", "/"), -1)[0]
+		name := kit.Slice(kit.Split(frame.Function, "/", "/"), -1)[0]
+		list = append(list, kit.Format("%s:%d\t%s", file, frame.Line, name))
+
+		if len(list) >= deep {
+			break
+		}
+		if !more {
+			break
+		}
+	}
+	return kit.Join(list, "\n")
 }
