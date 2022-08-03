@@ -99,7 +99,7 @@ func (miss *Miss) Grow(prefix string, cache Map, data Any) int {
 	cache[LIST] = list
 	return id
 }
-func (miss *Miss) Grows(prefix string, cache Map, offend, limit int, match string, value string, cb Any) (res Map) {
+func (miss *Miss) Grows(prefix string, cache Map, offend, limit int, field string, value string, cb Any) (res Map) {
 	meta, _, list := miss.cache(cache, false)
 	if list == nil || len(list) == 0 {
 		return nil
@@ -115,15 +115,15 @@ func (miss *Miss) Grows(prefix string, cache Map, offend, limit int, match strin
 	case -2:
 		begin = 0
 	}
-	if match == ID && value != "" {
+	if field == ID && value != "" {
 		begin, end = kit.Int(value)-1, kit.Int(value)
-		match, value = "", ""
+		field, value = "", ""
 	}
 
 	// 读取数据
 	index, done := 0, false
 	if begin < offset && miss._grows_record(meta, begin, end, func(item Map) bool { // 读取文件
-		res, index, done = _grow_match(item, match, value, index, cb)
+		res, index, done = _grow_match(item, field, value, index, cb)
 		return done
 	}) {
 		return
@@ -132,7 +132,7 @@ func (miss *Miss) Grows(prefix string, cache Map, offend, limit int, match strin
 		begin = offset
 	}
 	for i := begin - offset; i < len(list) && i < end-offset; i++ { // 读取缓存
-		if res, index, done = _grow_match(kit.Dict(list[i]), match, value, index, cb); done {
+		if res, index, done = _grow_match(kit.Dict(list[i]), field, value, index, cb); done {
 			break
 		}
 	}
@@ -215,8 +215,8 @@ func (miss *Miss) _grows_file(p string, cb func(data []string, head []string) bo
 	}
 }
 
-func _grow_match(item Map, match, value string, index int, cb Any) (Map, int, bool) {
-	if match == "" || strings.Contains(kit.Format(kit.Value(item, match)), value) {
+func _grow_match(item Map, field, value string, index int, cb Any) (Map, int, bool) {
+	if field == "" || strings.Contains(kit.Format(kit.Value(item, field)), value) {
 		switch cb := cb.(type) {
 		case func(Map):
 			cb(item)

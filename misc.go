@@ -21,6 +21,7 @@ func ParseURLMap(str string) map[string]string {
 	res := map[string]string{}
 	if u := ParseURL(str); u != nil {
 		res["host"] = u.Host
+		res["port"] = Select(Select("80", "443", u.Scheme == "https"), strings.Split(u.Host, ":"), 1)
 		res["hostname"] = strings.Split(u.Host, ":")[0]
 		res["origin"] = u.Scheme + "://" + u.Host
 	}

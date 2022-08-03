@@ -2,6 +2,7 @@ package logs
 
 import (
 	"io"
+	"io/ioutil"
 	"os"
 
 	"shylinux.com/x/toolkits/conf"
@@ -30,5 +31,17 @@ func CreateFile(p string) (io.WriteCloser, string, error) {
 		return nil, "", os.ErrInvalid
 	}
 	return log.file.CreateFile(p)
+}
+func ReadFile(p string) string {
+	if log.disable {
+		return ""
+	}
+	if f, e := log.file.OpenFile(p); e == nil {
+		defer f.Close()
+		if b, e := ioutil.ReadAll(f); e == nil {
+			return string(b)
+		}
+	}
+	return ""
 }
 func fileline(arg []Any) []Any { return append(arg, FileLineMeta(FileLine(3, 3))) }
