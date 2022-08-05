@@ -14,6 +14,7 @@ import (
 
 type Any = interface{}
 type Map = map[string]Any
+type Maps = map[string]string
 
 func Max(list ...int) (max int) {
 	for i := 0; i < len(list); i++ {
@@ -99,8 +100,14 @@ func SimpleKV(key string, arg ...Any) (res []string) {
 	defs, args := Dict(), []string{}
 	for _, v := range arg {
 		switch v := v.(type) {
+		case Maps:
+			for k, v := range v {
+				defs[k] = v
+			}
 		case Map:
-			defs = v
+			for k, v := range v {
+				defs[k] = v
+			}
 		default:
 			args = append(args, Format(v))
 		}
