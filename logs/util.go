@@ -90,7 +90,11 @@ func CostTime(cb func(time.Duration)) func() {
 	return func() { cb(Now().Sub(begin)) }
 }
 func Println(arg ...Any) {
-	println(FmtTime(Now()), kit.Format(arg[0], arg[1:]...), FileLine(2, 3))
+	if len(arg) == 0 {
+		println()
+	} else {
+		println(FmtTime(Now()), kit.Format(arg[0], arg[1:]...), FileLine(2, 3))
+	}
 }
 func PrintStack() {
 	Println(Stack(2, 100))
