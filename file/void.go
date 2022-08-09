@@ -77,7 +77,7 @@ func (s *VoidFile) ReadDir(p string) ([]os.FileInfo, error) {
 	defer s.lock.RLock()()
 	list := []os.FileInfo{}
 	for k, s := range s.list {
-		if strings.HasPrefix(k, p) {
+		if strings.HasPrefix(k, p+kit.Select("", "/", !strings.HasSuffix(p, "/"))) {
 			if len(kit.Split(strings.TrimPrefix(k, p), PS)) == 1 {
 				list = append(list, s)
 			}
