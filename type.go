@@ -78,6 +78,8 @@ func Format(val Any, arg ...Any) string {
 		return val.String()
 	case time.Time:
 		return val.Format("2006-01-02 15:04:05")
+	case error:
+		return val.Error()
 	default:
 		if t := reflect.TypeOf(val); t.Kind() == reflect.Func {
 			return LowerCapital(FuncName(val))

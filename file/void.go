@@ -77,7 +77,7 @@ func (s *VoidFile) ReadDir(p string) ([]os.FileInfo, error) {
 	defer s.lock.RLock()()
 	list := []os.FileInfo{}
 	for k, s := range s.list {
-		if strings.HasPrefix(k, p+kit.Select("", "/", !strings.HasSuffix(p, "/"))) {
+		if strings.HasPrefix(k, p+kit.Select("", "/", !strings.HasSuffix(p, "/") && p != "")) {
 			if len(kit.Split(strings.TrimPrefix(k, p), PS)) == 1 {
 				list = append(list, s)
 			}
@@ -97,6 +97,7 @@ func (s *VoidFile) MkdirAll(p string, m os.FileMode) error {
 	return nil
 }
 func (s *VoidFile) RemoveAll(p string) error {
+	p = path.Clean(p)
 	defer s.lock.Lock()()
 	list := []string{}
 	for k := range s.list {

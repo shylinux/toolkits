@@ -30,14 +30,14 @@ type Pool struct {
 	conf   *conf.Conf
 }
 
-func (pool *Pool) WaitN(n int, cb func(*Task, *Lock) error) {
+func (pool *Pool) WaitN(n int, action func(*Task, *Lock) error) {
 	args := []Any{}
 	for i := 1; i <= n; i++ {
 		args = append(args, i)
 	}
-	pool.Wait(args, cb)
+	pool.Wait(args, action)
 }
-func (pool *Pool) Wait(args []Any, cb func(*Task, *Lock) error) {
+func (pool *Pool) Wait(args []Any, action func(*Task, *Lock) error) {
 	wg, lock := &sync.WaitGroup{}, &Lock{}
 	defer wg.Wait()
 
@@ -45,7 +45,7 @@ func (pool *Pool) Wait(args []Any, cb func(*Task, *Lock) error) {
 		wg.Add(1)
 		pool.Put(arg, func(task *Task) error {
 			defer wg.Done()
-			return cb(task, lock)
+			return action(task, lock)
 		})
 	}
 }

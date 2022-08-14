@@ -21,9 +21,9 @@ type Task struct {
 	id int64
 
 	Action func(*Task) error
-	Params interface{}
+	Params Any
 
-	Error  interface{}
+	Error  Any
 	Status int
 
 	PrepareTime time.Time
