@@ -26,7 +26,7 @@ func (s *MultiFile) OpenFile(p string) (io.ReadCloser, error) {
 			return s, e
 		}
 	}
-	return nil, os.ErrExist
+	return nil, os.ErrNotExist
 }
 func (s *MultiFile) CreateFile(p string) (io.WriteCloser, string, error) {
 	for _, f := range s.list {

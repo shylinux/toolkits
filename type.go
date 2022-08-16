@@ -210,34 +210,43 @@ func FmtSize(size int64) string {
 
 	return fmt.Sprintf("%dB", size)
 }
-func FmtTime(t int64) string {
-	sign, time := "", t
-	if time < 0 {
-		sign, time = "-", -t
+func FmtDuration(t time.Duration) string {
+	sign, tt := "", t
+	if tt < 0 {
+		sign, tt = "-", -t
 	}
 
 	list := []string{}
-	if time > 24*3600*1000000000 {
-		list = append(list, fmt.Sprintf("%s%dd", sign, time/(24*3600*1000000000)))
-		time = time % (24 * 3600 * 1000000000)
+	unit := 24 * 3600 * time.Second
+	if tt > unit {
+		list = append(list, fmt.Sprintf("%s%dd", sign, tt/unit))
+		tt = tt % unit
 	}
-	if time > 3600*1000000000 {
-		list = append(list, fmt.Sprintf("%s%dh", sign, time/3600/1000000000))
-		time = time % (3600 * 1000000000)
+	if unit = 3600 * time.Second; tt > unit {
+		list = append(list, fmt.Sprintf("%s%dh", sign, tt/unit))
+		tt = tt % unit
+	}
+	if unit = 60 * time.Second; tt > unit {
+		list = append(list, fmt.Sprintf("%s%dm", sign, tt/unit))
+		tt = tt % unit
 	}
 	if len(list) > 0 {
+		if unit = time.Second; tt > unit {
+			list = append(list, fmt.Sprintf("%s%ds", sign, tt/unit))
+			tt = tt % unit
+		}
 		return strings.Join(list, "")
 	}
-	if time > 1000000000 {
-		return fmt.Sprintf("%s%0.2fs", sign, float64(time)/1000000000)
+	if unit = time.Second; tt > unit {
+		return fmt.Sprintf("%s%0.2fs", sign, float64(tt)/float64(unit))
 	}
-	if time > 1000000 {
-		return fmt.Sprintf("%s%0.2fms", sign, float64(time)/1000000)
+	if unit = time.Millisecond; tt > unit {
+		return fmt.Sprintf("%s%0.2fms", sign, float64(tt)/float64(unit))
 	}
-	if time > 1000 {
-		return fmt.Sprintf("%s%0.2fus", sign, float64(time)/1000)
+	if unit = time.Microsecond; tt > unit {
+		return fmt.Sprintf("%s%0.2fus", sign, float64(tt)/float64(unit))
 	}
-	return fmt.Sprintf("%s%dns", sign, time)
+	return fmt.Sprintf("%s%dns", sign, tt)
 }
 
 func Contains(str, sub Any) bool {
