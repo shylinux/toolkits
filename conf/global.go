@@ -23,7 +23,7 @@ var conf = New(kit.Dict(
 		"least", "10",
 	),
 	"task", kit.Dict(
-		"maxwork", 50,
+		"maxwork", 250,
 		"maxtask", 1000,
 	),
 	"conn", kit.Dict(
