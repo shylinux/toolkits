@@ -202,11 +202,13 @@ func Value(root Any, args ...Any) Any {
 
 				// 添加数据
 				if index == -1 {
-					data, index = append([]string{Format(next)}, value...), 0
-				} else {
-					data, index = append(value, Format(next)), len(value)
+					value, index = append([]string{Format(next)}, value...), 0
+				} else if index == -2 {
+					value, index = append(value, Format(next)), len(value)
+				} else if j == len(keys)-1 {
+					value[index] = Format(next)
 				}
-				next = value[index]
+				data, next = value, value[index]
 			case map[string]string:
 				if j == len(keys)-1 {
 					if i == len(args)-1 {
