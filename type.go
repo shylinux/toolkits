@@ -371,3 +371,13 @@ func Slice(list []string, index ...int) []string {
 func Join(str []string, arg ...string) string {
 	return strings.Join(str, Select(",", arg, 0))
 }
+func JoinKV(inner, outer string, arg ...string) string {
+	res := []string{}
+	for i := 0; i < len(arg); i += 2 {
+		if arg[i+1] == "" {
+			continue
+		}
+		res = append(res, arg[i]+inner+arg[i+1])
+	}
+	return strings.Join(res, outer)
+}

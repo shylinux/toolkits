@@ -1,8 +1,11 @@
 package file
 
 import (
+	"errors"
 	"io"
 	"os"
+
+	kit "shylinux.com/x/toolkits"
 )
 
 type MultiFile struct {
@@ -26,7 +29,7 @@ func (s *MultiFile) OpenFile(p string) (io.ReadCloser, error) {
 			return s, e
 		}
 	}
-	return nil, os.ErrNotExist
+	return nil, errors.New(kit.Format("open: %s: %s", p, os.ErrNotExist))
 }
 func (s *MultiFile) CreateFile(p string) (io.WriteCloser, string, error) {
 	for _, f := range s.list {
