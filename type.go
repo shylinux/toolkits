@@ -283,6 +283,13 @@ func Select(def string, arg ...Any) string {
 					return val
 				}
 				return def
+			case string:
+				args := Simple(arg)
+				for i := len(args) - 1; i >= 0; i-- {
+					if args[i] != "" {
+						return args[i]
+					}
+				}
 			}
 		}
 		if val != "" {
