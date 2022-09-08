@@ -21,7 +21,7 @@ func (s *MultiFile) StatFile(p string) (os.FileInfo, error) {
 			return s, e
 		}
 	}
-	return nil, os.ErrExist
+	return nil, os.ErrNotExist
 }
 func (s *MultiFile) OpenFile(p string) (io.ReadCloser, error) {
 	for _, f := range s.list {

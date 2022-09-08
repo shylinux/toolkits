@@ -390,6 +390,13 @@ func Hashs(arg ...Any) string {
 	h, _ := Hash(arg...)
 	return h
 }
+func Renders(str string, arg Any) string {
+	if b, e := Render(str, arg); e != nil {
+		panic(e)
+	} else {
+		return string(b)
+	}
+}
 func Render(str string, arg Any) (b []byte, e error) {
 	t := template.New("render").Funcs(template.FuncMap{"Format": Format, "Value": Value})
 	if strings.HasPrefix(str, "@") {
