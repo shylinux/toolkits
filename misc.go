@@ -206,13 +206,36 @@ func Filter(arg []string, cb ...func(string) bool) (res []string) {
 func SortedKey(obj Any) (res []string) {
 	v := reflect.ValueOf(obj)
 	if v.Kind() == reflect.Map {
-		for _, val := range v.MapKeys() {
-			switch val := val.Interface().(type) {
+		for _, key := range v.MapKeys() {
+			switch key := key.Interface().(type) {
 			case string:
-				res = append(res, val)
+				res = append(res, key)
 			}
 		}
 	}
 	sort.Strings(res)
 	return res
+}
+func SortedValue(obj Any) (res []string) {
+	v := reflect.ValueOf(obj)
+	if v.Kind() == reflect.Map {
+		for _, key := range v.MapKeys() {
+			val := v.MapIndex(key)
+			res = append(res, Format(val.Interface()))
+		}
+	}
+	sort.Strings(res)
+	return res
+}
+
+func HasPrefix(arg []string, args ...string) bool {
+	if len(arg) >= len(args) {
+		for i, v := range args {
+			if v != arg[i] {
+				return false
+			}
+		}
+		return true
+	}
+	return false
 }
