@@ -58,7 +58,6 @@ func (task *Task) Run(ctx context.Context) {
 
 	task.Status, task.ProcessTime, task.ctx = StatusProcess, time.Now(), ctx
 	defer func() {
-		return
 		if e := recover(); e != nil {
 			for i := 1; i < 6; i++ {
 				task.Logger("task err", e, "stack", logs.FileLine(i, 3))

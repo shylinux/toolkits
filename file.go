@@ -183,6 +183,9 @@ func FuncName(p interface{}) string {
 	list := strings.Split(runtime.FuncForPC(fun).Name(), ".")
 	return strings.TrimSuffix(list[len(list)-1], "-fm")
 }
+func FuncAddr(p interface{}) uintptr {
+	return getFunc(p)
+}
 func FileLine(p interface{}, n int) string {
 	fun := getFunc(p)
 	if fun == 0 {
