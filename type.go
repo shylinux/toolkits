@@ -162,6 +162,8 @@ func Regexp(arg string) *regexp.Regexp {
 }
 func Duration(str Any) time.Duration {
 	switch str := str.(type) {
+	case time.Duration:
+		return str
 	case string:
 		d, _ := time.ParseDuration(str)
 		return d
