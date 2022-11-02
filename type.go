@@ -181,21 +181,12 @@ func Time(arg ...string) int64 {
 		}
 	}
 
-	for _, v := range []string{
-		"2006-01-02 15:04:05",
-		"2006-01-02 15:04",
-		"01-02 15:04",
-		"2006/01/02",
-		"2006-01-02",
-		"2006-01",
-		"15:04:05",
-		"15:04",
-	} {
+	for _, v := range []string{"2006-01-02 15:04:05", "2006-01-02"} {
 		if t, e := time.ParseInLocation(v, arg[0], time.Local); e == nil {
 			return Int64(t)
 		}
 	}
-	return 0
+	return Int64(time.Now())
 }
 func FmtSize(size int64) string {
 	if size > 1<<30 {

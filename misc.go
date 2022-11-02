@@ -227,6 +227,9 @@ func SortedValue(obj Any) (res []string) {
 	sort.Strings(res)
 	return res
 }
+func DayBegin(t string) time.Time {
+	return time.Unix(Time(Split(t)[0])/int64(time.Second), 0)
+}
 
 func HasPrefix(arg []string, args ...string) bool {
 	if len(arg) >= len(args) {
