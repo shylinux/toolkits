@@ -78,6 +78,7 @@ func FileExists(name string) bool {
 	}
 	return false
 }
+func FileReg(ext ...string) string { return Format(`.*\.(%s)$`, Join(ext, "|")) }
 func TrimExt(str string, ext ...string) string {
 	if len(ext) == 0 {
 		ext = []string{"go", "zip", "tgz", "tar.gz", "tar.xz", "tar.bz2"}

@@ -242,3 +242,14 @@ func HasPrefix(arg []string, args ...string) bool {
 	}
 	return false
 }
+
+func SplitLine(text string) []string {
+	return strings.Split(strings.TrimSpace(text), "\n")
+}
+func SplitWord(text string) []string {
+	return Split(text, "\t ", "\t ")
+}
+func QueryUnescape(value string) string {
+	value, _ = url.QueryUnescape(value)
+	return value
+}
