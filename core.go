@@ -331,6 +331,10 @@ func Fetch(val Any, cbs Any) Any {
 			for i, v := range val {
 				cb(i, v.(Map))
 			}
+		case func(value Map):
+			for _, v := range val {
+				cb(v.(Map))
+			}
 		}
 	case []string:
 		switch cb := cbs.(type) {
