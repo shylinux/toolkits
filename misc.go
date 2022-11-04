@@ -231,18 +231,22 @@ func DayBegin(t string) time.Time {
 	return time.Unix(Time(Split(t)[0])/int64(time.Second), 0)
 }
 
-func HasPrefix(arg []string, args ...string) bool {
-	if len(arg) >= len(args) {
-		for i, v := range args {
-			if v != arg[i] {
-				return false
-			}
+func HasPrefix(text string, arg ...string) bool {
+	for _, v := range arg {
+		if strings.HasPrefix(text, v) {
+			return true
 		}
-		return true
 	}
 	return false
 }
-
+func HasSuffix(text string, arg ...string) bool {
+	for _, v := range arg {
+		if strings.HasSuffix(text, v) {
+			return true
+		}
+	}
+	return false
+}
 func SplitLine(text string) []string {
 	return strings.Split(strings.TrimSpace(text), "\n")
 }
