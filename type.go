@@ -373,7 +373,11 @@ func Join(str []string, arg ...string) string {
 }
 func JoinKV(inner, outer string, arg ...string) string {
 	res := []string{}
-	for i := 0; i < len(arg); i += 2 {
+	for i := 0; i < len(arg)-1; i += 2 {
+		if i == len(arg)-1 {
+			res = append(res, arg[i])
+			continue
+		}
 		if arg[i+1] == "" {
 			continue
 		}
