@@ -127,7 +127,7 @@ func UnMarshal(data string) Any {
 		}
 	} else {
 		if json.Unmarshal([]byte(data), &res) != nil {
-			return data
+			return Split(data)
 		}
 	}
 	return res

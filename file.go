@@ -124,6 +124,13 @@ func ExtIsImage(str string) bool {
 	}
 	return false
 }
+func ExtIsVideo(str string) bool {
+	switch strings.ToLower(Ext(str)) {
+	case "webm":
+		return true
+	}
+	return false
+}
 func Pwd() string {
 	wd, _ := os.Getwd()
 	return wd
