@@ -44,8 +44,8 @@ func FmtSize(i uint64) string {
 	}
 	return fmt.Sprintf("%dB", i)
 }
-func FileLine(h interface{}, n int) string {
-	if h == nil || n == 0 {
+func FileLines(h interface{}) string {
+	if h == nil {
 		return ""
 	}
 
@@ -60,9 +60,9 @@ func FileLine(h interface{}, n int) string {
 		return h
 	case int:
 		if h == -1 {
-			call := strings.Split(FileLine(2, n), ":")[0]
+			call := strings.Split(FileLines(2), ":")[0]
 			for i := 3; i < 10; i++ {
-				if strings.Split(FileLine(i, n), ":")[0] != call {
+				if strings.Split(FileLines(i), ":")[0] != call {
 					h = i - 1
 					break
 				}
@@ -74,16 +74,25 @@ func FileLine(h interface{}, n int) string {
 			return ""
 		}
 		p := reflect.ValueOf(h)
+		if !p.CanAddr() {
+			return ""
+		}
 
 		f := runtime.FuncForPC(p.Pointer())
 		file, line = f.FileLine(p.Pointer())
 	}
-
-	ls := strings.Split(file, "/")
-	if len(ls) > n {
+	return fmt.Sprintf("%s:%d", file, line)
+}
+func FileLine(h interface{}, arg ...string) string {
+	switch n := h.(type) {
+	case int:
+		h = n + 1
+	}
+	ls := strings.Split(FileLines(h), "/")
+	if n := kit.Int(kit.Select("3", arg, 0)); len(ls) > n {
 		ls = ls[len(ls)-n:]
 	}
-	return fmt.Sprintf("%s:%d", strings.Join(ls, "/"), line)
+	return strings.Join(ls, "/")
 }
 func CostTime(cb func(time.Duration)) func() {
 	begin := Now()
@@ -93,7 +102,7 @@ func Println(arg ...Any) {
 	if len(arg) == 0 {
 		println()
 	} else {
-		println(FmtTime(Now()), kit.Format(arg[0], arg[1:]...), FileLine(2, 3))
+		println(FmtTime(Now()), kit.Format(arg[0], arg[1:]...), FileLine(2))
 	}
 }
 func PrintStack() {

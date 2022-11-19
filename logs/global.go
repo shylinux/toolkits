@@ -44,4 +44,4 @@ func ReadFile(p string) string {
 	}
 	return ""
 }
-func fileline(arg []Any) []Any { return append(arg, FileLineMeta(FileLine(3, 3))) }
+func fileline(arg []Any) []Any { return append(arg, FileLineMeta(FileLine(3))) }

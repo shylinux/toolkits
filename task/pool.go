@@ -54,7 +54,7 @@ func (pool *Pool) Put(params Any, action func(*Task) error) {
 		return
 	}
 	task := &Task{id: atomic.AddInt64(&pool.ntask, 1), Action: action, Params: params, PrepareTime: logs.Now(), pool: pool, Logger: pool.Logger}
-	pool.Logger("task put", logs.FileLine(action, 3), "params", task.Params, task.Info())
+	pool.Logger("task put", logs.FileLine(action), "params", task.Params, task.Info())
 	pool.channel <- task
 	pool.add()
 }
