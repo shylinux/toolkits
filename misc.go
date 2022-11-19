@@ -257,3 +257,16 @@ func QueryUnescape(value string) string {
 	value, _ = url.QueryUnescape(value)
 	return value
 }
+
+func SliceRemove(list []string, key string) ([]string, int) {
+	index := -1
+	for i := 0; i < len(list); i++ {
+		if list[i] == key {
+			for index = i; i < len(list)-1; i++ {
+				list[i] = list[i+1]
+			}
+			list = Slice(list, 0, -1)
+		}
+	}
+	return list, index
+}

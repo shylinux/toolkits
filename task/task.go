@@ -2,6 +2,7 @@ package task
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	kit "shylinux.com/x/toolkits"
@@ -59,9 +60,11 @@ func (task *Task) Run(ctx context.Context) {
 	task.Status, task.ProcessTime, task.ctx = StatusProcess, time.Now(), ctx
 	defer func() {
 		if e := recover(); e != nil {
-			for i := 1; i < 6; i++ {
-				task.Logger("task err", e, "stack", logs.FileLine(i, 3))
+			list := []string{}
+			for i := 1; i < 10; i++ {
+				list = append(list, logs.FileLine(i, 3))
 			}
+			task.Logger("task err", e, "stack", "\n", strings.Join(list, "\n"), "\n")
 			task.Status, task.Error = StatusCancel, e
 		}
 		task.FinishTime = logs.Now()

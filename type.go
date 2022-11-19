@@ -150,6 +150,10 @@ func Simple(val ...Any) []string {
 			for _, k := range keys {
 				res = append(res, k, Format(val[k]))
 			}
+		case func(string) string:
+			for i, v := range res {
+				res[i] = val(v)
+			}
 		default:
 			res = append(res, Format(val))
 		}
