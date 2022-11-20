@@ -270,3 +270,11 @@ func SliceRemove(list []string, key string) ([]string, int) {
 	}
 	return list, index
 }
+func Min(arg ...int) (res int) {
+	for i, v := range arg {
+		if i == 0 || v < res {
+			res = v
+		}
+	}
+	return
+}
