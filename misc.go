@@ -278,3 +278,6 @@ func Min(arg ...int) (res int) {
 	}
 	return
 }
+func ExtChange(file, ext string) string {
+	return strings.TrimSuffix(file, "."+Ext(file))+"."+ext
+}
