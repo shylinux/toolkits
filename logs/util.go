@@ -59,9 +59,10 @@ func FileLines(h interface{}) string {
 	case string:
 		return h
 	case int:
-		if h == -1 {
-			call := strings.Split(FileLines(2), ":")[0]
-			for i := 3; i < 10; i++ {
+		if h < 0 {
+			i := 1 - h
+			call := strings.Split(FileLines(i), ":")[0]
+			for i++; i < 10; i++ {
 				if strings.Split(FileLines(i), ":")[0] != call {
 					h = i - 1
 					break
@@ -74,10 +75,9 @@ func FileLines(h interface{}) string {
 			return ""
 		}
 		p := reflect.ValueOf(h)
-		if !p.CanAddr() {
+		if p.Pointer == nil || p.Pointer() == 0 {
 			return ""
 		}
-
 		f := runtime.FuncForPC(p.Pointer())
 		file, line = f.FileLine(p.Pointer())
 	}
@@ -86,7 +86,11 @@ func FileLines(h interface{}) string {
 func FileLine(h interface{}, arg ...string) string {
 	switch n := h.(type) {
 	case int:
-		h = n + 1
+		if n > 0 {
+			h = n + 1
+		} else {
+			h = n - 1
+		}
 	}
 	ls := strings.Split(FileLines(h), "/")
 	if n := kit.Int(kit.Select("3", arg, 0)); len(ls) > n {

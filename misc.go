@@ -278,6 +278,12 @@ func Min(arg ...int) (res int) {
 	}
 	return
 }
+func TrimPath(p string) string {
+	return strings.TrimPrefix(p, Path("")+"/")
+}
 func ExtChange(file, ext string) string {
-	return strings.TrimSuffix(file, "."+Ext(file))+"."+ext
+	if file == "" {
+		return ""
+	}
+	return strings.TrimSuffix(file, "."+Ext(file)) + "." + ext
 }

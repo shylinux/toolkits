@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"io"
 	"math/rand"
+	"net/url"
 	"path"
 	"sort"
 	"strconv"
@@ -341,6 +342,13 @@ func Fetch(val Any, cbs Any) Any {
 		case func(index int, value string):
 			for i, v := range val {
 				cb(i, v)
+			}
+		}
+	case url.Values:
+		for _, k := range SortedKey(val) {
+			switch cb := cbs.(type) {
+			case func(key string, value []string):
+				cb(k, val[k])
 			}
 		}
 	case nil:
