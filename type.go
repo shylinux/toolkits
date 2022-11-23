@@ -40,8 +40,13 @@ func Int64(val Any) int64 {
 	case float64:
 		return int64(val)
 	case string:
-		i, _ := strconv.ParseInt(val, 10, 64)
-		return i
+		if i, e := strconv.ParseInt(val, 10, 64); e == nil {
+			return i
+		}
+		if i, e := strconv.ParseFloat(val, 32); e == nil {
+			return int64(i)
+		}
+		return 0
 	case []Any:
 		return int64(len(val))
 	case Map:
