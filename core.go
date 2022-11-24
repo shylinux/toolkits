@@ -343,6 +343,10 @@ func Fetch(val Any, cbs Any) Any {
 			for i, v := range val {
 				cb(i, v)
 			}
+		case func(key, value string):
+			for i := 0; i < len(val)-1; i += 2 {
+				cb(val[i], val[i+1])
+			}
 		}
 	case url.Values:
 		for _, k := range SortedKey(val) {

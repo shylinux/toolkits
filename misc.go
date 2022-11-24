@@ -287,3 +287,11 @@ func ExtChange(file, ext string) string {
 	}
 	return strings.TrimSuffix(file, "."+Ext(file)) + "." + ext
 }
+func Filters(list []string, arg ...string) (res []string) {
+	for	_, v := range list {
+		if IndexOf(arg, v) == -1 {
+			res = append(res, v)
+		}
+	}
+	return res
+}
