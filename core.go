@@ -229,11 +229,12 @@ func Value(root Any, args ...Any) Any {
 						}
 						return value[key]
 					}
-					// 修改数据
-					value[key] = args[i+1]
-					if s, ok := args[i+1].(string); ok && s == "" {
-						// 删除数据
-						delete(value, key)
+					if args[i+1] == nil {
+						delete(value, key) // 删除数据
+					} else if s, ok := args[i+1].(string); ok && s == "" {
+						delete(value, key) // 删除数据
+					} else {
+						value[key] = args[i+1] // 修改数据
 					}
 				}
 				next = value[key]
@@ -339,6 +340,10 @@ func Fetch(val Any, cbs Any) Any {
 		}
 	case []string:
 		switch cb := cbs.(type) {
+		case func(value string):
+			for _, v := range val {
+				cb(v)
+			}
 		case func(index int, value string):
 			for i, v := range val {
 				cb(i, v)
@@ -433,7 +438,7 @@ func Render(str string, arg Any) (b []byte, e error) {
 }
 
 func GetMeta(value Map) Map {
-	if value[MDB_META] != nil {
+	if value != nil && value[MDB_META] != nil {
 		value = value[MDB_META].(Map)
 	}
 	return value

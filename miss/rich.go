@@ -51,20 +51,16 @@ func (miss *Miss) Richs(prefix string, cache Map, raw Any, cb Any) (res Map) {
 			break // 键值查询
 		}
 
-		switch miss.meta(meta, SHORT) {
-		case "", UNIQ: // 查询失败
-		default:
-			hh := miss.Hashs(h)
-			if res, ok = hash[hh].(Map); ok {
-				h = hh
-				break // 哈希查询
-			}
+		hh := miss.Hashs(h)
+		if res, ok = hash[hh].(Map); ok {
+			h = hh
+			break // 哈希查询
+		}
 
-			for _, k := range []string{h, hh} {
-				if b, e := miss.readfile(miss.filename(meta, prefix, k, JSON)); e == nil {
-					res, h = kit.Dict(b), k
-					break // 磁盘查询
-				}
+		for _, k := range []string{h, hh} {
+			if b, e := miss.readfile(miss.filename(meta, prefix, k, JSON)); e == nil {
+				res, h = kit.Dict(b), k
+				break // 磁盘查询
 			}
 		}
 	}
@@ -122,14 +118,14 @@ func (miss *Miss) Rich(prefix string, cache Map, data Any) string {
 	}
 
 	// 淘汰时间
-	keys, list := map[string]int{}, []int{}
+	keys, list := map[string]string{}, []string{}
 	kit.Fetch(hash, func(k string, v Map) {
-		t := int(kit.Time(kit.Format(kit.Value(kit.GetMeta(v), TIME))))
+		t := kit.Format(kit.Value(kit.GetMeta(v), TIME))
 		keys[k], list = t, append(list, t)
 	})
-	sort.Ints(list)
+	sort.Strings(list)
 
-	dead := list[len(list)-1-kit.Int(miss.meta(meta, LEAST))]
+	dead := list[len(list)-kit.Int(miss.meta(meta, LEAST))]
 	for k, t := range keys {
 		if t < dead && miss.writefile(miss.filename(meta, prefix, k, JSON), kit.Format(hash[k])) == nil {
 			delete(hash, k) // 淘汰数据

@@ -65,10 +65,7 @@ func Dict(arg ...Any) Map {
 	return _merge(Map{}, arg...)
 }
 func Data(arg ...Any) Map {
-	return Map{
-		MDB_META: _merge(Map{}, arg...),
-		MDB_HASH: Map{},
-	}
+	return Map{MDB_META: _merge(Map{}, arg...)}
 }
 func List(arg ...Any) []Any {
 	if len(arg) == 0 {
