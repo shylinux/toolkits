@@ -281,6 +281,14 @@ func Min(arg ...int) (res int) {
 func TrimPath(p string) string {
 	return strings.TrimPrefix(p, Path("")+"/")
 }
+func AddUniq(list []string, arg ...string) []string {
+	for _, k := range arg {
+		if IndexOf(list, k) == -1 {
+			list = append(list, k)
+		}
+	}
+	return list
+}
 func ExtChange(file, ext string) string {
 	if file == "" {
 		return ""
