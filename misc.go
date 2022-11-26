@@ -303,3 +303,10 @@ func Filters(list []string, arg ...string) (res []string) {
 	}
 	return res
 }
+func DictList(arg ...string) Map {
+	res := Map{}
+	for _, k := range arg {
+		res[k] = "true"
+	}
+	return res
+}
