@@ -159,6 +159,18 @@ func Simple(val ...Any) []string {
 			for i, v := range res {
 				res[i] = val(v)
 			}
+		case func(string) bool:
+			_res := []string{}
+			for _, v := range res {
+				if val(v) {
+					_res = append(_res, v)
+				}
+			}
+			res = _res
+		case func(string):
+			for _, v := range res {
+				val(v)
+			}
 		default:
 			res = append(res, Format(val))
 		}
