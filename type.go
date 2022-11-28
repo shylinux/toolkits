@@ -159,6 +159,10 @@ func Simple(val ...Any) []string {
 			for i, v := range res {
 				res[i] = val(v)
 			}
+		case func(string) (string, error):
+			for i, v := range res {
+				res[i], _ = val(v)
+			}
 		case func(string) bool:
 			_res := []string{}
 			for _, v := range res {

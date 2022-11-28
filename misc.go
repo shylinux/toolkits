@@ -3,6 +3,7 @@ package kit
 import (
 	"encoding/csv"
 	"encoding/json"
+	"io"
 	"io/ioutil"
 	"net/url"
 	"os"
@@ -13,6 +14,10 @@ import (
 	"time"
 )
 
+func ParseQuery(str string) url.Values {
+	v, _ := url.ParseQuery(str)
+	return v
+}
 func ParseURL(str string) *url.URL {
 	u, _ := url.Parse(str)
 	return u
@@ -117,18 +122,29 @@ func CSV(file string, limit int, cb func(index int, value map[string]string, hea
 	}
 	return nil
 }
-func UnMarshal(data string) Any {
-	var res Any
-	if strings.HasSuffix(data, ".json") {
-		if b, e := ioutil.ReadFile(data); e == nil {
-			if json.Unmarshal(b, &res) != nil {
-				return string(b)
+func UnMarshal(buf Any) (res Any) {
+	switch buf := buf.(type) {
+	case []byte:
+		if json.Unmarshal(buf, &res) != nil {
+			return Split(string(buf))
+		}
+	case string:
+		if strings.HasSuffix(buf, ".json") {
+			if b, e := ioutil.ReadFile(buf); e == nil {
+				if json.Unmarshal(b, &res) != nil {
+					return Split(string(b))
+				}
+			}
+		} else {
+			if json.Unmarshal([]byte(buf), &res) != nil {
+				return Split(buf)
 			}
 		}
-	} else {
-		if json.Unmarshal([]byte(data), &res) != nil {
-			return Split(data)
-		}
+	case io.Reader:
+		json.NewDecoder(buf).Decode(&res)
+	case io.ReadCloser:
+		defer buf.Close()
+		json.NewDecoder(buf).Decode(&res)
 	}
 	return res
 }
@@ -296,7 +312,7 @@ func ExtChange(file, ext string) string {
 	return strings.TrimSuffix(file, "."+Ext(file)) + "." + ext
 }
 func Filters(list []string, arg ...string) (res []string) {
-	for	_, v := range list {
+	for _, v := range list {
 		if IndexOf(arg, v) == -1 {
 			res = append(res, v)
 		}
@@ -309,4 +325,13 @@ func DictList(arg ...string) Map {
 		res[k] = "true"
 	}
 	return res
+}
+
+func GetValid(cb ...func() string) (res string) {
+	for _, cb := range cb {
+		if res = cb(); res != "" {
+			return res
+		}
+	}
+	return ""
 }

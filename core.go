@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"io"
 	"math/rand"
+	"net/http"
 	"net/url"
 	"path"
 	"sort"
@@ -358,6 +359,21 @@ func Fetch(val Any, cbs Any) Any {
 			switch cb := cbs.(type) {
 			case func(key string, value []string):
 				cb(k, val[k])
+			}
+		}
+	case http.Header:
+		for _, k := range SortedKey(val) {
+			switch cb := cbs.(type) {
+			case func(key string, value []string):
+				cb(k, val[k])
+			}
+		}
+
+	case []*http.Cookie:
+		for _, v := range val {
+			switch cb := cbs.(type) {
+			case func(name string, value string):
+				cb(v.Name, v.Value)
 			}
 		}
 	case nil:
