@@ -24,7 +24,19 @@ func (s Meta) String() string {
 func ValueMeta(p string) Meta    { return Meta{"", p} }
 func PrefixMeta(p string) Meta   { return Meta{PREFIX, p} }
 func SuffixMeta(p string) Meta   { return Meta{SUFFIX, p} }
-func FileLineMeta(p string) Meta { return Meta{FILELINE, p} }
+func FileLineMeta(p Any) Meta {
+	switch p := p.(type) {
+	case int:
+		if p > 0 {
+			return Meta{FILELINE, FileLine(p+1)}
+		} else {
+			return Meta{FILELINE, FileLine(p-1)}
+		}
+	case string:
+		return Meta{FILELINE, p}
+	}
+	return nil
+}
 
 func Format(str string, arg ...Any) string {
 	prefix, args, has, suffix := []Any{}, []Any{}, false, []Any{}
