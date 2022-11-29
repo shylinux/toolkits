@@ -50,6 +50,8 @@ func _merge(meta Map, arg ...Any) Map {
 func Dict(arg ...Any) Map {
 	if len(arg) == 1 {
 		switch v := arg[0].(type) {
+		case nil:
+			return Map{}
 		case Map:
 			return v
 		case string:
@@ -58,8 +60,6 @@ func Dict(arg ...Any) Map {
 		case []byte:
 			res, _ := UnMarshal(string(v)).(Map)
 			return res
-		case nil:
-			return nil
 		}
 	}
 	return _merge(Map{}, arg...)

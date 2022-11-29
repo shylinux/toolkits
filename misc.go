@@ -335,3 +335,7 @@ func GetValid(cb ...func() string) (res string) {
 	}
 	return ""
 }
+func BeginEnd(begin, end func()) func() {
+	begin()
+	return end
+}
