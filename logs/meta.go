@@ -35,7 +35,7 @@ func FileLineMeta(p Any) Meta {
 	case string:
 		return Meta{FILELINE, p}
 	}
-	return nil
+	return Meta{}
 }
 
 func Format(str string, arg ...Any) string {
