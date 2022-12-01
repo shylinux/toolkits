@@ -40,11 +40,21 @@ func Int64(val Any) int64 {
 	case float64:
 		return int64(val)
 	case string:
-		if i, e := strconv.ParseInt(val, 10, 64); e == nil {
-			return i
+		val, unit := strings.ToLower(val), int64(1)
+		if strings.HasSuffix(val, "k") || strings.HasSuffix(val, "kb") {
+			val, unit = strings.Split(val, "k")[0], 1000
+		}
+		if strings.HasSuffix(val, "m") || strings.HasSuffix(val, "mb") {
+			val, unit = strings.Split(val, "k")[0], 1000000
+		}
+		if strings.HasSuffix(val, "g") || strings.HasSuffix(val, "gb") {
+			val, unit = strings.Split(val, "g")[0], 1000000000
 		}
 		if i, e := strconv.ParseFloat(val, 32); e == nil {
-			return int64(i)
+			return int64(i * float64(unit))
+		}
+		if i, e := strconv.ParseInt(val, 10, 64); e == nil {
+			return i * unit
 		}
 		return 0
 	case []Any:
