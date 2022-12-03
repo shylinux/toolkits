@@ -21,16 +21,16 @@ func (s Meta) String() string {
 	}
 	return " " + kit.FormatShow(s.Key, s.Value)
 }
-func ValueMeta(p string) Meta    { return Meta{"", p} }
-func PrefixMeta(p string) Meta   { return Meta{PREFIX, p} }
-func SuffixMeta(p string) Meta   { return Meta{SUFFIX, p} }
+func ValueMeta(p string) Meta  { return Meta{"", p} }
+func PrefixMeta(p string) Meta { return Meta{PREFIX, p} }
+func SuffixMeta(p string) Meta { return Meta{SUFFIX, p} }
 func FileLineMeta(p Any) Meta {
 	switch p := p.(type) {
 	case int:
 		if p > 0 {
-			return Meta{FILELINE, FileLine(p+1)}
+			return Meta{FILELINE, FileLine(p + 1)}
 		} else {
-			return Meta{FILELINE, FileLine(p-1)}
+			return Meta{FILELINE, FileLine(p - 1)}
 		}
 	case string:
 		return Meta{FILELINE, p}
