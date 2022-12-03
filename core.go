@@ -284,6 +284,15 @@ func Value(root Any, args ...Any) Any {
 }
 func Fetch(val Any, cbs Any) Any {
 	switch val := val.(type) {
+	case Maps:
+		for _, k := range SortedKey(val) {
+			switch cb := cbs.(type) {
+			case func(k, v string):
+				cb(k, val[k])
+			default:
+				panic("not implements: ")
+			}
+		}
 	case Map:
 		switch cb := cbs.(type) {
 		case func(value Map):
