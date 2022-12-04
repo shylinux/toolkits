@@ -335,7 +335,17 @@ func GetValid(cb ...func() string) (res string) {
 	}
 	return ""
 }
+func ExtReg(ext string) string { return Format(`.*\.%s$`, ext) }
 func BeginEnd(begin, end func()) func() {
 	begin()
 	return end
+}
+func IfElse(exp bool, cb ...func()) bool {
+	if exp {
+		cb[0]()
+		return true
+	} else if len(cb) > 1 {
+		cb[1]()
+	}
+	return false
 }
