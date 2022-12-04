@@ -340,12 +340,42 @@ func BeginEnd(begin, end func()) func() {
 	begin()
 	return end
 }
-func IfElse(exp bool, cb ...func()) bool {
-	if exp {
-		cb[0]()
-		return true
-	} else if len(cb) > 1 {
-		cb[1]()
+func If(exp Any, cb ...func()) {
+	switch exp := exp.(type) {
+	case bool:
+		if exp {
+			cb[0]()
+		} else if len(cb) > 1 {
+			cb[1]()
+		}
 	}
-	return false
+}
+func Switch(exp Any, arg ...Any) Any {
+	for i := 0; i < len(arg); i += 2 {
+		switch val := arg[i].(type) {
+		case []string:
+			if IndexOf(val, Format(exp)) == -1 {
+				continue
+			}
+		case string:
+			if i < len(arg)-1 && exp != arg[i] {
+				continue
+			}
+		}
+		switch cb := arg[i+1].(type) {
+		case func(Any)Any:
+			return cb(arg[i])
+		case func(Any):
+			cb(arg[i])
+		case func():
+			cb()
+		}
+	}
+	return nil
+}
+func Default(list []string, arg ...string) []string {
+	if len(list) > 0 {
+		return list
+	}
+	return arg
 }
