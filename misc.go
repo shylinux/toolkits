@@ -340,6 +340,12 @@ func BeginEnd(begin, end func()) func() {
 	begin()
 	return end
 }
+func IfNoKey(list Map, p string, cb func(string)) {
+	If(list[p] == nil, func() {
+		list[p] = true
+		cb(p)
+	})
+}
 func If(exp Any, cb ...func()) {
 	switch exp := exp.(type) {
 	case bool:
