@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"reflect"
 	"regexp"
-	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -153,16 +152,11 @@ func Simple(val ...Any) []string {
 				res = append(res, Simple(v)...)
 			}
 		case map[string]int:
-			for k, v := range val {
-				res = append(res, k, Format(v))
+			for _, k := range SortedKey(val) {
+				res = append(res, k, Format(val[k]))
 			}
 		case Map:
-			keys := []string{}
-			for k := range val {
-				keys = append(keys, k)
-			}
-			sort.Strings(keys)
-			for _, k := range keys {
+			for _, k := range SortedKey(val) {
 				res = append(res, k, Format(val[k]))
 			}
 		case func(string) string:

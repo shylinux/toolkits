@@ -52,9 +52,9 @@ func (task *Task) Info() string {
 }
 
 func (task *Task) Run(ctx context.Context) {
-	task.Logger("task run", logs.FileLine(task.Action), "params", task.Params, task.Info())
+	task.Logger("task run", logs.FileLine(task.Action), "args", task.Params, task.Info())
 	defer logs.CostTime(func(d time.Duration) {
-		task.Logger("task end", logs.FileLine(task.Action), "params", task.Params, "cost", logs.FmtDuration(d), "err", task.Error, task.Info())
+		task.Logger("task end", logs.FileLine(task.Action), "args", task.Params, "cost", logs.FmtDuration(d), "err", task.Error, task.Info())
 	})()
 
 	task.Status, task.ProcessTime, task.ctx = StatusProcess, time.Now(), ctx
