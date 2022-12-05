@@ -363,7 +363,7 @@ func Switch(exp Any, arg ...Any) Any {
 			}
 		}
 		switch cb := arg[i+1].(type) {
-		case func(Any)Any:
+		case func(Any) Any:
 			return cb(arg[i])
 		case func(Any):
 			cb(arg[i])
