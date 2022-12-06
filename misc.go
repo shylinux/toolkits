@@ -385,3 +385,10 @@ func Default(list []string, arg ...string) []string {
 	}
 	return arg
 }
+func SplitKV(inner, outer string, text string, cb func(text string, ls []string)) {
+	for _, l := range Split(text, outer, outer) {
+		if ls := Split(l, inner, inner); len(ls) > 1 {
+			cb(l, ls)
+		}
+	}
+}

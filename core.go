@@ -363,6 +363,13 @@ func Fetch(val Any, cbs Any) Any {
 				cb(val[i], val[i+1])
 			}
 		}
+	case map[string]int:
+		switch cb := cbs.(type) {
+		case func(k string, v int):
+			for k, v := range val {
+				cb(k, v)
+			}
+		}
 	case url.Values:
 		for _, k := range SortedKey(val) {
 			switch cb := cbs.(type) {
