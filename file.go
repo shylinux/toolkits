@@ -138,12 +138,11 @@ func Pwd() string {
 func Env(key string) string {
 	return os.Getenv(key)
 }
-func EnvSimple(arg ...string) []string {
-	res := []string{}
+func EnvSimple(arg ...string) (res []string) {
 	for _, k := range arg {
 		res = append(res, k, Env(k))
 	}
-	return res
+	return
 }
 
 func getFunc(p interface{}) (fun uintptr) {

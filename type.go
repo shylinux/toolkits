@@ -294,7 +294,7 @@ func Select(def string, arg ...Any) string {
 				index = v
 			}
 		}
-		if index < 0 && index+len(val) > 0 {
+		if index < 0 && index+len(val) >= 0 {
 			return val[index+len(val)]
 		}
 		if index >= 0 && index < len(val) && val[index] != "" {

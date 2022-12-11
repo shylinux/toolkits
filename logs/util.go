@@ -2,6 +2,7 @@ package logs
 
 import (
 	"fmt"
+	"path"
 	"reflect"
 	"runtime"
 	"strconv"
@@ -48,7 +49,6 @@ func FileLines(h interface{}) string {
 	if h == nil {
 		return ""
 	}
-
 	var line int
 	var file string
 	switch h := h.(type) {
@@ -61,9 +61,9 @@ func FileLines(h interface{}) string {
 	case int:
 		if h < 0 {
 			i := 1 - h
-			call := strings.Split(FileLines(i), ":")[0]
+			call := path.Dir(FileLines(i))
 			for i++; i < 10; i++ {
-				if strings.Split(FileLines(i), ":")[0] != call {
+				if path.Dir(FileLines(i)) != call {
 					h = i - 1
 					break
 				}

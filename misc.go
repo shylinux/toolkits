@@ -364,9 +364,12 @@ func Switch(exp Any, arg ...Any) Any {
 				continue
 			}
 		case string:
-			if i < len(arg)-1 && exp != arg[i] {
+			if i < len(arg)-1 && Format(exp) != arg[i] {
 				continue
 			}
+		}
+		if i == len(arg) - 1 {
+			i--
 		}
 		switch cb := arg[i+1].(type) {
 		case func(Any) Any:
