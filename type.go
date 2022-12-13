@@ -159,6 +159,10 @@ func Simple(val ...Any) []string {
 			for _, k := range SortedKey(val) {
 				res = append(res, k, Format(val[k]))
 			}
+		case Maps:
+			for _, k := range SortedKey(val) {
+				res = append(res, k, Format(val[k]))
+			}
 		case func(string) string:
 			for i, v := range res {
 				res[i] = val(v)

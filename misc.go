@@ -346,6 +346,7 @@ func IfNoKey(list Map, p string, cb func(string)) {
 		cb(p)
 	})
 }
+func For(val Any, cbs Any) Any { return Fetch(val, cbs) }
 func If(exp Any, cb ...func()) {
 	switch exp := exp.(type) {
 	case bool:
@@ -368,7 +369,7 @@ func Switch(exp Any, arg ...Any) Any {
 				continue
 			}
 		}
-		if i == len(arg) - 1 {
+		if i == len(arg)-1 {
 			i--
 		}
 		switch cb := arg[i+1].(type) {
