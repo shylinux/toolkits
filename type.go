@@ -163,6 +163,12 @@ func Simple(val ...Any) []string {
 			for _, k := range SortedKey(val) {
 				res = append(res, k, Format(val[k]))
 			}
+		case func(string, string) string:
+			_res := []string{}
+			for i := 0; i < len(res); i += 2 {
+				_res = append(_res, val(arg[i], arg[i+1]))
+			}
+			res = _res
 		case func(string) string:
 			for i, v := range res {
 				res[i] = val(v)
