@@ -368,6 +368,10 @@ func Switch(exp Any, arg ...Any) Any {
 			if i < len(arg)-1 && Format(exp) != arg[i] {
 				continue
 			}
+		default:
+			if i < len(arg)-1 && exp != arg[i] {
+				continue
+			}
 		}
 		if i == len(arg)-1 {
 			i--
@@ -380,6 +384,7 @@ func Switch(exp Any, arg ...Any) Any {
 		case func():
 			cb()
 		}
+		break
 	}
 	return nil
 }

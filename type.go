@@ -166,7 +166,7 @@ func Simple(val ...Any) []string {
 		case func(string, string) string:
 			_res := []string{}
 			for i := 0; i < len(res); i += 2 {
-				_res = append(_res, val(arg[i], arg[i+1]))
+				_res = append(_res, val(res[i], res[i+1]))
 			}
 			res = _res
 		case func(string) string:
