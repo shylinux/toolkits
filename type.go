@@ -345,7 +345,7 @@ func Replace(str string, arg ...string) string {
 }
 func ReplaceAll(str string, arg ...string) string {
 	for i := 0; i < len(arg); i += 2 {
-		str = strings.ReplaceAll(str, arg[i], arg[i+1])
+		str = strings.Replace(str, arg[i], arg[i+1], -1)
 	}
 	return str
 }
