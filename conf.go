@@ -36,6 +36,7 @@ const (
 	MDB_SHOW = "show"
 	MDB_HELP = "help"
 	MDB_DATA = "data"
+	MDB_VIEW = "view"
 	MDB_PATH = "path"
 	MDB_FILE = "file"
 	MDB_LINE = "line"
