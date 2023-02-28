@@ -107,9 +107,11 @@ func HomePath(str string, rest ...string) string {
 }
 func Path(str string, rest ...string) string {
 	if sep := string([]rune{os.PathSeparator}); strings.HasPrefix(str, sep) || strings.Contains(str, ":") {
+		str = strings.ReplaceAll(str, "\\", "/")
 		return path.Join(append([]string{str}, rest...)...) + Select("", sep, len(rest) == 0 && strings.HasSuffix(str, sep))
 	}
 	if wd, e := os.Getwd(); e == nil {
+		wd = strings.ReplaceAll(wd, "\\", "/")
 		return path.Join(append([]string{wd, str}, rest...)...)
 	}
 	return str
