@@ -135,6 +135,7 @@ func ExtIsVideo(str string) bool {
 }
 func Pwd() string {
 	wd, _ := os.Getwd()
+	wd = strings.ReplaceAll(wd, "\\", "/")
 	return wd
 }
 func Env(key string) string {
