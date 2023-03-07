@@ -335,7 +335,7 @@ func GetValid(cb ...func() string) (res string) {
 	}
 	return ""
 }
-func ExtReg(ext string) string { return Format(`.*\.%s$`, ext) }
+func ExtReg(ext ...string) string { return Format(`.*\.(%s)$`, strings.Join(ext, "|")) }
 func BeginEnd(begin, end func()) func() {
 	begin()
 	return end
