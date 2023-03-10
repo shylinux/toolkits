@@ -106,15 +106,12 @@ func HomePath(str string, rest ...string) string {
 	return Path(path.Join(os.Getenv("HOME"), str), rest...)
 }
 func Path(str string, rest ...string) string {
-	str = strings.ReplaceAll(str, "\\", "/")
 	if sep := string([]rune{os.PathSeparator}); strings.HasPrefix(str, sep) || strings.Contains(str, ":") {
-		return path.Join(append([]string{str}, rest...)...) + Select("", sep, len(rest) == 0 && strings.HasSuffix(str, sep))
+		str = path.Join(append([]string{str}, rest...)...) + Select("", sep, len(rest) == 0 && strings.HasSuffix(str, sep))
+	} else if wd, e := os.Getwd(); e == nil {
+		str = path.Join(append([]string{wd, str}, rest...)...)
 	}
-	if wd, e := os.Getwd(); e == nil {
-		wd = strings.ReplaceAll(wd, "\\", "/")
-		return path.Join(append([]string{wd, str}, rest...)...)
-	}
-	return str
+	return strings.ReplaceAll(str, "\\", "/")
 }
 func Ext(str string) string {
 	return strings.ToLower(path.Base(Select(str, strings.TrimPrefix(path.Ext(str), "."))))
