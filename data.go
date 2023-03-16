@@ -106,7 +106,7 @@ func List(arg ...Any) []Any {
 }
 
 func Keys(arg ...Any) string {
-	return strings.TrimSuffix(strings.TrimPrefix(strings.Join(Simple(arg...), "."), "."), ".")
+	return strings.TrimSuffix(strings.TrimPrefix(strings.ReplaceAll(strings.Join(Simple(arg...), "."), "..", "."), "."), ".")
 }
 func Keym(arg ...Any) string {
 	return Keys(MDB_META, Keys(arg))
