@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"net/url"
 	"path"
-	"sort"
 	"strconv"
 	"strings"
 	"text/template"
@@ -284,117 +283,91 @@ func Value(root Any, args ...Any) Any {
 }
 func Fetch(val Any, cbs Any) Any {
 	switch val := val.(type) {
-	case Maps:
+	case Map:
 		for _, k := range SortedKey(val) {
 			switch cb := cbs.(type) {
 			case func(k, v string):
-				cb(k, val[k])
-			default:
-				panic("not implements: ")
-			}
-		}
-	case Map:
-		switch cb := cbs.(type) {
-		case func(value Map):
-			cb(val)
-		case func(key string, value Any):
-			ls := []string{}
-			for k := range val {
-				ls = append(ls, k)
-			}
-
-			sort.Strings(ls)
-			for _, k := range ls {
-				cb(k, val[k])
-			}
-		case func(key string, value string):
-			ls := []string{}
-			for k := range val {
-				ls = append(ls, k)
-			}
-
-			sort.Strings(ls)
-			for _, k := range ls {
 				cb(k, Format(val[k]))
-			}
-		case func(key string, value Map):
-			ls := []string{}
-			for k := range val {
-				ls = append(ls, k)
-			}
-			sort.Strings(ls)
-			for _, k := range ls {
+			case func(k string, v Any):
+				cb(k, val[k])
+			case func(k string, v Map):
 				if v, ok := val[k].(Map); ok {
 					cb(k, v)
 				}
 			}
 		}
-	case []Any:
-		switch cb := cbs.(type) {
-		case func(index int, value Any):
-			for i, v := range val {
-				cb(i, v)
+	case Maps:
+		for _, k := range SortedKey(val) {
+			switch cb := cbs.(type) {
+			case func(k, v string):
+				cb(k, val[k])
 			}
-		case func(index int, value string):
-			for i, v := range val {
-				cb(i, Format(v))
-			}
-		case func(index int, value Map):
-			for i, v := range val {
-				cb(i, v.(Map))
-			}
-		case func(value Map):
-			for _, v := range val {
-				cb(v.(Map))
+		}
+	case map[string]int:
+		for _, k := range SortedKey(val) {
+			switch cb := cbs.(type) {
+			case func(k string, v int):
+				cb(k, val[k])
 			}
 		}
 	case []string:
 		switch cb := cbs.(type) {
-		case func(value string):
+		case func(v string):
 			for _, v := range val {
 				cb(v)
 			}
-		case func(index int, value string):
+		case func(i int, v string):
 			for i, v := range val {
 				cb(i, v)
 			}
-		case func(key, value string):
+		case func(k, v string):
 			for i := 0; i < len(val)-1; i += 2 {
 				cb(val[i], val[i+1])
 			}
 		}
-	case map[string]int:
+	case []Any:
 		switch cb := cbs.(type) {
-		case func(k string, v int):
-			for k, v := range val {
-				cb(k, v)
+		case func(i int, v string):
+			for i, v := range val {
+				cb(i, Format(v))
+			}
+		case func(i int, v Any):
+			for i, v := range val {
+				cb(i, v)
+			}
+		case func(i int, v Map):
+			for i, v := range val {
+				cb(i, v.(Map))
+			}
+		case func(v Map):
+			for _, v := range val {
+				cb(v.(Map))
 			}
 		}
 	case url.Values:
 		for _, k := range SortedKey(val) {
 			switch cb := cbs.(type) {
-			case func(key string, value []string):
+			case func(k string, v []string):
 				cb(k, val[k])
 			}
 		}
 	case http.Header:
 		for _, k := range SortedKey(val) {
 			switch cb := cbs.(type) {
-			case func(key string, value []string):
+			case func(k string, v []string):
 				cb(k, val[k])
 			}
 		}
-
 	case []*http.Cookie:
 		for _, v := range val {
 			switch cb := cbs.(type) {
-			case func(name string, value string):
+			case func(k, v string):
 				cb(v.Name, v.Value)
 			}
 		}
 	case nil:
 	default:
-		panic("implements")
+		panic("not implements")
 	}
 	return val
 }
