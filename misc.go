@@ -349,6 +349,12 @@ func IfNoKey(list Map, p string, cb func(string)) {
 func For(val Any, cbs Any) Any { return Fetch(val, cbs) }
 func If(exp Any, cb ...func()) {
 	switch exp := exp.(type) {
+	case string:
+		if exp != "" {
+			cb[0]()
+		} else if len(cb) > 1 {
+			cb[1]()
+		}
 	case bool:
 		if exp {
 			cb[0]()

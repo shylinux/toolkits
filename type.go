@@ -349,6 +349,14 @@ func ReplaceAll(str string, arg ...string) string {
 	}
 	return str
 }
+func HasPrefixList(args []string, arg ...string) bool {
+	for i := range arg {
+		if len(args) < i+1 || args[i] != arg[i] {
+			return false
+		}
+	}
+	return true
+}
 func IndexOf(str []string, sub string) int {
 	for i, v := range str {
 		if v == sub {
@@ -362,7 +370,7 @@ func ForEach(arg []string, cb func(string)) {
 		cb(v)
 	}
 }
-func Revert(str []string) []string {
+func Reverse(str []string) []string {
 	for i := 0; i < len(str)/2; i++ {
 		str[i], str[len(str)-1-i] = str[len(str)-1-i], str[i]
 	}
