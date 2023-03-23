@@ -2,10 +2,8 @@ package task
 
 import (
 	"context"
-	"time"
 
 	kit "shylinux.com/x/toolkits"
-	"shylinux.com/x/toolkits/logs"
 )
 
 const WORK = "work"
@@ -22,11 +20,10 @@ func (work *Work) Info() string {
 	return kit.FormatShow(WORK, work.id, POOL, work.pool.id)
 }
 func (work *Work) Run(ctx context.Context) {
-	work.Logger("work add", work.Info())
-	defer logs.CostTime(func(d time.Duration) {
-		work.Logger("work end", "err", ctx.Err(), work.Info())
-	})()
-
+	// work.Logger("work add", work.Info())
+	// defer logs.CostTime(func(d time.Duration) {
+	// 	work.Logger("work end", "err", ctx.Err(), work.Info())
+	// })()
 	for {
 		select {
 		case task, ok := <-work.pool.channel:

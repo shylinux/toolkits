@@ -365,6 +365,17 @@ func Fetch(val Any, cbs Any) Any {
 				cb(v.Name, v.Value)
 			}
 		}
+	case int:
+		switch cb := cbs.(type) {
+		case func(int):
+			for i := 0; i < val; i++ {
+				cb(i)
+			}
+		case func():
+			for i := 0; i < val; i++ {
+				cb()
+			}
+		}
 	case nil:
 	default:
 		panic("not implements")

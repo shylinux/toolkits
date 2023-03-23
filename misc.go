@@ -346,20 +346,36 @@ func IfNoKey(list Map, p string, cb func(string)) {
 		cb(p)
 	})
 }
-func For(val Any, cbs Any) Any { return Fetch(val, cbs) }
-func If(exp Any, cb ...func()) {
+func For(val Any, cb Any) Any { return Fetch(val, cb) }
+func If(exp Any, cb ...Any) {
+	cbs := func(cb Any, exp Any) {
+		switch cb := cb.(type) {
+		case func(string):
+			cb(Format(exp))
+		case func(int):
+			cb(Int(exp))
+		case func():
+			cb()
+		}
+	}
 	switch exp := exp.(type) {
 	case string:
-		if exp != "" {
-			cb[0]()
+		if exp != "" && exp != "false" {
+			cbs(cb[0], exp)
 		} else if len(cb) > 1 {
-			cb[1]()
+			cbs(cb[1], exp)
 		}
 	case bool:
 		if exp {
-			cb[0]()
+			cbs(cb[0], exp)
 		} else if len(cb) > 1 {
-			cb[1]()
+			cbs(cb[1], exp)
+		}
+	case int:
+		if exp != 0 {
+			cbs(cb[0], exp)
+		} else if len(cb) > 1 {
+			cbs(cb[1], exp)
 		}
 	}
 }
