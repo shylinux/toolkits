@@ -21,7 +21,7 @@ const TASK = "task"
 type Task struct {
 	id int64
 
-	Action func(*Task) error
+	Action func(*Task)
 	Params Any
 
 	Error  Any
@@ -70,9 +70,6 @@ func (task *Task) Run(ctx context.Context) {
 		task.FinishTime = logs.Now()
 	}()
 
-	if e := task.Action(task); e != nil {
-		task.Status, task.Error = StatusCancel, e
-	} else {
-		task.Status = StatusFinish
-	}
+	task.Action(task)
+	task.Status = StatusFinish
 }

@@ -14,6 +14,6 @@ func WaitN(n int, action func(*Task, *Lock) error) {
 func Wait(params []Any, action func(*Task, *Lock) error) {
 	pool.Wait(params, action)
 }
-func Put(param Any, action func(*Task) error) {
+func Put(param Any, action func(*Task)) {
 	pool.Put(param, action)
 }

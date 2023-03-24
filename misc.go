@@ -377,6 +377,12 @@ func If(exp Any, cb ...Any) {
 		} else if len(cb) > 1 {
 			cbs(cb[1], exp)
 		}
+	default:
+		if exp != nil {
+			cbs(cb[0], exp)
+		} else if len(cb) > 1 {
+			cbs(cb[1], exp)
+		}
 	}
 }
 func Switch(exp Any, arg ...Any) Any {

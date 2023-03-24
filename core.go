@@ -283,7 +283,7 @@ func Value(root Any, args ...Any) Any {
 }
 func Fetch(val Any, cbs Any) Any {
 	switch val := val.(type) {
-	case Map:
+	case map[string]Any:
 		for _, k := range SortedKey(val) {
 			switch cb := cbs.(type) {
 			case func(k string):
@@ -298,7 +298,7 @@ func Fetch(val Any, cbs Any) Any {
 				}
 			}
 		}
-	case Maps:
+	case map[string]string:
 		for _, k := range SortedKey(val) {
 			switch cb := cbs.(type) {
 			case func(k, v string):
@@ -344,6 +344,10 @@ func Fetch(val Any, cbs Any) Any {
 		case func(v Map):
 			for _, v := range val {
 				cb(v.(Map))
+			}
+		case func(k, v Any):
+			for i := 0; i < len(val)-1; i += 2 {
+				cb(val[i], val[i+1])
 			}
 		}
 	case url.Values:

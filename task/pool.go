@@ -43,13 +43,13 @@ func (pool *Pool) Wait(args []Any, action func(*Task, *Lock) error) {
 
 	for _, arg := range args {
 		wg.Add(1)
-		pool.Put(arg, func(task *Task) error {
+		pool.Put(arg, func(task *Task) {
 			defer wg.Done()
-			return action(task, lock)
+			action(task, lock)
 		})
 	}
 }
-func (pool *Pool) Put(params Any, action func(*Task) error) {
+func (pool *Pool) Put(params Any, action func(*Task)) {
 	if pool.closed {
 		return
 	}
