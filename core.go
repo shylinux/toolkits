@@ -286,6 +286,8 @@ func Fetch(val Any, cbs Any) Any {
 	case Map:
 		for _, k := range SortedKey(val) {
 			switch cb := cbs.(type) {
+			case func(k string):
+				cb(k)
 			case func(k, v string):
 				cb(k, Format(val[k]))
 			case func(k string, v Any):
