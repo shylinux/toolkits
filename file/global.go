@@ -6,6 +6,8 @@ import (
 	"os"
 	"path"
 	"strings"
+
+	kit "shylinux.com/x/toolkits"
 )
 
 var file = NewDiskFile()
@@ -79,25 +81,32 @@ func createFile(s File, p string) (io.ReadWriteCloser, string, error) {
 	return nil, "", nil
 }
 
-type writeCloser struct {
-	w func([]byte) (int, error)
-	c func() error
-}
+type writeCloser struct{ w, c kit.Any }
 
-func NewWriteCloser(w func([]byte) (int, error), c func() error) io.WriteCloser {
+func NewWriteCloser(w kit.Any, c kit.Any) io.WriteCloser {
 	return &writeCloser{w, c}
 }
 func (w *writeCloser) Write(buf []byte) (int, error) {
-	if w.w == nil {
+	switch cb := w.w.(type) {
+	case func([]byte) (int, error):
+		return cb(buf)
+	case func([]byte):
+		cb(buf)
+		return len(buf), nil
+	default:
 		return len(buf), nil
 	}
-	return w.w(buf)
 }
 func (w *writeCloser) Close() error {
-	if w.c == nil {
+	switch cb := w.c.(type) {
+	case func() error:
+		return cb()
+	case func():
+		cb()
+		return nil
+	default:
 		return nil
 	}
-	return w.c()
 }
 
 type readCloser struct {
