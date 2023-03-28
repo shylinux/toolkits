@@ -1,6 +1,7 @@
 package kit
 
 import (
+	"bufio"
 	"bytes"
 	"crypto/md5"
 	"encoding/hex"
@@ -8,6 +9,7 @@ import (
 	"math/rand"
 	"net/http"
 	"net/url"
+	"os"
 	"path"
 	"strconv"
 	"strings"
@@ -369,6 +371,26 @@ func Fetch(val Any, cbs Any) Any {
 			switch cb := cbs.(type) {
 			case func(k, v string):
 				cb(v.Name, v.Value)
+			}
+		}
+	case *bufio.Scanner:
+		for bio, i := val, 0; bio.Scan(); i++ {
+			switch cb := cbs.(type) {
+			case func(s string, i int):
+				cb(bio.Text(), i)
+			case func(s string):
+				cb(bio.Text())
+			case func(ls []string, s string):
+				cb(Split(bio.Text()), bio.Text())
+			}
+		}
+	case io.Reader:
+		Fetch(bufio.NewScanner(val), cbs)
+	case []os.FileInfo:
+		for _, s := range val {
+			switch cb := cbs.(type) {
+			case func(os.FileInfo):
+				cb(s)
 			}
 		}
 	case int:

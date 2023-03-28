@@ -16,7 +16,7 @@ func Now() time.Time  { return time.Now() }
 func NowStamp() int64 { return time.Now().UnixNano() }
 
 func FmtTime(t time.Time) string {
-	return t.Format("2006-01-02 15:04:05.000")
+	return t.Format(kit.MOD_TIMES)
 }
 func FmtDuration(d time.Duration) string {
 	if d > time.Second {

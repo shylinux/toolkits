@@ -1,6 +1,10 @@
 package kit
 
 const (
+	MOD_DATE  = "2006-01-02"
+	MOD_TIME  = "2006-01-02 15:04:05.000"
+	MOD_TIMES = "2006-01-02 15:04:05.000000"
+
 	// 结构
 	MDB_DICT = "dict"
 	MDB_META = "meta"

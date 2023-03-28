@@ -131,7 +131,7 @@ func New(conf *conf.Conf, file file.File) *Miss {
 
 		file: file, conf: conf,
 
-		Times:  func(t time.Time) string { return t.Format("2006-01-02 15:04:05") },
+		Times:  func(t time.Time) string { return t.Format(kit.MOD_TIME) },
 		Hashs:  func(str string) string { return kit.Hashs(str) },
 		Logger: logs.Logger(MISS),
 	}
