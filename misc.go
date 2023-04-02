@@ -429,3 +429,4 @@ func SplitKV(inner, outer string, text string, cb func(text string, ls []string)
 		}
 	}
 }
+func IsIn(v string, arg ...string) bool { return IndexOf(arg, v) > -1 }

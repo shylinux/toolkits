@@ -29,6 +29,7 @@ func Split(str string, arg ...string) (res []string) {
 	block := _list(Select("{[()]}", arg, 1)) // 分隔符
 	quote := _list(Select("\"'`", arg, 2))   // 引用符
 	trans := _list(Select("\\", arg, 3))     // 转义符
+	raw := Select("", arg, 4) == "true"      // 转义符
 
 	list := []rune(str)
 	left, void, begin := '\000', true, 0
@@ -53,7 +54,11 @@ func Split(str string, arg ...string) (res []string) {
 			if left == '\000' {
 				left, void, begin = list[i], false, i+1
 			} else if left == list[i] {
-				res = append(res, string(list[begin:i]))
+				if raw {
+					res = append(res, string(list[begin-1:i+1]))
+				} else {
+					res = append(res, string(list[begin:i]))
+				}
 				left, void, begin = '\000', true, i+1
 			}
 		case trans[list[i]]: // 转义符
