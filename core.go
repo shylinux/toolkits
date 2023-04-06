@@ -409,9 +409,20 @@ func Fetch(val Any, cbs Any) Any {
 				cb()
 			}
 		}
+	case interface{ Operate(string, Any) Any }:
+		list := []Any{}
+		for {
+			if list, _ = val.Operate("range", list).([]Any); list == nil {
+				break
+			}
+			switch cb := cbs.(type) {
+			case func(string, Any):
+				cb(Format(list[0]), list[1])
+			}
+		}
 	case nil:
 	default:
-		panic("not implements")
+		panic(Format("not implements: %#v %v", val, FileLine(cbs, 3)))
 	}
 	return val
 }
