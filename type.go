@@ -96,7 +96,8 @@ func Format(val Any, arg ...Any) string {
 		return val.Error()
 	default:
 		if t := reflect.TypeOf(val); t.Kind() == reflect.Func {
-			return LowerCapital(FuncName(val))
+			// return LowerCapital(FuncName(val))
+			return FuncName(val)
 		}
 	}
 	b, _ := json.Marshal(val)
