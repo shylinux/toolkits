@@ -211,7 +211,7 @@ func FileLine(p interface{}, n int) string {
 	if len(list) > n {
 		list = list[len(list)-n:]
 	}
-	return Format("%s:%d", strings.Join(list, "/"), line)
+	return Format("%s:%d", strings.TrimPrefix(strings.Join(list, "/"), Path("")+"/"), line)
 }
 func IsDir(p string) bool {
 	if _, e := ioutil.ReadDir(p); e == nil {
