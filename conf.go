@@ -11,6 +11,7 @@ const (
 	MDB_HASH = "hash"
 	MDB_LIST = "list"
 	MDB_UNIQ = "uniq"
+	MDB_RAND = "rand"
 
 	MDB_FOREACH = "*"
 	MDB_RANDOMS = "%"
@@ -35,17 +36,17 @@ const (
 	MDB_STREAM = "stream"
 
 	// 文件
-	MDB_LINK = "link"
-	MDB_SCAN = "scan"
-	MDB_SHOW = "show"
-	MDB_HELP = "help"
-	MDB_DATA = "data"
-	MDB_VIEW = "view"
 	MDB_PATH = "path"
 	MDB_FILE = "file"
 	MDB_LINE = "line"
 	MDB_SIZE = "size"
+	MDB_DATA = "data"
+	MDB_VIEW = "view"
+	MDB_SHOW = "show"
 	MDB_COST = "cost"
+	MDB_HELP = "help"
+	MDB_LINK = "link"
+	MDB_SCAN = "scan"
 
 	// 数据
 	MDB_TEXT = "text"

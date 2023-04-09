@@ -17,31 +17,20 @@ func _merge(meta Map, arg ...Any) Map {
 			}
 		}
 	}
-
 	for i := 0; i < len(arg); i++ {
 		switch args := arg[i].(type) {
 		case []string:
-			for i := 0; i < len(args)-1; i += 2 {
-				Value(meta, args[i], args[i+1])
-			}
+			For(args, func(k, v string) { Value(meta, k, v) })
 		case []Any:
 			for i := 0; i < len(args)-1; i += 2 {
 				Value(meta, args[i], args[i+1])
 			}
 		case Map:
-			for k, v := range args {
-				if Value(meta, k) == nil {
-					Value(meta, k, v)
-				}
-			}
+			For(args, func(k string, v Any) { If(Value(meta, k) == nil, func() { Value(meta, k, v) }) })
 		case map[string]string:
-			for k, v := range args {
-				Value(meta, k, v)
-			}
+			For(args, func(k, v string) { Value(meta, k, v) })
 		default:
-			if i < len(arg)-1 {
-				Value(meta, arg[i], arg[i+1])
-			}
+			If(i < len(arg)-1, func() { Value(meta, arg[i], arg[i+1]) })
 			i++
 		}
 	}
@@ -64,9 +53,7 @@ func Dict(arg ...Any) Map {
 	}
 	return _merge(Map{}, arg...)
 }
-func Data(arg ...Any) Map {
-	return Map{MDB_META: _merge(Map{}, arg...)}
-}
+func Data(arg ...Any) Map { return Map{MDB_META: _merge(Map{}, arg...)} }
 func List(arg ...Any) []Any {
 	if len(arg) == 0 {
 		return []Any{}
@@ -104,20 +91,36 @@ func List(arg ...Any) []Any {
 	}
 	return list
 }
-
 func Keys(arg ...Any) string {
-	return strings.TrimSuffix(strings.TrimPrefix(strings.ReplaceAll(strings.Join(Simple(arg...), "."), "..", "."), "."), ".")
+	return strings.TrimSuffix(strings.TrimPrefix(ReplaceAll(strings.Join(Simple(arg...), PT), PT+PT, PT), PT), PT)
 }
-func Keym(arg ...Any) string {
-	return Keys(MDB_META, Keys(arg))
-}
-func Keycb(arg ...Any) string {
-	return Keys(Keys(arg), "cb")
-}
-func KeyHash(arg ...Any) string {
-	return Keys(MDB_HASH, Hashs(arg[0]), arg[1:])
-}
-func KeyExtra(arg ...Any) string {
-	return Keys(MDB_EXTRA, Keys(arg...))
+func Keym(arg ...Any) string     { return Keys(MDB_META, Keys(arg)) }
+func Keycb(arg ...Any) string    { return Keys(Keys(arg), "cb") }
+func KeyHash(arg ...Any) string  { return Keys(MDB_HASH, Hashs(arg[0]), arg[1:]) }
+func KeyExtra(arg ...Any) string { return Keys(MDB_EXTRA, Keys(arg...)) }
+func GetMeta(value Map) Map {
+	If(value != nil && value[MDB_META] != nil, func() { value = value[MDB_META].(Map) })
+	return value
 }
 func Fields(arg ...Any) string { return Join(Simple(arg...)) }
+func ShortKey(list Map, min int, arg ...Any) string {
+	h := Hashs(arg...)
+	for i := min; i < len(h); i++ {
+		if _, ok := list[h[:i]]; !ok {
+			return h[:i]
+		}
+	}
+	return h
+}
+func KeyValue(res Map, key string, arg Any) Map {
+	If(res == nil, func() { res = Map{} })
+	switch arg := arg.(type) {
+	case Map:
+		For(arg, func(k string, v Any) { KeyValue(res, Keys(key, k), v) })
+	case []Any:
+		For(arg, func(i int, v Any) { KeyValue(res, Keys(key, i), v) })
+	default:
+		res[key] = arg
+	}
+	return res
+}

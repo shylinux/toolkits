@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"bytes"
 	"crypto/md5"
-	"encoding/hex"
 	"io"
 	"math/rand"
 	"net/http"
@@ -30,23 +29,18 @@ func Split(str string, arg ...string) (res []string) {
 	quote := _list(Select("\"'`", arg, 2))   // 引用符
 	trans := _list(Select("\\", arg, 3))     // 转义符
 	raw := Select("", arg, 4) == "true"      // 转义符
-
 	list := []rune(str)
 	left, void, begin := '\000', true, 0
 	for i := 0; i < len(list); i++ {
 		switch {
 		case space[list[i]]: // 空白符
 			if left == '\000' {
-				if !void {
-					res = append(res, string(list[begin:i]))
-				}
+				If(!void, func() { res = append(res, string(list[begin:i])) })
 				void, begin = true, i+1
 			}
 		case block[list[i]]: // 分隔符
 			if left == '\000' {
-				if !void {
-					res = append(res, string(list[begin:i]))
-				}
+				If(!void, func() { res = append(res, string(list[begin:i])) })
 				res = append(res, string(list[i:i+1]))
 				void, begin = true, i+1
 			}
@@ -71,21 +65,17 @@ func Split(str string, arg ...string) (res []string) {
 			void = false
 		}
 	}
-
-	if begin < len(list) { // 末尾字符
-		res = append(res, string(list[begin:]))
-	}
+	If(begin < len(list), func() { res = append(res, string(list[begin:])) })
 	return res
 }
 func Parse(value Any, key string, val ...string) Any {
 	list := []*Any{&value}
 	data := &value
-
 	last_key := ""
 	for _, v := range val {
 		var node Any
 		switch v {
-		case ":", ",":
+		case DF, FS:
 			continue
 		case "]", "}":
 			if len(list) == 1 {
@@ -100,7 +90,6 @@ func Parse(value Any, key string, val ...string) Any {
 		default:
 			node = v
 		}
-
 		switch last := (*data).(type) {
 		case Map:
 			switch v {
@@ -116,12 +105,10 @@ func Parse(value Any, key string, val ...string) Any {
 					key = ""
 				}
 			}
-
 		case []Any:
 			last = append(last, node)
 			*data = last
 			list[len(list)-1] = data
-
 			if len(list) > 1 {
 				switch p := (*list[len(list)-2]).(type) {
 				case Map:
@@ -130,13 +117,10 @@ func Parse(value Any, key string, val ...string) Any {
 					p[len(p)-1] = last
 				}
 			}
-
 			switch v {
 			case "{", "[":
-				list = append(list, &node)
-				data = &node
+				data, list = &node, append(list, &node)
 			}
-
 		case nil:
 			switch v {
 			case "{", "[":
@@ -153,7 +137,6 @@ func Value(root Any, args ...Any) Any {
 	case string:
 		root = UnMarshal(val)
 	}
-
 	for i := 0; i < len(args); i += 2 {
 		if arg, ok := args[i].(Map); ok {
 			argn := []Any{}
@@ -164,31 +147,22 @@ func Value(root Any, args ...Any) Any {
 			args, i = argn, -2
 			continue
 		}
-
-		// 解析索引
 		keys := []string{}
 		for _, v := range Simple(args[i]) {
-			keys = append(keys, strings.Split(v, ".")...)
+			keys = append(keys, strings.Split(v, PT)...)
 		}
-
 		var parent Any
 		parent_key, parent_index := "", 0
-
 		data := root
 		for j, key := range keys {
 			index, e := strconv.Atoi(key)
-
 			var next Any
 			switch value := data.(type) {
 			case nil:
 				if i == len(args)-1 {
 					return nil
 				}
-				if j == len(keys)-1 {
-					next = args[i+1]
-				}
-
-				// 创建数据
+				If(j == len(keys)-1, func() { next = args[i+1] })
 				if e == nil {
 					data, index = []Any{next}, 0
 				} else {
@@ -196,10 +170,8 @@ func Value(root Any, args ...Any) Any {
 				}
 			case []string:
 				index = (index+2+len(value)+2)%(len(value)+2) - 2
-
 				if j == len(keys)-1 {
 					if i == len(args)-1 {
-						// 读取数据
 						if index < 0 {
 							return ""
 						}
@@ -207,8 +179,6 @@ func Value(root Any, args ...Any) Any {
 					}
 					next = args[i+1]
 				}
-
-				// 添加数据
 				if index == -1 {
 					value, index = append([]string{Format(next)}, value...), 0
 				} else if index == -2 {
@@ -220,37 +190,32 @@ func Value(root Any, args ...Any) Any {
 			case map[string]string:
 				if j == len(keys)-1 {
 					if i == len(args)-1 {
-						// 读取数据
 						return value[key]
 					}
-					// 修改数据
 					value[key] = Format(next)
 				}
 				next = value[key]
 			case Map:
 				if j == len(keys)-1 {
 					if i == len(args)-1 {
-						// 读取数据
 						if key == "" {
 							return root
 						}
 						return value[key]
 					}
 					if args[i+1] == nil {
-						delete(value, key) // 删除数据
+						delete(value, key)
 					} else if s, ok := args[i+1].(string); ok && s == "" {
-						delete(value, key) // 删除数据
+						delete(value, key)
 					} else {
-						value[key] = args[i+1] // 修改数据
+						value[key] = args[i+1]
 					}
 				}
 				next = value[key]
 			case []Any:
 				index = (index+2+len(value)+2)%(len(value)+2) - 2
-
 				if j == len(keys)-1 {
 					if i == len(args)-1 {
-						// 读取数据
 						if index < 0 {
 							return nil
 						}
@@ -258,8 +223,6 @@ func Value(root Any, args ...Any) Any {
 					}
 					next = args[i+1]
 				}
-
-				// 添加数据
 				if index == -1 {
 					value, index = append([]Any{next}, value...), 0
 				} else if index == -2 {
@@ -269,8 +232,6 @@ func Value(root Any, args ...Any) Any {
 				}
 				data, next = value, value[index]
 			}
-
-			// 添加索引
 			switch p := parent.(type) {
 			case Map:
 				p[parent_key] = data
@@ -279,20 +240,17 @@ func Value(root Any, args ...Any) Any {
 			case nil:
 				root = data
 			}
-
-			// 索引递进
 			parent, data = data, next
 			parent_key, parent_index = key, index
 		}
 	}
-
 	return root
 }
-func Fetch(val Any, cbs Any) Any {
+func Fetch(val Any, cb Any) Any {
 	switch val := val.(type) {
 	case map[string]Any:
 		for _, k := range SortedKey(val) {
-			switch cb := cbs.(type) {
+			switch cb := cb.(type) {
 			case func(k string):
 				cb(k)
 			case func(k, v string):
@@ -305,40 +263,51 @@ func Fetch(val Any, cbs Any) Any {
 				}
 			}
 		}
+	case map[string][]string:
+		for _, k := range SortedKey(val) {
+			switch cb := cb.(type) {
+			case func(k string, v []string):
+				cb(k, val[k])
+			}
+		}
 	case map[string]string:
 		for _, k := range SortedKey(val) {
-			switch cb := cbs.(type) {
+			switch cb := cb.(type) {
 			case func(k, v string):
 				cb(k, val[k])
 			}
 		}
 	case map[string]int:
 		for _, k := range SortedKey(val) {
-			switch cb := cbs.(type) {
+			switch cb := cb.(type) {
 			case func(k string, v int):
 				cb(k, val[k])
 			}
 		}
 	case []string:
-		switch cb := cbs.(type) {
+		switch cb := cb.(type) {
 		case func(v string):
 			for _, v := range val {
 				cb(v)
-			}
-		case func(i int, v string):
-			for i, v := range val {
-				cb(i, v)
 			}
 		case func(k, v string):
 			for i := 0; i < len(val)-1; i += 2 {
 				cb(val[i], val[i+1])
 			}
-		}
-	case []Any:
-		switch cb := cbs.(type) {
 		case func(i int, v string):
 			for i, v := range val {
-				cb(i, Format(v))
+				cb(i, v)
+			}
+		}
+	case []Any:
+		switch cb := cb.(type) {
+		case func(v Any):
+			for _, v := range val {
+				cb(v)
+			}
+		case func(k, v Any):
+			for i := 0; i < len(val)-1; i += 2 {
+				cb(val[i], val[i+1])
 			}
 		case func(i int, v Any):
 			for i, v := range val {
@@ -352,35 +321,39 @@ func Fetch(val Any, cbs Any) Any {
 			for _, v := range val {
 				cb(v.(Map))
 			}
-		case func(k, v Any):
-			for i := 0; i < len(val)-1; i += 2 {
-				cb(val[i], val[i+1])
+		case func(v string):
+			for _, v := range val {
+				cb(Format(v))
+			}
+		case func(i int, v string):
+			for i, v := range val {
+				cb(i, Format(v))
 			}
 		}
 	case url.Values:
 		for _, k := range SortedKey(val) {
-			switch cb := cbs.(type) {
+			switch cb := cb.(type) {
 			case func(k string, v []string):
 				cb(k, val[k])
 			}
 		}
 	case http.Header:
 		for _, k := range SortedKey(val) {
-			switch cb := cbs.(type) {
+			switch cb := cb.(type) {
 			case func(k string, v []string):
 				cb(k, val[k])
 			}
 		}
 	case []*http.Cookie:
 		for _, v := range val {
-			switch cb := cbs.(type) {
+			switch cb := cb.(type) {
 			case func(k, v string):
 				cb(v.Name, v.Value)
 			}
 		}
 	case *bufio.Scanner:
 		for bio, i := val, 0; bio.Scan(); i++ {
-			switch cb := cbs.(type) {
+			switch cb := cb.(type) {
 			case func(s string, i int):
 				cb(bio.Text(), i)
 			case func(s string):
@@ -390,16 +363,16 @@ func Fetch(val Any, cbs Any) Any {
 			}
 		}
 	case io.Reader:
-		Fetch(bufio.NewScanner(val), cbs)
+		Fetch(bufio.NewScanner(val), cb)
 	case []os.FileInfo:
 		for _, s := range val {
-			switch cb := cbs.(type) {
+			switch cb := cb.(type) {
 			case func(os.FileInfo):
 				cb(s)
 			}
 		}
 	case int:
-		switch cb := cbs.(type) {
+		switch cb := cb.(type) {
 		case func(int):
 			for i := 0; i < val; i++ {
 				cb(i)
@@ -415,22 +388,20 @@ func Fetch(val Any, cbs Any) Any {
 			if list, _ = val.Operate("range", list).([]Any); list == nil {
 				break
 			}
-			switch cb := cbs.(type) {
+			switch cb := cb.(type) {
 			case func(string, Any):
 				cb(Format(list[0]), list[1])
 			}
 		}
 	case nil:
 	default:
-		panic(Format("not implements: %#v %v", val, FileLine(cbs, 3)))
+		panic(Format("not implements: %#v %v", val, FileLine(cb, 3)))
 	}
 	return val
 }
 
 func Hash(arg ...Any) (string, []string) {
-	if len(arg) == 0 {
-		arg = append(arg, MDB_UNIQ)
-	}
+	If(len(arg) == 0, func() { arg = append(arg, MDB_UNIQ) })
 	args := []string{}
 	for _, v := range Simple(arg...) {
 		switch v {
@@ -439,15 +410,13 @@ func Hash(arg ...Any) (string, []string) {
 			args = append(args, Format(rand.Int()))
 		case MDB_TIME:
 			args = append(args, Format(time.Now()))
-		case "rand":
+		case MDB_RAND:
 			args = append(args, Format(rand.Int()))
 		default:
 			args = append(args, v)
 		}
 	}
-
-	h := md5.Sum([]byte(strings.Join(args, "")))
-	return hex.EncodeToString(h[:]), args
+	return Format(md5.Sum([]byte(strings.Join(args, "")))), args
 }
 func HashsPath(arg ...Any) string {
 	h := Hashs(arg...)
@@ -459,13 +428,11 @@ func Hashs(arg ...Any) string {
 		case []byte:
 			md := md5.New()
 			md.Write(arg)
-			h := md.Sum(nil)
-			return hex.EncodeToString(h[:])
+			return Format(md.Sum(nil))
 		case io.Reader:
 			md := md5.New()
 			io.Copy(md, arg)
-			h := md.Sum(nil)
-			return hex.EncodeToString(h[:])
+			return Format(md.Sum(nil))
 		}
 	}
 	h, _ := Hash(arg...)
@@ -489,7 +456,6 @@ func Render(str string, arg Any) (b []byte, e error) {
 			return nil, e
 		}
 	}
-
 	buf := bytes.NewBuffer(make([]byte, 0, 1024))
 	if e := t.Execute(buf, arg); e != nil {
 		return nil, e
@@ -497,37 +463,42 @@ func Render(str string, arg Any) (b []byte, e error) {
 	return buf.Bytes(), nil
 }
 
-func GetMeta(value Map) Map {
-	if value != nil && value[MDB_META] != nil {
-		value = value[MDB_META].(Map)
-	}
-	return value
-}
-func KeyValue(res Map, key string, arg Any) Map {
-	if res == nil {
-		res = Map{}
-	}
-	switch arg := arg.(type) {
-	case Map:
-		for k, v := range arg {
-			KeyValue(res, Keys(key, k), v)
+func For(val Any, cb Any) Any { return Fetch(val, cb) }
+func If(exp Any, cb ...Any) {
+	cbs := func(cb Any, exp Any) {
+		switch cb := cb.(type) {
+		case func(string):
+			cb(Format(exp))
+		case func(int):
+			cb(Int(exp))
+		case func():
+			cb()
 		}
-
-	case []Any:
-		for i, v := range arg {
-			KeyValue(res, Keys(key, i), v)
+	}
+	switch exp := exp.(type) {
+	case string:
+		if exp != "" && exp != "false" {
+			cbs(cb[0], exp)
+		} else if len(cb) > 1 {
+			cbs(cb[1], exp)
+		}
+	case bool:
+		if exp {
+			cbs(cb[0], exp)
+		} else if len(cb) > 1 {
+			cbs(cb[1], exp)
+		}
+	case int:
+		if exp != 0 {
+			cbs(cb[0], exp)
+		} else if len(cb) > 1 {
+			cbs(cb[1], exp)
 		}
 	default:
-		res[key] = arg
-	}
-	return res
-}
-func ShortKey(list Map, min int, arg ...Any) string {
-	h := Hashs(arg...)
-	for i := min; i < len(h); i++ {
-		if _, ok := list[h[:i]]; !ok {
-			return h[:i]
+		if exp != nil {
+			cbs(cb[0], exp)
+		} else if len(cb) > 1 {
+			cbs(cb[1], exp)
 		}
 	}
-	return h
 }
