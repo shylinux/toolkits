@@ -15,8 +15,16 @@ const (
 	PS = "/"
 	PT = "."
 	FS = ","
+
+	HTTP = "http"
 )
 
+func IsAbs(p string) bool {
+	return strings.HasPrefix(p, PS)
+}
+func IsUrl(p string) bool {
+	return strings.HasPrefix(p, HTTP)
+}
 func UserName() string {
 	if user, err := user.Current(); err == nil && user.Name != "" {
 		return user.Name
@@ -28,6 +36,9 @@ func HomePath(str string, rest ...string) string {
 		return Path(path.Join(user.HomeDir, str), rest...)
 	}
 	return Path(path.Join(os.Getenv("HOME"), str), rest...)
+}
+func Paths(str string, rest ...string) string {
+	return strings.TrimPrefix(str, Path(str, rest...)+PS)
 }
 func Path(str string, rest ...string) string {
 	if sep := string([]rune{os.PathSeparator}); strings.HasPrefix(str, sep) || strings.Contains(str, DF) {
