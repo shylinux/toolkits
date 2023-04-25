@@ -46,7 +46,7 @@ func Path(str string, rest ...string) string {
 	} else if wd, e := os.Getwd(); e == nil {
 		str = path.Join(append([]string{wd, str}, rest...)...)
 	}
-	return strings.ReplaceAll(str, "\\", PS)
+	return ReplaceAll(str, "\\", PS)
 }
 func Pwd() string {
 	wd, _ := os.Getwd()
