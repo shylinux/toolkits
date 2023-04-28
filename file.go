@@ -160,3 +160,11 @@ func FileLine(p interface{}, n int) string {
 	If(len(list) > n, func() { list = list[len(list)-n:] })
 	return Format("%s:%d", strings.TrimPrefix(strings.Join(list, PS), Path("")+PS), line)
 }
+func FileLines(p interface{}) string {
+	fun := getFunc(p)
+	if fun == 0 {
+		return ""
+	}
+	file, _ := runtime.FuncForPC(fun).FileLine(fun)
+	return strings.TrimPrefix(file, Path("")+PS)
+}
