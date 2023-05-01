@@ -37,6 +37,12 @@ func HomePath(str string, rest ...string) string {
 	}
 	return Path(path.Join(os.Getenv("HOME"), str), rest...)
 }
+func PathJoin(dir, file string, arg ...string) string {
+	if strings.HasPrefix(file, "/") || strings.HasPrefix(file, "http") {
+		return file
+	}
+	return path.Join(dir, Keys(file, Select("", arg, 0)))
+}
 func Paths(str string, rest ...string) string {
 	return strings.TrimPrefix(str, Path(str, rest...)+PS)
 }
