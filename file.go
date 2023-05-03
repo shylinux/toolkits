@@ -16,6 +16,9 @@ const (
 	PT = "."
 	FS = ","
 
+	PNG  = "png"
+	JPG  = "JPG"
+	JPEG = "JPEG"
 	HTTP = "http"
 )
 
@@ -38,7 +41,7 @@ func HomePath(str string, rest ...string) string {
 	return Path(path.Join(os.Getenv("HOME"), str), rest...)
 }
 func PathJoin(dir, file string, arg ...string) string {
-	if strings.HasPrefix(file, "/") || strings.HasPrefix(file, "http") {
+	if strings.HasPrefix(file, PS) || strings.HasPrefix(file, HTTP) {
 		return file
 	}
 	return path.Join(dir, Keys(file, Select("", arg, 0)))
@@ -96,7 +99,7 @@ func TrimExt(str string, ext ...string) string {
 }
 func ExtIsImage(str string) bool {
 	switch strings.ToLower(Ext(str)) {
-	case "png", "jpg", "jpeg":
+	case PNG, JPG, JPEG:
 		return true
 	}
 	return false
