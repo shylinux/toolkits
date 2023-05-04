@@ -67,6 +67,7 @@ func MergeURL2(str string, uri string, arg ...Any) string {
 	}
 	p := get.Path
 	If(!strings.HasPrefix(p, PS), func() { p = path.Join(raw.Path, get.Path) })
+	If(p == PS, func() { p = "" })
 	return MergeURL(Select(raw.Scheme, get.Scheme)+"://"+Select(raw.Host, get.Host)+p+"?"+Select(raw.RawQuery, get.RawQuery), arg...)
 }
 func QueryUnescape(value string) string {
