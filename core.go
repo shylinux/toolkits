@@ -24,11 +24,11 @@ func _list(str string) map[rune]bool {
 	return space
 }
 func Split(str string, arg ...string) (res []string) {
-	space := _list(Select("\t ,\n", arg, 0)) // 空白符
-	block := _list(Select("{[()]}", arg, 1)) // 分隔符
-	quote := _list(Select("\"'`", arg, 2))   // 引用符
-	trans := _list(Select("\\", arg, 3))     // 转义符
-	raw := Select("", arg, 4) == "true"      // 转义符
+	space := _list(Select("\t ,\r\n", arg, 0)) // 空白符
+	block := _list(Select("{[()]}", arg, 1))   // 分隔符
+	quote := _list(Select("\"'`", arg, 2))     // 引用符
+	trans := _list(Select("\\", arg, 3))       // 转义符
+	raw := Select("", arg, 4) == "true"        // 转义符
 	list := []rune(str)
 	left, void, begin := '\000', true, 0
 	for i := 0; i < len(list); i++ {
