@@ -62,6 +62,14 @@ func Pwd() string {
 	return ReplaceAll(wd, "\\", PS)
 }
 func Env(key string) string { return os.Getenv(key) }
+func EnvList(arg ...string) []string {
+	For(os.Environ(), func(v string) {
+		if ls := strings.SplitN(v, "=", 2); IndexOf(arg, ls[0]) == -1 {
+			arg = append(arg, ls[0], ls[1])
+		}
+	})
+	return arg
+}
 func EnvSimple(arg ...string) (res []string) {
 	For(arg, func(k string) { res = append(res, k, Env(k)) })
 	return
