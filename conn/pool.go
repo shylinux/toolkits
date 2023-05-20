@@ -84,7 +84,7 @@ func New(conf *conf.Conf, maxconn int64, target []string, retry int) *Pool {
 		target: target, retry: retry, conf: conf,
 		Logger: logs.Logger(CONN),
 	}
-	pool.Pool = sync.Pool{New: func() interface{} {
+	pool.Pool = sync.Pool{New: func() Any {
 		id := atomic.AddInt64(&pool.nconn, 1)
 		for i := 0; i < pool.retry; i++ {
 			if c, e := net.Dial("tcp", target[id%int64(len(target))]); e == nil {

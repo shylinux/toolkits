@@ -91,7 +91,7 @@ func Ext(str string) string {
 	return strings.ToLower(path.Base(Select(str, strings.TrimPrefix(path.Ext(str), PT))))
 }
 func TrimPath(p string) string {
-	return strings.TrimPrefix(p, Path("")+PS)
+	return strings.TrimPrefix(strings.TrimSpace(p), Path("")+PS)
 }
 func TrimExt(str string, ext ...string) string {
 	If(len(ext) == 0, func() { ext = []string{"go", "shy", "zip", "tgz", "tar.gz", "tar.xz", "tar.bz2"} })
@@ -120,7 +120,7 @@ func ExtIsVideo(str string) bool {
 	return false
 }
 
-func getFunc(p interface{}) (fun uintptr) {
+func getFunc(p Any) (fun uintptr) {
 	if p == nil {
 		return 0
 	}
@@ -136,14 +136,14 @@ func getFunc(p interface{}) (fun uintptr) {
 	}
 	return fun
 }
-func ModName(p interface{}) string {
+func ModName(p Any) string {
 	ls := strings.Split(runtime.FuncForPC(getFunc(p)).Name(), PS)
 	if strings.Contains(ls[0], PT) {
 		return Select(ls[0], ls, 2)
 	}
 	return ls[0]
 }
-func PathName(p interface{}) string {
+func PathName(p Any) string {
 	fun := getFunc(p)
 	if fun == 0 {
 		return ""
@@ -151,7 +151,7 @@ func PathName(p interface{}) string {
 	file, _ := runtime.FuncForPC(fun).FileLine(fun)
 	return path.Base(path.Dir(file))
 }
-func FileName(p interface{}) string {
+func FileName(p Any) string {
 	fun := getFunc(p)
 	if fun == 0 {
 		return ""
@@ -159,7 +159,7 @@ func FileName(p interface{}) string {
 	file, _ := runtime.FuncForPC(fun).FileLine(fun)
 	return strings.Split(path.Base(file), PT)[0]
 }
-func FuncName(p interface{}) string {
+func FuncName(p Any) string {
 	fun := getFunc(p)
 	if fun == 0 {
 		return ""
@@ -167,7 +167,7 @@ func FuncName(p interface{}) string {
 	list := strings.Split(runtime.FuncForPC(fun).Name(), PT)
 	return strings.TrimSuffix(list[len(list)-1], "-fm")
 }
-func FileLine(p interface{}, n int) string {
+func FileLine(p Any, n int) string {
 	fun := getFunc(p)
 	if fun == 0 {
 		return ""
@@ -177,7 +177,7 @@ func FileLine(p interface{}, n int) string {
 	If(len(list) > n, func() { list = list[len(list)-n:] })
 	return Format("%s:%d", strings.TrimPrefix(strings.Join(list, PS), Path("")+PS), line)
 }
-func FileLines(p interface{}) string {
+func FileLines(p Any) string {
 	fun := getFunc(p)
 	if fun == 0 {
 		return ""

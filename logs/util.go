@@ -45,7 +45,7 @@ func FmtSize(i uint64) string {
 	}
 	return fmt.Sprintf("%dB", i)
 }
-func FileLines(h interface{}) string {
+func FileLines(h Any) string {
 	if h == nil {
 		return ""
 	}
@@ -83,7 +83,7 @@ func FileLines(h interface{}) string {
 	}
 	return fmt.Sprintf("%s:%d", file, line)
 }
-func FileLine(h interface{}, arg ...string) string {
+func FileLine(h Any, arg ...string) string {
 	switch n := h.(type) {
 	case int:
 		if n > 0 {
