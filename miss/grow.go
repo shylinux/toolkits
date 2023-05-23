@@ -149,7 +149,11 @@ func (miss *Miss) _grows_record(meta Map, begin, end int, cb func(Map) bool) boo
 			if kit.Int(record[COUNT]) != 0 {
 				i -= (offset - begin) / kit.Int(record[COUNT])
 			}
-			continue // 向后查找
+			if i <= 0 {
+				i = 0
+			} else {
+				continue // 向后查找
+			}
 		}
 
 		for ; begin < end && i < len(records); i++ {
