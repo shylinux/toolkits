@@ -1,6 +1,9 @@
 package miss
 
 import (
+	"io"
+	"os"
+
 	kit "shylinux.com/x/toolkits"
 
 	"encoding/csv"
@@ -104,8 +107,6 @@ func (miss *Miss) Grows(prefix string, cache Map, offend, limit int, field strin
 	if list == nil || len(list) == 0 {
 		return nil
 	}
-
-	// 数据范围
 	offset := kit.Int(meta[OFFSET])
 	end := offset + len(list) - offend
 	begin := end - limit
@@ -119,75 +120,66 @@ func (miss *Miss) Grows(prefix string, cache Map, offend, limit int, field strin
 		begin, end = kit.Int(value)-1, kit.Int(value)
 		field, value = "", ""
 	}
-
-	// 读取数据
 	index, done := 0, false
-	if begin < offset && miss._grows_record(meta, begin, end, func(item Map) bool { // 读取文件
+	if begin < offset && miss._grows_record(meta, begin, end, func(item Map) bool {
 		res, index, done = _grow_match(item, field, value, index, cb)
 		return done
 	}) {
 		return
 	}
-	if begin < offset {
-		begin = offset
-	}
-	for i := begin - offset; i < len(list) && i < end-offset; i++ { // 读取缓存
+	kit.If(begin < offset, func() { begin = offset })
+	for i := begin - offset; i < len(list) && i < end-offset; i++ {
 		if res, index, done = _grow_match(kit.Dict(list[i]), field, value, index, cb); done {
 			break
 		}
 	}
 	return
 }
-
 func (miss *Miss) _grows_record(meta Map, begin, end int, cb func(Map) bool) bool {
 	records := kit.List(meta[RECORDS])
 	for i := len(records) - 1; i > -1; i-- {
 		record := kit.Dict(records[i])
 		offset := kit.Int(record[OFFSET])
-		miss.Logger(RECORDS, i, OFFSET, offset, COUNT, record[COUNT])
+		count := kit.Int(record[COUNT])
+		miss.Logger(RECORDS, i, OFFSET, offset, COUNT, count)
 		if begin < offset && i > 0 {
-			if kit.Int(record[COUNT]) != 0 {
-				i -= (offset - begin) / kit.Int(record[COUNT])
-			}
+			kit.If(count != 0, func() { i -= (offset - begin) / count })
 			if i <= 0 {
 				i = 0
 			} else {
-				continue // 向后查找
+				continue
 			}
 		}
-
 		for ; begin < end && i < len(records); i++ {
 			record := kit.Dict(records[i])
 			offset := kit.Int(record[OFFSET])
-			miss.Logger(RECORDS, i, OFFSET, offset, COUNT, record[COUNT])
-			if offset+kit.Int(record[COUNT]) <= begin {
-				continue // 向前查找
+			count := kit.Int(record[COUNT])
+			miss.Logger(RECORDS, i, OFFSET, offset, COUNT, count, "need", end-offset)
+			limit := offset + count
+			if begin > limit {
+				continue
 			}
-
-			// 打开文件
 			done := false
-			miss._grows_file(kit.Format(record[FILE]), func(data, head []string) bool {
+			miss._grows_file(kit.Format(record[FILE]), kit.Int64(record["position"]), func(data, head []string) bool {
 				defer func() { offset++ }()
 				if offset < begin {
 					return false
+				} else if offset >= limit {
+					return true
+				} else if offset >= end {
+					done = true
+					return true
 				}
-				if offset < end {
-					item := Map{}
-					for i := range head {
-						if head[i] == EXTRA {
-							item[head[i]] = kit.UnMarshal(data[i])
-						} else {
-							item[head[i]] = data[i]
-						}
+				item := Map{}
+				for i := range head {
+					if head[i] == EXTRA {
+						item[head[i]] = kit.UnMarshal(data[i])
+					} else {
+						item[head[i]] = data[i]
 					}
-					miss.Logger(OFFSET, offset, "type", item["type"], "name", item["name"], "text", item["text"])
-					if done = cb(item); done {
-						return true
-					}
-					return false
 				}
-				done = true
-				return true
+				// miss.Logger(OFFSET, offset, ID, item[ID])
+				return cb(item)
 			})
 			if done {
 				return true
@@ -197,28 +189,30 @@ func (miss *Miss) _grows_record(meta Map, begin, end int, cb func(Map) bool) boo
 	}
 	return false
 }
-func (miss *Miss) _grows_file(p string, cb func(data []string, head []string) bool) {
-	miss.Logger("open file", p)
+func (miss *Miss) _grows_file(p string, position int64, cb func(data []string, head []string) bool) {
+	miss.Logger("open file", p, "position", position)
 	if f, e := miss.file.OpenFile(p); e == nil {
 		defer f.Close()
-
 		r := csv.NewReader(f)
 		head, _ := r.Read()
 		miss.Logger("read head", head)
-
-		for {
-			data, e := r.Read()
-			if e != nil {
-				miss.Logger("read data", e)
-				break
-			}
-			if cb(data, head) {
-				break
+		if f, e := miss.file.OpenFile(p); e == nil {
+			defer f.Close()
+			f.(*os.File).Seek(position, 0)
+			r := csv.NewReader(f)
+			for {
+				if data, e := r.Read(); e != nil {
+					if e != io.EOF {
+						miss.Logger("read data", e)
+					}
+					break
+				} else if cb(data, head) {
+					break
+				}
 			}
 		}
 	}
 }
-
 func _grow_match(item Map, field, value string, index int, cb Any) (Map, int, bool) {
 	if field == "" || strings.Contains(kit.Format(kit.Value(item, field)), value) {
 		switch cb := cb.(type) {
