@@ -154,7 +154,7 @@ func (miss *Miss) _grows_record(meta Map, begin, end int, cb func(Map) bool) boo
 			record := kit.Dict(records[i])
 			offset := kit.Int(record[OFFSET])
 			count := kit.Int(record[COUNT])
-			miss.Logger(RECORDS, i, OFFSET, offset, COUNT, count, "need", end-offset)
+			miss.Logger(RECORDS, i, OFFSET, offset, COUNT, count, "need", end-begin-(offset-begin))
 			limit := offset + count
 			if begin > limit {
 				continue
