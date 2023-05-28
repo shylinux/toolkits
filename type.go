@@ -116,7 +116,7 @@ func SimpleKV(key string, arg ...Any) (res []string) {
 		case Map:
 			For(v, func(k string, v Any) { defs[k] = v })
 		default:
-			args = append(args, Format(v))
+			args = append(args, Simple(v)...)
 		}
 	})
 	keys := Split(Select("type,name,text", key))
