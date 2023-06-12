@@ -275,11 +275,18 @@ func Select(def string, arg ...Any) string {
 func IsUpper(str string) bool        { return strings.ToUpper(str) == str }
 func Capital(str string) string      { return strings.ToUpper(str[0:1]) + str[1:] }
 func LowerCapital(str string) string { return strings.ToLower(str[0:1]) + str[1:] }
-func Contains(str, sub Any) bool     { return strings.Contains(Format(str), Format(sub)) }
 func Width(str string, mul int) int  { return len([]rune(str)) + (len(str)-len([]rune(str)))/2/mul }
 func Sort(list []string) []string {
 	sort.Strings(list)
 	return list
+}
+func Contains(str string, arg ...string) bool {
+	for _, v := range arg {
+		if strings.Contains(str, v) {
+			return true
+		}
+	}
+	return false
 }
 func HasPrefix(str string, arg ...string) bool {
 	for _, v := range arg {
