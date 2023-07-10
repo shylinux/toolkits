@@ -14,6 +14,7 @@ import (
 	"strings"
 	"text/template"
 	"time"
+	"unicode"
 )
 
 func _list(str string) map[rune]bool {
@@ -446,7 +447,17 @@ func Renders(str string, arg Any) string {
 	}
 }
 func Render(str string, arg Any) (b []byte, e error) {
-	t := template.New("render").Funcs(template.FuncMap{"Format": Format, "Value": Value})
+	t := template.New("render").Funcs(template.FuncMap{
+		"Format": Format,
+		"Value":  Value,
+		"Base":   func(p string) string { return path.Base(p) },
+		"Capital": func(p string) string {
+			if p != "" {
+				return string(unicode.ToUpper(rune(p[0]))) + p[1:]
+			}
+			return path.Base(p)
+		},
+	})
 	if strings.HasPrefix(str, "@") {
 		if t, e = template.ParseFiles(str[1:]); e != nil {
 			return nil, e
