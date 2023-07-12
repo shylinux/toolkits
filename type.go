@@ -180,7 +180,7 @@ func Time(arg ...string) int64 {
 			return Int64(t)
 		}
 	}
-	for _, v := range []string{MOD_DATE, "2006-01-02 15:04:05", MOD_TIME, MOD_TIMES} {
+	for _, v := range []string{MOD_TIMES, MOD_TIME, "2006-01-02 15:04:05", MOD_DATE} {
 		if t, e := time.ParseInLocation(v, arg[0], time.Local); e == nil {
 			return Int64(t)
 		}
