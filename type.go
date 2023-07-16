@@ -230,6 +230,12 @@ func FmtDuration(t time.Duration) string {
 	return fmt.Sprintf("%s%dns", sign, tt)
 }
 
+func Cut(str string, size int) string {
+	if len(str) > size {
+		return str[:size]
+	}
+	return str
+}
 func Select(def string, arg ...Any) string {
 	if len(arg) == 0 {
 		return def
