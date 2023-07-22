@@ -38,6 +38,8 @@ func Int64(val Any) int64 {
 		return int64(val)
 	case int64:
 		return val
+	case uint64:
+		return int64(val)
 	case float64:
 		return int64(val)
 	case string:
@@ -59,6 +61,12 @@ func Int64(val Any) int64 {
 		return val.Nanoseconds()
 	}
 	return 0
+}
+func Ignore(arg ...Any) Any {
+	if arg[0] == nil {
+		return Map{}
+	}
+	return arg[0]
 }
 func Format(val Any, arg ...Any) string {
 	switch val := val.(type) {
@@ -187,7 +195,8 @@ func Time(arg ...string) int64 {
 	}
 	return Int64(time.Now())
 }
-func FmtSize(size int64) string {
+func FmtSize(v Any) string {
+	size := Int64(v)
 	if size > 1<<30 {
 		return fmt.Sprintf("%0.2fG", float64(size)/(1<<30))
 	}
