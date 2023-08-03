@@ -87,6 +87,9 @@ func ExtChange(file, ext string) string {
 	}
 	return strings.TrimSuffix(file, PT+Ext(file)) + PT + ext
 }
+func Dir(arg ...string) string {
+	return path.Dir(path.Join(arg...)) + PS
+}
 func Ext(str string) string {
 	return strings.ToLower(path.Base(Select(str, strings.TrimPrefix(path.Ext(str), PT))))
 }
