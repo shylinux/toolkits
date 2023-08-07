@@ -83,7 +83,11 @@ func Format(val Any, arg ...Any) string {
 		}
 	case []Any:
 		if len(val) == 0 {
-			return "[]"
+			return ""
+		}
+	case []string:
+		if len(val) == 0 {
+			return ""
 		}
 	case []byte:
 		return hex.EncodeToString(val[:])
