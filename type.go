@@ -328,7 +328,10 @@ func ReplaceAll(str string, arg ...string) string {
 	return str
 }
 func Replace(str string, arg ...string) string {
-	For(arg, func(from, to string) { str = strings.Replace(str, from, to, 1) })
+	For(arg, func(from, to string) {
+		If(to == "", func() { to = strings.ReplaceAll(from, " ", "_") })
+		str = strings.Replace(str, from, to, 1)
+	})
 	return str
 }
 
