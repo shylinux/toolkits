@@ -334,6 +334,10 @@ func Replace(str string, arg ...string) string {
 	})
 	return str
 }
+func TrimPrefix(str string, arg ...string) string {
+	For(arg, func(pre string) { str = strings.TrimPrefix(str, pre) })
+	return str
+}
 
 func IsIn(str string, arg ...string) bool { return IndexOf(arg, str) > -1 }
 func HasPrefixList(args []string, arg ...string) bool {
