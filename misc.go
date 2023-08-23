@@ -89,6 +89,9 @@ func UnMarshal(buf Any) (res Any) {
 				}
 			}
 		} else {
+			if buf == "" {
+				return nil
+			}
 			if json.Unmarshal([]byte(buf), &res) != nil {
 				return Split(buf)
 			}
