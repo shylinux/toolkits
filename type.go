@@ -339,6 +339,16 @@ func TrimPrefix(str string, arg ...string) string {
 	return str
 }
 
+func Length(val Any) int {
+	switch val := val.(type) {
+	case string:
+		return len(val)
+	case map[string]interface{}:
+		return len(val)
+	default:
+		return 0
+	}
+}
 func IsIn(str string, arg ...string) bool { return IndexOf(arg, str) > -1 }
 func HasPrefixList(args []string, arg ...string) bool {
 	for i, v := range arg {
