@@ -361,6 +361,8 @@ func Fetch(val Any, cb Any) Any {
 				cb(bio.Text())
 			case func(ls []string, s string):
 				cb(Split(bio.Text()), bio.Text())
+			case func(ls []string):
+				cb(Split(bio.Text()))
 			}
 		}
 	case io.Reader:

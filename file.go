@@ -61,7 +61,9 @@ func Pwd() string {
 	wd, _ := os.Getwd()
 	return ReplaceAll(wd, "\\", PS)
 }
-func Env(key string) string { return os.Getenv(key) }
+func Env(key string, def ...string) string {
+	return Select(Select("", def, 0), os.Getenv(key))
+}
 func EnvList(arg ...string) []string {
 	For(os.Environ(), func(v string) {
 		if ls := strings.SplitN(v, "=", 2); IndexOf(arg, ls[0]) == -1 {
