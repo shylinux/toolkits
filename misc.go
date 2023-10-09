@@ -161,6 +161,12 @@ func FormatShow(arg ...Any) string {
 	return Join(res, " ")
 }
 
+func TransArgKey(arg []string, trans map[string]string) []string {
+	for i := 0; i < len(arg); i += 2 {
+		arg[i] = Select(arg[i], trans[arg[0]])
+	}
+	return arg
+}
 func TransArg(arg []string, key string, trans Any) []string {
 	for i := 0; i < len(arg); i += 2 {
 		if arg[i] == key {
