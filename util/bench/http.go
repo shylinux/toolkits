@@ -109,7 +109,7 @@ func (s *Stat) Show() string {
 	return strings.Join(list, "")
 }
 
-func HTTP(nconn, nreq int64, req []*http.Request, check func(*http.Request, *http.Response)) (*Stat, error) {
+func HTTP(meta task.Meta, nconn, nreq int64, req []*http.Request, check func(*http.Request, *http.Response)) (*Stat, error) {
 	// 输出流
 	f := file.NewVoidFile()
 	defer f.Close()
@@ -144,9 +144,9 @@ func HTTP(nconn, nreq int64, req []*http.Request, check func(*http.Request, *htt
 		}
 	}()
 
-	p.WaitN(int(nconn), func(task *task.Task, lock *task.Lock) error {
+	p.WaitN(meta, int(nconn), func(task *task.Task, lock *task.Lock) error {
 		order := kit.Int(task.Params)
-		hc, e := c.GetHttp(task.Context())
+		hc, e := c.GetHttp(meta, task.Context())
 		if e != nil {
 			return e
 		}
@@ -171,7 +171,7 @@ func HTTP(nconn, nreq int64, req []*http.Request, check func(*http.Request, *htt
 				}()
 
 				req := req[nreq%int64(len(req))]
-				if res, err := hc.Do(req); err != nil { // 请求失败
+				if res, err := hc.Do(meta, req); err != nil { // 请求失败
 					nerr++
 				} else { // 请求完成
 					defer res.Body.Close()

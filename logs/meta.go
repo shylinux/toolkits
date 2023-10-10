@@ -2,14 +2,16 @@ package logs
 
 import (
 	"fmt"
+	"strings"
 
 	kit "shylinux.com/x/toolkits"
 )
 
 const (
 	PREFIX   = "prefix"
-	FILELINE = "fileline"
 	SUFFIX   = "suffix"
+	FILELINE = "fileline"
+	TRACEID  = "id"
 )
 
 type Meta struct{ Key, Value string }
@@ -21,9 +23,10 @@ func (s Meta) String() string {
 	}
 	return " " + kit.FormatShow(s.Key, s.Value)
 }
-func ValueMeta(p string) Meta  { return Meta{"", p} }
-func PrefixMeta(p string) Meta { return Meta{PREFIX, p} }
-func SuffixMeta(p string) Meta { return Meta{SUFFIX, p} }
+func ValueMeta(p string) Meta   { return Meta{"", p} }
+func PrefixMeta(p string) Meta  { return Meta{PREFIX, p} }
+func SuffixMeta(p string) Meta  { return Meta{SUFFIX, p} }
+func TraceidMeta(p string) Meta { return Meta{TRACEID, p + " "} }
 func FileLineMeta(p Any) Meta {
 	switch p := p.(type) {
 	case int:
@@ -40,12 +43,17 @@ func FileLineMeta(p Any) Meta {
 
 func Format(str string, arg ...Any) string {
 	prefix, args, has, suffix := []Any{}, []Any{}, false, []Any{}
+	traceid := []Any{}
 	for _, v := range arg {
 		switch v := v.(type) {
 		case Meta:
 			switch v.Key {
 			case PREFIX:
 				prefix = append(prefix, v)
+			case TRACEID:
+				if strings.TrimSpace(v.Value) != "" {
+					traceid = append(traceid, v)
+				}
 			case FILELINE:
 				if has {
 					continue
@@ -68,5 +76,8 @@ func Format(str string, arg ...Any) string {
 	} else {
 		prefix = append(prefix, fmt.Sprintf(str, args...))
 	}
-	return fmt.Sprint(append(prefix, suffix...)...)
+	if len(traceid) > 1 {
+		traceid = traceid[:1]
+	}
+	return fmt.Sprint(append(append(traceid, prefix...), suffix...)...)
 }

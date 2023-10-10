@@ -8,12 +8,12 @@ var pool = New(conf.Sub(TASK))
 
 func Init(conf *conf.Conf) { pool = New(conf) }
 
-func WaitN(n int, action func(*Task, *Lock) error) {
-	pool.WaitN(n, action)
+func WaitN(meta Meta, n int, action func(*Task, *Lock) error) {
+	pool.WaitN(meta, n, action)
 }
-func Wait(params []Any, action func(*Task, *Lock) error) {
-	pool.Wait(params, action)
+func Wait(meta Meta, params []Any, action func(*Task, *Lock) error) {
+	pool.Wait(meta, params, action)
 }
-func Put(param Any, action func(*Task)) {
-	pool.Put(param, action)
+func Put(meta Meta, param Any, action func(*Task)) {
+	pool.Put(meta, param, action)
 }

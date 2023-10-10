@@ -4,6 +4,7 @@ import (
 	"net"
 
 	kit "shylinux.com/x/toolkits"
+	"shylinux.com/x/toolkits/task"
 )
 
 const CONN = "conn"
@@ -11,6 +12,7 @@ const CONN = "conn"
 type Conn struct {
 	id int64
 
+	meta   task.Meta
 	client kit.Any
 	net.Conn
 

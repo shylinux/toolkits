@@ -7,6 +7,8 @@ import (
 	"net/http"
 
 	kit "shylinux.com/x/toolkits"
+	"shylinux.com/x/toolkits/logs"
+	"shylinux.com/x/toolkits/task"
 )
 
 const HTTP = "http"
@@ -32,20 +34,20 @@ type HttpClient struct {
 func (client *HttpClient) Info() string {
 	return kit.FormatShow(CONN, client.conn.id, POOL, client.conn.pool.id)
 }
-func (client *HttpClient) Do(req *http.Request) (*http.Response, error) {
+func (client *HttpClient) Do(meta task.Meta, req *http.Request) (*http.Response, error) {
 	res, err := client.Client.Do(req)
 	if client.DoCount++; err != nil {
 		client.ErrCount++
 	}
-	client.Logger(CONN, client.conn.id, "count", client.DoCount, "DO", req.URL, "err", err)
+	client.Logger("HTTP DO", meta.FileLine, "id", client.conn.id, "count", client.DoCount, "url", req.URL, "err", err, logs.PrefixMeta(meta.Prefix))
 	return res, err
 }
-func (client *HttpClient) Get(url string) (*http.Response, error) {
+func (client *HttpClient) Get(meta task.Meta, url string) (*http.Response, error) {
 	res, err := client.Client.Get(url)
 	if client.GetCount++; err != nil {
 		client.ErrCount++
 	}
-	client.Logger(CONN, client.conn.id, "count", client.GetCount, "GET", url, "err", err)
+	client.Logger("HTTP GET", meta.FileLine, "id", client.conn.id, "count", client.GetCount, "url", url, "err", err, logs.PrefixMeta(meta.Prefix))
 	return res, err
 }
 func (client *HttpClient) NWrite() int {
@@ -58,8 +60,8 @@ func (client *HttpClient) Release() {
 	client.conn.Close()
 }
 
-func (pool *Pool) GetHttp(ctx context.Context) (*HttpClient, error) {
-	if conn := pool.Get(ctx); conn != nil {
+func (pool *Pool) GetHttp(meta task.Meta, ctx context.Context) (*HttpClient, error) {
+	if conn := pool.Get(meta, ctx); conn != nil {
 		switch client := conn.client.(type) {
 		case nil:
 		case *HttpClient:

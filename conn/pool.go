@@ -6,6 +6,7 @@ import (
 	"sync"
 	"sync/atomic"
 
+	kit "shylinux.com/x/toolkits"
 	"shylinux.com/x/toolkits/conf"
 	"shylinux.com/x/toolkits/logs"
 	"shylinux.com/x/toolkits/task"
@@ -39,15 +40,16 @@ type Pool struct {
 	conf *conf.Conf
 }
 
-func (pool *Pool) Get(ctx context.Context) *Conn {
+func (pool *Pool) Get(meta task.Meta, ctx context.Context) *Conn {
 	pool.add()
 	for {
 		select {
 		case <-ctx.Done():
-			pool.Logger(CONN_ERR, ctx.Err(), POOL, pool.id)
+			pool.Logger(CONN_ERR, meta.FileLine, "args", ctx.Err(), POOL, pool.id, logs.PrefixMeta(meta.Prefix))
 			return nil
 		case c := <-pool.channel:
-			pool.Logger(CONN_GET, c.LocalAddr(), c.Info())
+			c.meta = meta
+			pool.Logger(CONN_GET, meta.FileLine, "args", kit.Format("%s", c.LocalAddr().String()), c.Info(), logs.PrefixMeta(meta.Prefix))
 			return c
 		}
 	}
@@ -57,20 +59,20 @@ func (pool *Pool) add() {
 	defer pool.mu.Lock()()
 	if len(pool.channel) == 0 && pool.nconn < pool.maxconn {
 		if c, ok := pool.Pool.Get().(*Conn); ok {
-			pool.Logger(CONN_ADD, c.LocalAddr(), c.Info())
+			// pool.Logger(CONN_ADD, c.LocalAddr(), c.Info())
 			pool.channel <- c
 		}
 	}
 }
 func (pool *Pool) Put(c *Conn) {
-	pool.Logger(CONN_PUT, c.LocalAddr(), c.Info())
+	pool.Logger(CONN_PUT, c.meta.FileLine, "args", c.LocalAddr().String(), c.Info(), logs.PrefixMeta(c.meta.Prefix))
 	pool.channel <- c
 }
 
 func (pool *Pool) Close() {
 	close(pool.channel)
 	for c := range pool.channel {
-		pool.Logger(CONN_END, c.LocalAddr(), c.Info())
+		// pool.Logger(CONN_END, c.LocalAddr(), c.Info())
 		c.closed = true
 		c.Close()
 	}

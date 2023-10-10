@@ -18,11 +18,16 @@ const (
 
 const TASK = "task"
 
+type Meta struct {
+	Prefix   string
+	FileLine string
+}
 type Task struct {
 	id int64
 
 	Action func(*Task)
 	Params Any
+	Meta   Meta
 
 	Error  Any
 	Status int
@@ -52,9 +57,9 @@ func (task *Task) Info() string {
 }
 
 func (task *Task) Run(ctx context.Context) {
-	task.Logger("task run", logs.FileLine(task.Action), "args", task.Params, task.Info())
+	task.Logger("task run", task.Meta.FileLine, "args", task.Params, task.Info(), logs.PrefixMeta(task.Meta.Prefix))
 	defer logs.CostTime(func(d time.Duration) {
-		task.Logger("task end", logs.FileLine(task.Action), "args", task.Params, "cost", logs.FmtDuration(d), "err", task.Error, task.Info())
+		task.Logger("task end", task.Meta.FileLine, "args", task.Params, "cost", logs.FmtDuration(d), "err", task.Error, task.Info(), logs.PrefixMeta(task.Meta.Prefix))
 	})()
 
 	task.Status, task.ProcessTime, task.ctx = StatusProcess, time.Now(), ctx
@@ -64,7 +69,7 @@ func (task *Task) Run(ctx context.Context) {
 			for i := 1; i < 10; i++ {
 				list = append(list, logs.FileLine(i))
 			}
-			task.Logger("task err", e, "stack", "\n", strings.Join(list, "\n"), "\n")
+			task.Logger("task err", e, "stack", "\n", strings.Join(list, "\n"), "\n", logs.PrefixMeta(task.Meta.Prefix))
 			task.Status, task.Error = StatusCancel, e
 		}
 		task.FinishTime = logs.Now()

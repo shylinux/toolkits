@@ -30,30 +30,30 @@ type Pool struct {
 	conf   *conf.Conf
 }
 
-func (pool *Pool) WaitN(n int, action func(*Task, *Lock) error) {
+func (pool *Pool) WaitN(meta Meta, n int, action func(*Task, *Lock) error) {
 	args := []Any{}
 	for i := 1; i <= n; i++ {
 		args = append(args, i)
 	}
-	pool.Wait(args, action)
+	pool.Wait(meta, args, action)
 }
-func (pool *Pool) Wait(args []Any, action func(*Task, *Lock) error) {
+func (pool *Pool) Wait(meta Meta, args []Any, action func(*Task, *Lock) error) {
 	wg, lock := &sync.WaitGroup{}, &Lock{}
 	defer wg.Wait()
 
 	for _, arg := range args {
 		wg.Add(1)
-		pool.Put(arg, func(task *Task) {
+		pool.Put(meta, arg, func(task *Task) {
 			defer wg.Done()
 			action(task, lock)
 		})
 	}
 }
-func (pool *Pool) Put(params Any, action func(*Task)) {
+func (pool *Pool) Put(meta Meta, params Any, action func(*Task)) {
 	if pool.closed {
 		return
 	}
-	task := &Task{id: atomic.AddInt64(&pool.ntask, 1), Action: action, Params: params, PrepareTime: logs.Now(), pool: pool, Logger: pool.Logger}
+	task := &Task{id: atomic.AddInt64(&pool.ntask, 1), Action: action, Params: params, Meta: meta, PrepareTime: logs.Now(), pool: pool, Logger: pool.Logger}
 	pool.channel <- task
 	pool.add()
 }
