@@ -68,6 +68,12 @@ func Ignore(arg ...Any) Any {
 	}
 	return arg[0]
 }
+func Lasterr(arg ...Any) Any {
+	if len(arg) > 0 {
+		return arg[len(arg)-1]
+	}
+	return nil
+}
 func Format(val Any, arg ...Any) string {
 	switch val := val.(type) {
 	case nil:
