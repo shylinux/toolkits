@@ -152,7 +152,9 @@ func FormatShow(arg ...Any) string {
 	res := []string{}
 	for i := 0; i < len(arg); i += 2 {
 		if i+1 < len(arg) {
-			res = append(res, Format(arg[i])+DF, Format(arg[i+1]))
+			if v := Format(arg[i+1]); v != "" {
+				res = append(res, Format(arg[i])+DF, v)
+			}
 		} else {
 			res = append(res, Format(arg[i]))
 		}
