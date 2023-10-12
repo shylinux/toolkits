@@ -189,10 +189,7 @@ func DayBegin(t string) time.Time {
 	return time.Unix(Time(Split(t)[0])/int64(time.Second), 0)
 }
 func IfNoKey(list Map, p string, cb func(string)) {
-	If(list[p] == nil, func() {
-		list[p] = true
-		cb(p)
-	})
+	If(list[p] == nil, func() { list[p] = true; cb(p) })
 }
 func DictList(arg ...string) Map {
 	res := Map{}
