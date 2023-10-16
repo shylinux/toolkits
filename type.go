@@ -45,10 +45,10 @@ func Int64(val Any) int64 {
 	case string:
 		val, unit := strings.ToLower(val), int64(1)
 		If(strings.HasSuffix(val, "k") || strings.HasSuffix(val, "kb"), func() { val, unit = strings.Split(val, "k")[0], 1000 })
-		If(strings.HasSuffix(val, "m") || strings.HasSuffix(val, "mb"), func() { val, unit = strings.Split(val, "k")[0], 1000000 })
+		If(strings.HasSuffix(val, "m") || strings.HasSuffix(val, "mb"), func() { val, unit = strings.Split(val, "m")[0], 1000000 })
 		If(strings.HasSuffix(val, "g") || strings.HasSuffix(val, "gb"), func() { val, unit = strings.Split(val, "g")[0], 1000000000 })
-		if i, e := strconv.ParseInt(val, 10, 64); e == nil {
-			return i * unit
+		if i, e := strconv.ParseFloat(val, 64); e == nil {
+			return int64(i * float64(unit))
 		}
 		return 0
 	case Map:
