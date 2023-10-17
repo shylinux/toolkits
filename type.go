@@ -448,7 +448,7 @@ func JoinKV(inner, outer string, arg ...string) string {
 		} else if arg[i+1] == "" {
 			continue
 		}
-		res = append(res, arg[i]+inner+arg[i+1])
+		res = append(res, arg[i]+Select("", inner, !strings.HasSuffix(arg[i], inner))+arg[i+1])
 	}
 	return strings.Join(res, outer)
 }
