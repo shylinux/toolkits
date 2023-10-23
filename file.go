@@ -61,6 +61,10 @@ func Pwd() string {
 	wd, _ := os.Getwd()
 	return ReplaceAll(wd, "\\", PS)
 }
+func Chdir(p string) { os.Chdir(p) }
+func Setenv(key string, val string) {
+	os.Setenv(key, val)
+}
 func Env(key string, def ...string) string {
 	return Select(Select("", def, 0), os.Getenv(key))
 }
