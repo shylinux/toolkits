@@ -103,7 +103,7 @@ func TrimPath(p string) string {
 	return strings.TrimPrefix(strings.TrimSpace(p), Path("")+PS)
 }
 func TrimExt(str string, ext ...string) string {
-	If(len(ext) == 0, func() { ext = []string{"go", "shy", "zip", "tgz", "tar.gz", "tar.xz", "tar.bz2"} })
+	If(len(ext) == 0, func() { ext = []string{"go", "shy", "png", "jpg", "jpeg", "zip", "tgz", "tar.gz", "tar.xz", "tar.bz2"} })
 	str = path.Base(str)
 	for _, k := range ext {
 		if k == "" {
