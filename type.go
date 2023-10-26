@@ -31,6 +31,22 @@ func Max(arg ...int) (max int) {
 	}
 	return
 }
+func Float(val Any) float64 {
+	switch val := val.(type) {
+	case float64:
+		return val
+	case string:
+		val, unit := strings.ToLower(val), float64(1)
+		If(strings.HasSuffix(val, "k") || strings.HasSuffix(val, "kb"), func() { val, unit = strings.Split(val, "k")[0], 1000 })
+		If(strings.HasSuffix(val, "m") || strings.HasSuffix(val, "mb"), func() { val, unit = strings.Split(val, "m")[0], 1000000 })
+		If(strings.HasSuffix(val, "g") || strings.HasSuffix(val, "gb"), func() { val, unit = strings.Split(val, "g")[0], 1000000000 })
+		if i, e := strconv.ParseFloat(val, 64); e == nil {
+			return i * unit
+		}
+		return 0
+	}
+	return 0
+}
 func Int(val Any) int { return int(Int64(val)) }
 func Int64(val Any) int64 {
 	switch val := val.(type) {
