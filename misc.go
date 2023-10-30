@@ -163,6 +163,16 @@ func FormatShow(arg ...Any) string {
 	return Join(res, " ")
 }
 
+func ArgDef(arg []string, args ...string) []string {
+	for i := 0; i < len(args)-1; i += 2 {
+		for j := 0; j < len(arg)-1; j += 2 {
+			if args[i] == arg[j] {
+				arg[j+1] = Select(args[i+1], arg[j+1])
+			}
+		}
+	}
+	return arg
+}
 func TransArgKey(arg []string, trans map[string]string) []string {
 	for i := 0; i < len(arg); i += 2 {
 		arg[i] = Select(arg[i], trans[arg[0]])
