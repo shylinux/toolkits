@@ -175,6 +175,10 @@ func Simple(arg ...Any) (res []string) {
 			For(val, func(k string, v string) { res = append(res, k, v) })
 		case map[string]int:
 			For(val, func(k string, v int) { res = append(res, k, Format(v)) })
+		case map[string]float64:
+			for k, v := range val {
+				res = append(res, k, Format("%0.2f", v))
+			}
 		case func(string) string:
 			For(res, func(i int, v string) { res[i] = val(v) })
 		case func(string, string) string:
