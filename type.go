@@ -99,6 +99,8 @@ func Format(val Any, arg ...Any) string {
 			return fmt.Sprintf(val, arg...)
 		}
 		return val
+	case float64:
+		return fmt.Sprintf("%0.2f", val)
 	case Map:
 		if len(val) == 0 {
 			return "{}"
