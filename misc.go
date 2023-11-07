@@ -35,6 +35,9 @@ func MergeURL(str string, arg ...Any) string {
 	args := map[string][]string{}
 	if len(list) > 1 && list[1] != "" {
 		for _, l := range strings.Split(list[1], "&") {
+			if l == "" {
+				continue
+			}
 			ls := strings.SplitN(l, "=", 2)
 			ls[0], ls[1] = QueryUnescape(ls[0]), QueryUnescape(ls[1])
 			args[ls[0]] = append(args[ls[0]], ls[1])
