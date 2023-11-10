@@ -211,6 +211,9 @@ func Duration(val Any) time.Duration {
 	}
 	return time.Millisecond
 }
+func TimeUnix(stamp Any) string {
+	return time.Unix(Int64(stamp), 0).Format(MOD_TIME)
+}
 func Time(arg ...string) int64 {
 	if len(arg) == 0 {
 		return Int64(time.Now())

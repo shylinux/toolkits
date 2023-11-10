@@ -4,6 +4,12 @@ import (
 	"strings"
 )
 
+func Merge(to Map, from Map) Map {
+	For(KeyValue(nil, "", from), func(k string, v Any) {
+		Value(to, k, v)
+	})
+	return to
+}
 func _merge(meta Map, arg ...Any) Map {
 	if len(arg) == 1 {
 		switch arg := arg[0].(type) {
