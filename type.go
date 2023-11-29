@@ -477,3 +477,6 @@ func JoinKV(inner, outer string, arg ...string) string {
 	}
 	return strings.Join(res, outer)
 }
+func JoinQuery(arg ...string) string {
+	return JoinKV("=", "&", arg...)
+}
