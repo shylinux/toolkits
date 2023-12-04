@@ -192,6 +192,16 @@ func TransArg(arg []string, key string, trans Any) []string {
 	}
 	return arg
 }
+func TrimArg(arg ...string) []string {
+	for i := len(arg) - 1; i >= 0; i-- {
+		if arg[i] == "" {
+			arg = arg[:i]
+		} else {
+			break
+		}
+	}
+	return arg
+}
 func GetValid(cb ...func() string) (res string) {
 	for _, cb := range cb {
 		if res = cb(); res != "" {

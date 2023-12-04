@@ -4,6 +4,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"reflect"
 	"sort"
 	"strconv"
@@ -230,8 +231,14 @@ func Time(arg ...string) int64 {
 	}
 	return Int64(time.Now())
 }
-func FmtSize(v Any) string {
-	size := Int64(v)
+func FmtSize(v ...Any) string {
+	if len(v) > 1 {
+		for i, p := range v {
+			v[i] = FmtSize(p)
+		}
+		return Join(Simple(v), " / ")
+	}
+	size := Int64(v[0])
 	if size > 1<<30 {
 		return fmt.Sprintf("%0.2fG", float64(size)/(1<<30))
 	}
@@ -478,5 +485,17 @@ func JoinKV(inner, outer string, arg ...string) string {
 	return strings.Join(res, outer)
 }
 func JoinQuery(arg ...string) string {
+	for i := 0; i < len(arg); i++ {
+		arg[i] = url.QueryEscape(arg[i])
+	}
 	return JoinKV("=", "&", arg...)
+}
+func JoinProperty(arg ...string) string {
+	for i := 1; i < len(arg); i += 2 {
+		arg[i] = Format("%q", arg[i])
+	}
+	return JoinKV("=", " ", arg...)
+}
+func JoinCSS(arg ...string) string {
+	return JoinKV(":", ";", arg...)
 }

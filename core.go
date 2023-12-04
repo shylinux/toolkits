@@ -370,7 +370,21 @@ func Fetch(val Any, cb Any) Any {
 			}
 		}
 	case io.Reader:
-		Fetch(bufio.NewScanner(val), cb)
+		switch cb := cb.(type) {
+		case func([]byte):
+			buf := make([]byte, 4096)
+			for {
+				n, e := val.Read(buf)
+				if n > 0 {
+					cb(buf[:n])
+				}
+				if e != nil {
+					break
+				}
+			}
+		default:
+			Fetch(bufio.NewScanner(val), cb)
+		}
 	case []os.FileInfo:
 		for _, s := range val {
 			switch cb := cb.(type) {
