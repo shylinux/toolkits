@@ -51,7 +51,7 @@ func (s *VoidFile) OpenFile(p string) (io.ReadCloser, error) {
 	return nil, os.ErrNotExist
 }
 func (s *VoidFile) CreateFile(p string) (io.WriteCloser, string, error) {
-	if f, p, e := createFile(s, p); f != nil {
+	if f, p, e := CreateFiles(s, p); f != nil {
 		return f, p, e
 	}
 	defer s.lock.Lock()()
@@ -65,12 +65,12 @@ func (s *VoidFile) AppendFile(p string) (io.ReadWriteCloser, error) {
 	return s.put(p, NewVoidFileInfo(p, 0)), nil
 }
 func (s *VoidFile) WriteFile(p string, b []byte) error {
-	w, p, e := s.CreateFile(p)
+	f, p, e := s.CreateFile(p)
 	if e != nil {
 		return e
 	}
-	defer w.Close()
-	_, e = w.Write(b)
+	defer f.Close()
+	_, e = f.Write(b)
 	return e
 }
 func (s *VoidFile) ReadDir(p string) ([]os.FileInfo, error) {
@@ -154,7 +154,7 @@ func (s *VoidFile) Link(oldname, newname string) error {
 	}
 	return os.ErrExist
 }
-func (s *VoidFile) Close() {}
+func (s *VoidFile) Close() error { return nil }
 
 type voidFileInfo struct {
 	p string

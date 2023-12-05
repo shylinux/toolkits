@@ -117,4 +117,4 @@ func (s *MultiFile) Link(oldname, newname string) error {
 	}
 	return nil
 }
-func (s *MultiFile) Close() {}
+func (s *MultiFile) Close() error { return nil }

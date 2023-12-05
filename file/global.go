@@ -66,7 +66,7 @@ func ReadFile(p string) ([]byte, error) {
 		return nil, e
 	}
 }
-func createFile(s File, p string) (io.ReadWriteCloser, string, error) {
+func CreateFiles(s File, p string) (io.ReadWriteCloser, string, error) {
 	switch p {
 	case NULL, path.Base(NULL), "":
 		return NewVoidFileInfo(p, FILE_MODE), NULL, nil

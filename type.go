@@ -484,6 +484,9 @@ func JoinKV(inner, outer string, arg ...string) string {
 	}
 	return strings.Join(res, outer)
 }
+func JoinWord(arg ...string) string {
+	return strings.Join(arg, " ")
+}
 func JoinQuery(arg ...string) string {
 	for i := 0; i < len(arg); i++ {
 		arg[i] = url.QueryEscape(arg[i])

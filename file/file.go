@@ -34,7 +34,7 @@ type File interface {
 	Rename(string, string) error
 	Symlink(string, string) error
 	Link(string, string) error
-	Close()
+	Close() error
 }
 type FileInfo interface {
 	os.FileInfo

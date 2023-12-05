@@ -23,7 +23,7 @@ func (s *PackFile) OpenFile(p string) (io.ReadCloser, error) {
 	return nil, os.ErrNotExist
 }
 func (s *PackFile) CreateFile(p string) (io.WriteCloser, string, error) {
-	if f, p, e := createFile(s, p); f != nil {
+	if f, p, e := CreateFiles(s, p); f != nil {
 		return f, p, e
 	}
 	defer s.lock.Lock()()
