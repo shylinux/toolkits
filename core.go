@@ -283,6 +283,8 @@ func Fetch(val Any, cb Any) Any {
 			switch cb := cb.(type) {
 			case func(k string, v int):
 				cb(k, val[k])
+			case func(k string, v string):
+				cb(k, Format(val[k]))
 			}
 		}
 	case []string:
