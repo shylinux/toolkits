@@ -487,12 +487,6 @@ func JoinKV(inner, outer string, arg ...string) string {
 func JoinWord(arg ...string) string {
 	return strings.Join(arg, " ")
 }
-func JoinQuery(arg ...string) string {
-	for i := 0; i < len(arg); i++ {
-		arg[i] = url.QueryEscape(arg[i])
-	}
-	return JoinKV("=", "&", arg...)
-}
 func JoinProperty(arg ...string) string {
 	for i := 1; i < len(arg); i += 2 {
 		arg[i] = Format("%q", arg[i])
@@ -501,4 +495,13 @@ func JoinProperty(arg ...string) string {
 }
 func JoinCSS(arg ...string) string {
 	return JoinKV(":", ";", arg...)
+}
+func JoinQuery(arg ...string) string {
+	for i := 0; i < len(arg); i++ {
+		arg[i] = url.QueryEscape(arg[i])
+	}
+	return JoinKV("=", "&", arg...)
+}
+func SplitQuery(str string) []string {
+	return Split(str, "=&")
 }
