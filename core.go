@@ -501,6 +501,8 @@ func For(val Any, cb Any) Any { return Fetch(val, cb) }
 func If(exp Any, cb ...Any) {
 	cbs := func(cb Any, exp Any) {
 		switch cb := cb.(type) {
+		case func([]string):
+			cb(Simple(exp))
 		case func(string):
 			cb(Format(exp))
 		case func(int):
@@ -510,6 +512,12 @@ func If(exp Any, cb ...Any) {
 		}
 	}
 	switch exp := exp.(type) {
+	case []string:
+		if len(exp) > 0 {
+			cbs(cb[0], exp)
+		} else if len(cb) > 1 {
+			cbs(cb[1], exp)
+		}
 	case string:
 		if exp != "" && exp != "false" {
 			cbs(cb[0], exp)
