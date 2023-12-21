@@ -14,3 +14,7 @@ func (lock *Lock) Lock() func() {
 	lock.mu.Lock()
 	return func() { lock.mu.Unlock() }
 }
+func (lock *Lock) Locks(cb func()) {
+	defer lock.Lock()()
+	cb()
+}

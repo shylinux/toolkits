@@ -449,6 +449,9 @@ func HashsPath(arg ...Any) string {
 	h := Hashs(arg...)
 	return path.Join(h[:2], h)
 }
+func HashsUniq(arg ...Any) string {
+	return Hashs(MDB_UNIQ)
+}
 func Hashs(arg ...Any) string {
 	if len(arg) > 0 {
 		switch arg := arg[0].(type) {
