@@ -384,7 +384,7 @@ func Fetch(val Any, cb Any) Any {
 				if n > 0 {
 					cb(buf[:n])
 				}
-				if e != nil {
+				if e != nil || n == 0 {
 					break
 				}
 			}
