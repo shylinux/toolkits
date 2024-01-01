@@ -174,7 +174,7 @@ func FuncName(p Any) string {
 		return ""
 	}
 	list := strings.Split(runtime.FuncForPC(fun).Name(), PT)
-	return strings.TrimSuffix(list[len(list)-1], "-fm")
+	return LowerCapital(strings.TrimSuffix(list[len(list)-1], "-fm"))
 }
 func FileLine(p Any, n int) string {
 	fun := getFunc(p)
