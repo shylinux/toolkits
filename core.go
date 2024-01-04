@@ -427,12 +427,15 @@ func Fetch(val Any, cb Any) Any {
 	return val
 }
 
+var HashSeed = []string{}
+
 func Hash(arg ...Any) (string, []string) {
 	If(len(arg) == 0, func() { arg = append(arg, MDB_UNIQ) })
 	args := []string{}
 	for _, v := range Simple(arg...) {
 		switch v {
 		case MDB_UNIQ:
+			args = append(args, HashSeed...)
 			args = append(args, Format(time.Now()))
 			args = append(args, Format(rand.Int()))
 		case MDB_TIME:
