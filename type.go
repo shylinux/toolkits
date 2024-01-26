@@ -487,6 +487,9 @@ func JoinKV(inner, outer string, arg ...string) string {
 func JoinWord(arg ...string) string {
 	return strings.Join(arg, " ")
 }
+func JoinLine(arg ...string) string {
+	return strings.Join(arg, "\n")
+}
 func JoinProperty(arg ...string) string {
 	for i := 1; i < len(arg); i += 2 {
 		arg[i] = Format("%q", arg[i])
