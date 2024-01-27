@@ -241,24 +241,14 @@ func FmtSize(v ...Any) (res string) {
 	size := Int64(v[0])
 	for i, u := range []string{"B", "K", "M", "G", "T"} {
 		if base := int64(1 << (i * 10)); size > base {
-			res = fmt.Sprintf("%0.2f%s", float64(size)/float64(base), u)
+			if i == 0 {
+				res = fmt.Sprintf("%dB", size)
+			} else {
+				res = fmt.Sprintf("%0.2f%s", float64(size)/float64(base), u)
+			}
 		}
 	}
 	return
-
-	if size > 1<<40 {
-		return fmt.Sprintf("%0.2fT", float64(size)/(1<<40))
-	}
-	if size > 1<<30 {
-		return fmt.Sprintf("%0.2fG", float64(size)/(1<<30))
-	}
-	if size > 1<<20 {
-		return fmt.Sprintf("%0.2fM", float64(size)/(1<<20))
-	}
-	if size > 1<<10 {
-		return fmt.Sprintf("%0.2fK", float64(size)/(1<<10))
-	}
-	return fmt.Sprintf("%dB", size)
 }
 func FmtDuration(t time.Duration) string {
 	sign, tt := "", t
