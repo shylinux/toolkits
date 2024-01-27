@@ -240,12 +240,10 @@ func FmtSize(v ...Any) (res string) {
 	}
 	size := Int64(v[0])
 	for i, u := range []string{"B", "K", "M", "G", "T"} {
-		if base := int64(1 << (i * 10)); size > base {
-			if i == 0 {
-				res = fmt.Sprintf("%dB", size)
-			} else {
-				res = fmt.Sprintf("%0.2f%s", float64(size)/float64(base), u)
-			}
+		if i == 0 {
+			res = fmt.Sprintf("%dB", size)
+		} else if base := int64(1 << (i * 10)); size > base {
+			res = fmt.Sprintf("%0.2f%s", float64(size)/float64(base), u)
 		}
 	}
 	return
