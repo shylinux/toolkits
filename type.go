@@ -231,7 +231,7 @@ func Time(arg ...string) int64 {
 	}
 	return Int64(time.Now())
 }
-func FmtSize(v ...Any) string {
+func FmtSize(v ...Any) (res string) {
 	if len(v) > 1 {
 		for i, p := range v {
 			v[i] = FmtSize(p)
@@ -239,6 +239,16 @@ func FmtSize(v ...Any) string {
 		return Join(Simple(v), " / ")
 	}
 	size := Int64(v[0])
+	for i, u := range []string{"B", "K", "M", "G", "T"} {
+		if base := int64(1 << (i * 10)); size > base {
+			res = fmt.Sprintf("%0.2f%s", float64(size)/float64(base), u)
+		}
+	}
+	return
+
+	if size > 1<<40 {
+		return fmt.Sprintf("%0.2fT", float64(size)/(1<<40))
+	}
 	if size > 1<<30 {
 		return fmt.Sprintf("%0.2fG", float64(size)/(1<<30))
 	}
