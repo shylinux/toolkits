@@ -482,6 +482,12 @@ func JoinKV(inner, outer string, arg ...string) string {
 	}
 	return strings.Join(res, outer)
 }
+func JoinCmds(arg ...string) string {
+	for i := range arg {
+		arg[i] = Format("%q", arg[i])
+	}
+	return strings.Join(arg, " ")
+}
 func JoinWord(arg ...string) string {
 	return strings.Join(arg, " ")
 }

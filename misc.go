@@ -59,6 +59,7 @@ func MergeURL(str string, arg ...Any) string {
 	If(len(res) > 0, func() { list[0] += "?" + strings.Join(res, "&") })
 	return list[0]
 }
+
 func MergeURL2(str string, uri string, arg ...Any) string {
 	raw, err := url.Parse(str)
 	if err != nil {
