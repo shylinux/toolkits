@@ -91,7 +91,8 @@ func ExtChange(file, ext string) string {
 	if file == "" {
 		return ""
 	}
-	return strings.TrimSuffix(file, PT+Ext(file)) + PT + ext
+	_file := path.Base(ParseURL(file).Path)
+	return strings.Replace(file, _file, strings.TrimSuffix(_file, PT+Ext(_file))+PT+ext, 1)
 }
 func Dir(arg ...string) string {
 	return path.Dir(path.Join(arg...)) + PS
