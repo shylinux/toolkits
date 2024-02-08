@@ -46,6 +46,12 @@ type Task struct {
 func (task *Task) Pool() *Pool {
 	return task.pool
 }
+func (task *Task) TaskId() int64 {
+	return task.id
+}
+func (task *Task) WorkId() int64 {
+	return task.work.id
+}
 func (task *Task) Context() context.Context {
 	return task.ctx
 }
