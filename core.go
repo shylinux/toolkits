@@ -426,6 +426,11 @@ func Fetch(val Any, cb Any) Any {
 	}
 	return val
 }
+func ToMaps(value Map) Maps {
+	res := Maps{}
+	For(value, func(k, v string) { res[k] = v })
+	return res
+}
 
 var HashSeed = []string{}
 
