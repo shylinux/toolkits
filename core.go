@@ -305,6 +305,10 @@ func Fetch(val Any, cb Any) Any {
 			for i := 0; i < len(val)-1; i += 2 {
 				cb(val[i], val[i+1], i)
 			}
+		case func(v string, i, n int):
+			for i, v := range val {
+				cb(v, i, len(val))
+			}
 		case func(i int, v string):
 			for i, v := range val {
 				cb(i, v)
