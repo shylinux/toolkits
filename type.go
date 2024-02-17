@@ -236,7 +236,7 @@ func FmtSize(v ...Any) (res string) {
 		for i, p := range v {
 			v[i] = FmtSize(p)
 		}
-		return Join(Simple(v), " / ")
+		return Join(Simple(v), PS)
 	}
 	size := Int64(v[0])
 	for i, u := range []string{"B", "K", "M", "G", "T"} {
