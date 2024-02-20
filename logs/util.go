@@ -45,6 +45,55 @@ func FmtSize(i uint64) string {
 	}
 	return fmt.Sprintf("%dB", i)
 }
+func FileLinesFuck(h Any) string {
+	if h == nil {
+		return ""
+	}
+	var line int
+	var file string
+	switch h := h.(type) {
+	case nil:
+		return ""
+	case []string:
+		return kit.Join(h, " ")
+	case string:
+		return h
+	case int:
+		if h < 0 {
+			switch i := 2; h {
+			case -2:
+				call := kit.Split(FileLines(i), ":")[0]
+				for i++; i < 10; i++ {
+					what := kit.Split(FileLines(i), ":")[0]
+					if what != call {
+						h = i - 1
+						break
+					}
+				}
+			case -3:
+				call := path.Dir(FileLines(i))
+				for i++; i < 10; i++ {
+					if path.Dir(FileLines(i)) != call {
+						h = i - 1
+						break
+					}
+				}
+			}
+		}
+		_, file, line, _ = runtime.Caller(h)
+	default:
+		if t := reflect.TypeOf(h); t.Kind() != reflect.Func {
+			return ""
+		}
+		p := reflect.ValueOf(h)
+		if p.Pointer == nil || p.Pointer() == 0 {
+			return ""
+		}
+		f := runtime.FuncForPC(p.Pointer())
+		file, line = f.FileLine(p.Pointer())
+	}
+	return fmt.Sprintf("%s:%d", file, line)
+}
 func FileLines(h Any) string {
 	if h == nil {
 		return ""
@@ -60,12 +109,23 @@ func FileLines(h Any) string {
 		return h
 	case int:
 		if h < 0 {
-			i := 1 - h
-			call := path.Dir(FileLines(i))
-			for i++; i < 10; i++ {
-				if path.Dir(FileLines(i)) != call {
-					h = i - 1
-					break
+			switch i := 3; h {
+			case -2:
+				call := kit.Split(FileLines(i), ":")[0]
+				for i++; i < 10; i++ {
+					what := kit.Split(FileLines(i), ":")[0]
+					if what != call {
+						h = i - 1
+						break
+					}
+				}
+			case -3:
+				call := path.Dir(FileLines(i))
+				for i++; i < 10; i++ {
+					if path.Dir(FileLines(i)) != call {
+						h = i - 1
+						break
+					}
 				}
 			}
 		}
