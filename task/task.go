@@ -2,7 +2,6 @@ package task
 
 import (
 	"context"
-	"strings"
 	"time"
 
 	kit "shylinux.com/x/toolkits"
@@ -63,11 +62,10 @@ func (task *Task) Info() string {
 }
 
 func (task *Task) Run(ctx context.Context) {
-	task.Logger("task run", task.Meta.FileLine, "args", task.Params, task.Info(), logs.PrefixMeta(task.Meta.Prefix))
-	defer logs.CostTime(func(d time.Duration) {
-		task.Logger("task end", task.Meta.FileLine, "args", task.Params, "cost", logs.FmtDuration(d), "err", task.Error, task.Info(), logs.PrefixMeta(task.Meta.Prefix))
-	})()
-
+	// task.Logger("task run", task.Meta.FileLine, "args", task.Params, task.Info(), logs.PrefixMeta(task.Meta.Prefix))
+	// defer logs.CostTime(func(d time.Duration) {
+	// 	task.Logger("task end", task.Meta.FileLine, "args", task.Params, "cost", logs.FmtDuration(d), "err", task.Error, task.Info(), logs.PrefixMeta(task.Meta.Prefix))
+	// })()
 	task.Status, task.ProcessTime, task.ctx = StatusProcess, time.Now(), ctx
 	defer func() {
 		if e := recover(); e != nil {
@@ -75,12 +73,11 @@ func (task *Task) Run(ctx context.Context) {
 			for i := 1; i < 10; i++ {
 				list = append(list, logs.FileLine(i))
 			}
-			task.Logger("task err", e, "stack", "\n", strings.Join(list, "\n"), "\n", logs.PrefixMeta(task.Meta.Prefix))
+			// task.Logger("task err", e, "stack", "\n", strings.Join(list, "\n"), "\n", logs.PrefixMeta(task.Meta.Prefix))
 			task.Status, task.Error = StatusCancel, e
 		}
 		task.FinishTime = logs.Now()
 	}()
-
 	task.Action(task)
 	task.Status = StatusFinish
 }
