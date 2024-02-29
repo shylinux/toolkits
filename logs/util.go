@@ -175,7 +175,6 @@ func PrintStack() {
 func Stack(skip, deep int) string {
 	pc := make([]uintptr, deep+10)
 	frames := runtime.CallersFrames(pc[:runtime.Callers(skip+1, pc)])
-
 	list := []string{}
 	for {
 		frame, more := frames.Next()
