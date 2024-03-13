@@ -100,6 +100,9 @@ func List(arg ...Any) []Any {
 func Keys(arg ...Any) string {
 	return strings.TrimSuffix(strings.TrimPrefix(ReplaceAll(strings.Join(Simple(arg...), PT), PT+PT, PT), PT), PT)
 }
+func KeyBase(key string) string {
+	return Select("", Split(key, "."), -1)
+}
 func Keym(arg ...Any) string     { return Keys(MDB_META, Keys(arg)) }
 func Keycb(arg ...Any) string    { return Keys(Keys(arg), "cb") }
 func KeyHash(arg ...Any) string  { return Keys(MDB_HASH, Hashs(arg[0]), arg[1:]) }
