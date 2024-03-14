@@ -487,13 +487,25 @@ func JoinKV(inner, outer string, arg ...string) string {
 	}
 	return strings.Join(res, outer)
 }
+func JoinCmdArgs(arg ...string) string {
+	list := []string{}
+	For(arg, func(k, v string) {
+		if k != "" && v != "" {
+			if strings.Contains(v, " ") {
+				list = append(list, Format("%s %q", k, v))
+			} else {
+				list = append(list, k, v)
+			}
+		}
+	})
+	return strings.Join(list, " ")
+}
 func JoinCmds(arg ...string) string {
 	for i := range arg {
 		arg[i] = Format("%q", arg[i])
 		if arg[i] == "" {
 			arg[i] = `""`
 		}
-
 	}
 	return strings.Join(arg, " ")
 }
