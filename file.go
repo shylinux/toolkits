@@ -153,6 +153,14 @@ func ModName(p Any) string {
 	}
 	return ls[0]
 }
+func ModPath(p Any) string {
+	fun := getFunc(p)
+	if fun == 0 {
+		return ""
+	}
+	file, _ := runtime.FuncForPC(fun).FileLine(fun)
+	return Keys(strings.ReplaceAll(Select("", strings.Split(path.Dir(file), "/src/"), -1), "/", "."))
+}
 func PathName(p Any) string {
 	fun := getFunc(p)
 	if fun == 0 {
