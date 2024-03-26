@@ -328,6 +328,10 @@ func Fetch(val Any, cb Any) Any {
 			for i := 0; i < len(val)-1; i += 2 {
 				cb(val[i], val[i+1])
 			}
+		case func(k string, v Any):
+			for i := 0; i < len(val)-1; i += 2 {
+				cb(Format(val[i]), val[i+1])
+			}
 		case func(i int, v Any):
 			for i, v := range val {
 				cb(i, v)
