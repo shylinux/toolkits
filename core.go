@@ -332,9 +332,17 @@ func Fetch(val Any, cb Any) Any {
 			for i := 0; i < len(val)-1; i += 2 {
 				cb(Format(val[i]), val[i+1])
 			}
+		case func(v Any, i int):
+			for i, v := range val {
+				cb(v, i)
+			}
 		case func(i int, v Any):
 			for i, v := range val {
 				cb(i, v)
+			}
+		case func(v Map, i int):
+			for i, v := range val {
+				cb(v.(Map), i)
 			}
 		case func(i int, v Map):
 			for i, v := range val {

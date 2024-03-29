@@ -130,6 +130,9 @@ func ExtIsVideo(str string) bool {
 	return false
 }
 
+func GetFuncList(p Any) (list []string) {
+	return
+}
 func getFunc(p Any) (fun uintptr) {
 	if p == nil {
 		return 0
@@ -138,6 +141,25 @@ func getFunc(p Any) (fun uintptr) {
 	case uintptr:
 		fun = p
 	case int:
+		if p < 0 {
+			_, _file, _, _ := runtime.Caller(0)
+			for i := 1; i < 10; i++ {
+				_, file, _, _ := runtime.Caller(i)
+				if file == _file {
+					continue
+				}
+				for ; i < 10; i++ {
+					fun, _file, _, _ := runtime.Caller(i)
+					if p == -1 && file == _file {
+						continue
+					}
+					if p == -2 && path.Dir(file) == path.Dir(_file) {
+						continue
+					}
+					return fun
+				}
+			}
+		}
 		fun, _, _, _ = runtime.Caller(p + 1)
 	case nil:
 		fun = 0
