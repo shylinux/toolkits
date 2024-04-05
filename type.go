@@ -327,8 +327,13 @@ func Select(def string, arg ...Any) string {
 	}
 	return def
 }
-func IsUpper(str string) bool   { return strings.ToUpper(str) == str }
-func Capital(str string) string { return strings.ToUpper(str[0:1]) + str[1:] }
+func IsUpper(str string) bool { return strings.ToUpper(str) == str }
+func Capital(str string) string {
+	if str == "" {
+		return ""
+	}
+	return strings.ToUpper(str[0:1]) + str[1:]
+}
 func LowerCapital(str string) string {
 	if len(str) > 0 {
 		return strings.ToLower(str[0:1]) + str[1:]
