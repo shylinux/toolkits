@@ -287,6 +287,49 @@ func Fetch(val Any, cb Any) Any {
 				cb(k, Format(val[k]))
 			}
 		}
+	case []Any:
+		switch cb := cb.(type) {
+		case func(v Any):
+			for _, v := range val {
+				cb(v)
+			}
+		case func(v Map):
+			for _, v := range val {
+				cb(v.(Map))
+			}
+		case func(v string):
+			for _, v := range val {
+				cb(Format(v))
+			}
+		case func(k, v Any):
+			for i := 0; i < len(val)-1; i += 2 {
+				cb(val[i], val[i+1])
+			}
+		case func(k string, v Any):
+			for i := 0; i < len(val)-1; i += 2 {
+				cb(Format(val[i]), val[i+1])
+			}
+		case func(v Any, i int):
+			for i, v := range val {
+				cb(v, i)
+			}
+		case func(v Map, i int):
+			for i, v := range val {
+				cb(v.(Map), i)
+			}
+		case func(i int, v Any):
+			for i, v := range val {
+				cb(i, v)
+			}
+		case func(i int, v Map):
+			for i, v := range val {
+				cb(i, v.(Map))
+			}
+		case func(i int, v string):
+			for i, v := range val {
+				cb(i, Format(v))
+			}
+		}
 	case []string:
 		switch cb := cb.(type) {
 		case func(v string) string:
@@ -305,10 +348,6 @@ func Fetch(val Any, cb Any) Any {
 			for i := 0; i < len(val)-1; i += 2 {
 				cb(val[i], val[i+1], i)
 			}
-		case func(v string, i, n int):
-			for i, v := range val {
-				cb(v, i, len(val))
-			}
 		case func(i int, v string):
 			for i, v := range val {
 				cb(i, v)
@@ -317,48 +356,9 @@ func Fetch(val Any, cb Any) Any {
 			for i, v := range val {
 				cb(v, i)
 			}
-		}
-	case []Any:
-		switch cb := cb.(type) {
-		case func(v Any):
-			for _, v := range val {
-				cb(v)
-			}
-		case func(k, v Any):
-			for i := 0; i < len(val)-1; i += 2 {
-				cb(val[i], val[i+1])
-			}
-		case func(k string, v Any):
-			for i := 0; i < len(val)-1; i += 2 {
-				cb(Format(val[i]), val[i+1])
-			}
-		case func(v Any, i int):
+		case func(v string, i, n int):
 			for i, v := range val {
-				cb(v, i)
-			}
-		case func(i int, v Any):
-			for i, v := range val {
-				cb(i, v)
-			}
-		case func(v Map, i int):
-			for i, v := range val {
-				cb(v.(Map), i)
-			}
-		case func(i int, v Map):
-			for i, v := range val {
-				cb(i, v.(Map))
-			}
-		case func(v Map):
-			for _, v := range val {
-				cb(v.(Map))
-			}
-		case func(v string):
-			for _, v := range val {
-				cb(Format(v))
-			}
-		case func(i int, v string):
-			for i, v := range val {
-				cb(i, Format(v))
+				cb(v, i, len(val))
 			}
 		}
 	case url.Values:
