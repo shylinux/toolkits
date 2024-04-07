@@ -495,8 +495,10 @@ func JoinKV(inner, outer string, arg ...string) string {
 func JoinCmdArgs(arg ...string) string {
 	list := []string{}
 	For(arg, func(k, v string) {
-		if k != "" && v != "" {
-			if strings.Contains(v, " ") {
+		if k != "" {
+			if v == "" {
+				list = append(list, k, `""`)
+			} else if strings.Contains(v, " ") {
 				list = append(list, Format("%s %q", k, v))
 			} else {
 				list = append(list, k, v)
