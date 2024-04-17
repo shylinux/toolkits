@@ -117,8 +117,8 @@ func SplitKV(inner, outer string, text string, cb func(text string, ls []string)
 		}
 	}
 }
-func SplitLine(text string) []string {
-	return strings.Split(strings.TrimSpace(text), "\n")
+func SplitLine(text string, arg ...string) []string {
+	return strings.Split(strings.TrimSpace(text), Select("\n", arg, 0))
 }
 func SplitWord(text string) []string {
 	return Split(text, "\t ", "\t ")
