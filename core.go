@@ -330,6 +330,17 @@ func Fetch(val Any, cb Any) Any {
 				cb(i, Format(v))
 			}
 		}
+	case []int:
+		switch cb := cb.(type) {
+		case func(int, int):
+			for i, v := range val {
+				cb(v, i)
+			}
+		case func(int):
+			for _, v := range val {
+				cb(v)
+			}
+		}
 	case []string:
 		switch cb := cb.(type) {
 		case func(v string) string:
