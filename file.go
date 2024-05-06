@@ -117,7 +117,7 @@ func TrimExt(str string, ext ...string) string {
 }
 func ExtIsImage(str string) bool {
 	switch strings.ToLower(Ext(str)) {
-	case PNG, JPG, JPEG:
+	case "ico", PNG, JPG, JPEG:
 		return true
 	}
 	return false
