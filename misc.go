@@ -120,8 +120,8 @@ func SplitKV(inner, outer string, text string, cb func(text string, ls []string)
 func SplitLine(text string, arg ...string) []string {
 	return strings.Split(strings.TrimSpace(text), Select("\n", arg, 0))
 }
-func SplitWord(text string) []string {
-	return Split(text, "\t ", "\t ")
+func SplitWord(text string, arg ...string) []string {
+	return Split(text, Select("\t ", arg, 0), Select("\t ", arg, 0))
 }
 func SortedKey(obj Any) (res []string) {
 	v := reflect.ValueOf(obj)
