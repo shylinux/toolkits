@@ -17,17 +17,17 @@ var conf = New(kit.Dict(
 	),
 	"file", kit.Dict(),
 	"miss", kit.Dict(
-		"store", "var/data",
+		"store", "var/data/",
 		"fsize", "200000",
-		"limit", "110",
-		"least", "10",
+		"limit", "500",
+		"least", "100",
 	),
 	"task", kit.Dict(
 		"maxwork", 250,
 		"maxtask", 1000,
 	),
 	"conn", kit.Dict(
-		"limit", 30,
+		"limit", 300,
 		"retry", 3,
 	),
 ))

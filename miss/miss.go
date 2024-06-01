@@ -124,10 +124,10 @@ func (miss *Miss) writefile(p string, data ...Any) error {
 func New(conf *conf.Conf, file file.File) *Miss {
 	return &Miss{
 		short: conf.GetInt(SHORT, 6),
-		store: conf.Get(STORE, "var/data"),
+		store: conf.Get(STORE, "var/data/"),
 		fsize: conf.Get(FSIZE, "200000"),
-		limit: conf.Get(LIMIT, "120"),
-		least: conf.Get(LEAST, "30"),
+		limit: conf.Get(LIMIT, "500"),
+		least: conf.Get(LEAST, "100"),
 
 		file: file, conf: conf,
 
