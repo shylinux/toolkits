@@ -57,6 +57,9 @@ func MergeURL(str string, arg ...Any) string {
 		For(v, func(v string) { res = append(res, url.QueryEscape(k)+"="+url.QueryEscape(v)) })
 	})
 	If(len(res) > 0, func() { list[0] += "?" + strings.Join(res, "&") })
+	if strings.Contains(str, "#") {
+		list[0] += "#" + strings.Split(str, "#")[1]
+	}
 	return list[0]
 }
 
