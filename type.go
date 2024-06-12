@@ -384,6 +384,10 @@ func TrimPrefix(str string, arg ...string) string {
 	For(arg, func(pre string) { str = strings.TrimPrefix(str, pre) })
 	return str
 }
+func TrimSuffix(str string, arg ...string) string {
+	For(arg, func(pre string) { str = strings.TrimSuffix(str, pre) })
+	return str
+}
 
 func Length(val Any) int {
 	switch val := val.(type) {
