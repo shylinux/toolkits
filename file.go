@@ -183,6 +183,9 @@ func ModPath(p Any) string {
 	file, _ := runtime.FuncForPC(fun).FileLine(fun)
 	return Keys(strings.ReplaceAll(Select("", strings.Split(path.Dir(file), "/src/"), -1), "/", "."))
 }
+func TypeName(p Any) string {
+	return LowerCapital(Select("", Split(reflect.TypeOf(p).String(), "."), -1))
+}
 func PathName(p Any) string {
 	fun := getFunc(p)
 	if fun == 0 {
