@@ -188,6 +188,10 @@ func TransArgKey(arg []string, trans map[string]string) []string {
 	}
 	return arg
 }
+func TransArgs(arg []string) (res []Any) {
+	For(arg, func(v string) { res = append(res, v) })
+	return
+}
 func TransArg(arg []string, key string, trans Any) []string {
 	for i := 0; i < len(arg); i += 2 {
 		if arg[i] == key {
