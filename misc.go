@@ -182,9 +182,27 @@ func ArgDef(arg []string, args ...string) []string {
 	}
 	return arg
 }
+func TransArgValueTime(arg []string, key ...string) []string {
+	for i := 0; i < len(arg); i += 2 {
+		if IsIn(arg[i], key...) {
+			t, e := time.ParseInLocation("2006-01-02 15:04:05", arg[i+1], time.Local)
+			if e == nil {
+				arg[i+1] = t.UTC().Format("2006-01-02 15:04:05")
+			}
+		}
+	}
+	return arg
+}
+func TransArgKeys(arg []string, key ...string) []string {
+	trans := map[string]string{}
+	for i := 0; i < len(key); i += 2 {
+		trans[key[i]] = key[i+1]
+	}
+	return TransArgKey(arg, trans)
+}
 func TransArgKey(arg []string, trans map[string]string) []string {
 	for i := 0; i < len(arg); i += 2 {
-		arg[i] = Select(arg[i], trans[arg[0]])
+		arg[i] = Select(arg[i], trans[arg[i]])
 	}
 	return arg
 }
