@@ -181,6 +181,11 @@ func ModPath(p Any) string {
 		return ""
 	}
 	file, _ := runtime.FuncForPC(fun).FileLine(fun)
+	for _, p := range []string{"usr/icebergs/base/", "usr/icebergs/core/", "usr/icebergs/misc/"} {
+		if strings.Contains(file, p) {
+			return Keys(strings.ReplaceAll(Select("", strings.Split(path.Dir(file), p), -1), "/", "."))
+		}
+	}
 	return Keys(strings.ReplaceAll(Select("", strings.Split(path.Dir(file), "/src/"), -1), "/", "."))
 }
 func TypeName(p Any) string {
