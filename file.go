@@ -189,6 +189,10 @@ func ModPath(p Any) string {
 	return Keys(strings.ReplaceAll(Select("", strings.Split(path.Dir(file), "/src/"), -1), "/", "."))
 }
 func TypeName(p Any) string {
+	switch p := p.(type) {
+	case string:
+		return p
+	}
 	return LowerCapital(Select("", Split(reflect.TypeOf(p).String(), "."), -1))
 }
 func PathName(p Any) string {
