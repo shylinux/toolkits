@@ -483,6 +483,9 @@ func AddUniq(list []string, arg ...string) []string {
 func Join(str []string, arg ...string) string {
 	return strings.Join(str, Select(FS, arg, 0))
 }
+func JoinFields(arg ...string) string {
+	return strings.Join(arg, FS)
+}
 func JoinKV(inner, outer string, arg ...string) string {
 	res := []string{}
 	for i := 0; i < len(arg)-1; i += 2 {
